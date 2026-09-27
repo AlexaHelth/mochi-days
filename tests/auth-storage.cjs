@@ -1,14 +1,15 @@
 const fs=require('node:fs');const assert=require('node:assert/strict');const {DatabaseSync}=require('node:sqlite');const ts=require('typescript');
-const sqlite=new DatabaseSync(':memory:');sqlite.exec(fs.readFileSync('drizzle/0000_clammy_sally_floyd.sql','utf8'));
+const sqlite=new DatabaseSync(':memory:');for(const file of fs.readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())sqlite.exec(fs.readFileSync('drizzle/'+file,'utf8'));
 function statement(sql,args=[]){return{bind(...values){return statement(sql,values)},async first(){return sqlite.prepare(sql).get(...args)??null},async run(){return sqlite.prepare(sql).run(...args)},all(){return sqlite.prepare(sql).all(...args)}}}
 const db={prepare:statement,async batch(list){sqlite.exec('BEGIN');try{const r=list.map(s=>({results:s.all(),success:true}));sqlite.exec('COMMIT');return r}catch(e){sqlite.exec('ROLLBACK');throw e}}};
 let user=null;
 function load(path,mocks){const code=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;const exp={};new Function('require','exports',code)(id=>mocks[id]??require(id),exp);return exp}
 const shared=load('packages/mochi-assets/index.js',{});const helpers=load('lib/mochi.ts',{'../packages/mochi-assets/index.js':shared});const api=load('app/api/state/route.ts',{'../../chatgpt-auth':{getChatGPTUser:async()=>user},'@/lib/store':{database:()=>db},'@/lib/mochi':helpers});
+const exportApi=load('app/api/export/route.ts',{'../state/route':api,'@/lib/mochi':helpers});
 const body={kind:'entry',day:helpers.today(),weight:60,mood:0,done:['h0']};
 function request(data,origin='https://example.test'){return new Request('https://example.test/api/state',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(data)})}
 (async()=>{
-assert.equal((await api.GET()).status,401);assert.equal((await api.POST(request(body))).status,401);
+assert.equal((await exportApi.GET()).status,401);assert.equal((await api.GET()).status,401);assert.equal((await api.POST(request(body))).status,401);
 user={userId:'test-a',email:'a@example.test'};
 assert.equal((await api.POST(request(body,'https://other.test'))).status,403);
 assert.equal((await api.POST(request({...body,weight:-3}))).status,400);
@@ -54,6 +55,20 @@ for(const species of helpers.speciesIds)for(const outfit of helpers.outfitIds)fo
  const sprite=helpers.petSprite(species,pose,outfit);assert.ok(sprite.cell>=0&&sprite.cell<sprite.columns*sprite.rows);assert.ok(sprite.src.startsWith('/'));
 }
 assert.deepEqual(helpers.petSprite('dog',0),{src:'/pets/puppy.png',columns:2,rows:2,cell:0});
+// Notes survive old clients, remain private and do not farm rewards.
+user={userId:'notes-a',email:'notes@example.test'};
+const note='今日のよかったこと\nもちに会えた <script>alert(1)</script>';
+let noteResponse=await api.POST(request({...body,weight:null,mood:null,done:[],note}));assert.equal(noteResponse.status,200);
+data=await noteResponse.json();assert.equal(data.entries[0].note,note);assert.equal(data.stars,0);
+await api.POST(request({...body,weight:null}));data=await(await api.GET()).json();assert.equal(data.entries[0].note,note);
+assert.equal((await api.POST(request({...body,note:'あ'.repeat(2001)}))).status,400);
+assert.equal((await api.POST(request({...body,note:12}))).status,400);
+const exported=await exportApi.GET();assert.equal(exported.status,200);assert.match(exported.headers.get('content-disposition'),/attachment/);assert.match(exported.headers.get('cache-control'),/no-store/);
+const backup=await exported.json();assert.equal(backup.format,'mochi-days-export');assert.equal(backup.entries[0].note,note);assert.equal(backup.version,1);assert.equal(backup.userId,undefined);
+user={userId:'notes-b',email:'other@example.test'};const other=await(await exportApi.GET()).json();assert.equal(other.entries.length,0);
+user={userId:'notes-a',email:'notes@example.test'};await api.POST(request({...body,note:''}));data=await(await api.GET()).json();assert.equal(data.entries[0].note,'');
+assert.equal(helpers.daysAgo('2026-03-01',1),'2026-02-28');
+console.log('PASS: note storage/clearing, old-client preservation, note length/type validation, no note reward inflation, authenticated private export, export account isolation and date boundary.');
 console.log('PASS: first-use onboarding, legacy profile/record migration, species and outfit persistence, server-side unlock boundary, invalid pet/outfit rejection, old-client compatibility, progress preservation, per-user wardrobe isolation, sprite cells.');
 console.log('PASS: unauthenticated denial, cross-origin denial, input validation, invalid/future dates, ownership isolation, persistent updates, reward deduplication, non-decreasing stars, locked rewards, settings, private caching.');sqlite.close();
 })().catch(e=>{console.error(e);process.exitCode=1});

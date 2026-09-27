@@ -4,11 +4,11 @@ import { rooms, today, speciesIds, outfitIds, outfits, normalizeSettings } from 
 import { z } from 'zod';
 export const dynamic='force-dynamic';
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store','Vary':'Cookie','X-Content-Type-Options':'nosniff'}});
-const entrySchema=z.object({kind:z.literal('entry'),day:z.string().regex(/^\d{4}-\d{2}-\d{2}$/),weight:z.number().finite().min(1).max(500).nullable(),mood:z.number().int().min(0).max(2).nullable(),done:z.array(z.enum(['h0','h1','h2'])).max(3).transform(a=>[...new Set(a)])}).strict();
+const entrySchema=z.object({kind:z.literal('entry'),day:z.string().regex(/^\d{4}-\d{2}-\d{2}$/),weight:z.number().finite().min(1).max(500).nullable(),mood:z.number().int().min(0).max(2).nullable(),note:z.string().max(2000).optional(),done:z.array(z.enum(['h0','h1','h2'])).max(3).transform(a=>[...new Set(a)])}).strict();
 const settingsSchema=z.object({kind:z.literal('settings'),name:z.string().trim().min(1).max(12),habits:z.array(z.string().trim().min(1).max(30)).min(1).max(3),showWeight:z.boolean(),room:z.enum(['cream','peach','sky','flower']),species:z.enum(speciesIds).optional(),outfit:z.enum(outfitIds).optional(),onboardingComplete:z.boolean().optional()}).strict();
 async function state(id:string){
  const db=database();const results=await db.batch<Record<string,unknown>>([
- db.prepare('SELECT day, weight, mood, done FROM entries WHERE user_id = ? ORDER BY day DESC').bind(id),
+ db.prepare('SELECT day, weight, mood, done, note FROM entries WHERE user_id = ? ORDER BY day DESC').bind(id),
  db.prepare('SELECT settings FROM profiles WHERE user_id = ?').bind(id),
  db.prepare('SELECT COUNT(*) AS count FROM stars WHERE user_id = ?').bind(id)]);
  return {entries:results[0].results.map((r:any)=>({...r,done:JSON.parse(r.done)})),settings:normalizeSettings(results[1].results.length?JSON.parse(results[1].results[0].settings as string):null,results[0].results.length>0),stars:results[2].results[0].count};
@@ -29,7 +29,7 @@ export async function POST(req:Request){
  if(d.kind==='entry'){
  if(d.day>today() || d.day<'2000-01-01' || Number.isNaN(Date.parse(d.day)) || new Date(d.day+'T00:00:00Z').toISOString().slice(0,10)!==d.day)return json({error:'今日以前の日付を選んでください。'},400);
  const actions=[...(d.weight!==null?['weight']:[]),...(d.mood!==null?['mood']:[]),...d.done];
- await db.batch([db.prepare('INSERT INTO entries(user_id,day,weight,mood,done) VALUES(?,?,?,?,?) ON CONFLICT(user_id,day) DO UPDATE SET weight=excluded.weight,mood=excluded.mood,done=excluded.done').bind(id,d.day,d.weight,d.mood,JSON.stringify(d.done)),...actions.map(a=>db.prepare('INSERT OR IGNORE INTO stars(user_id,day,action) VALUES(?,?,?)').bind(id,d.day,a))]);
+ await db.batch([db.prepare("INSERT INTO entries(user_id,day,weight,mood,done,note) VALUES(?,?,?,?,?,COALESCE(?,'')) ON CONFLICT(user_id,day) DO UPDATE SET weight=excluded.weight,mood=excluded.mood,done=excluded.done,note=COALESCE(?,entries.note)").bind(id,d.day,d.weight,d.mood,JSON.stringify(d.done),d.note??null,d.note??null),...actions.map(a=>db.prepare('INSERT OR IGNORE INTO stars(user_id,day,action) VALUES(?,?,?)').bind(id,d.day,a))]);
  }else{
  const count=await db.prepare('SELECT COUNT(*) AS count FROM stars WHERE user_id=?').bind(id).first<{count:number}>();
  if((rooms.find(r=>r.id===d.room)?.cost??Infinity)>(count?.count??0))return json({error:'このお部屋はまだ開いていません。'},403);
