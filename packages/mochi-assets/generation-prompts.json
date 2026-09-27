@@ -1,0 +1,124 @@
+{
+  "tool": "built-in image_gen",
+  "originalReference": "assets/puppy.png",
+  "transparent_background": false,
+  "baseCellMap": [
+    "friendly seated smile",
+    "eyes closed bliss",
+    "curled sleeping",
+    "joyful paws-up celebration",
+    "wink",
+    "bashful blush",
+    "surprised round mouth",
+    "gently tired restful sitting"
+  ],
+  "wardrobeOutfitMap": [
+    "peach bandana",
+    "peach ribbon bow",
+    "tiny gold crown",
+    "muted lavender cape",
+    "daisy flower crown",
+    "blue nightcap",
+    "pumpkin costume",
+    "Santa red hat and scarf"
+  ],
+  "wardrobeCellRule": "row-major index = outfitIndex * 2 + expressionIndex; expressionIndex 0=friendly seated, 1=joyful eyes closed paws/flippers up",
+  "assets": [
+    {
+      "species": "dog",
+      "type": "base",
+      "path": "assets/dog-expressions.png",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "grid": [
+        4,
+        2
+      ],
+      "prompt": "Use case: stylized-concept. Asset type: production pet sprite sheet for cozy app. Reference image is character identity and plush style reference, NOT layout reference. Generate a wide 2:1 image with EXACTLY 4 columns and 2 rows of equally sized invisible square cells, eight full-body characters, one centered in each cell. Every cell equal size, generous uniform 15% padding, consistent character scale. Background perfectly flat warm ivory #fff8ee, no grid lines, no borders, no text, no labels, no accessories, no floating icons, no hands. Soft high quality 3D plush fur like reference, warm gentle lighting, faint ground contact shadow only. Row-major expressions: cell0 friendly seated smile; cell1 eyes-closed bliss while being petted (no hand shown); cell2 curled sleeping; cell3 joyful paws-up celebration; cell4 wink; cell5 bashful blush; cell6 surprised round mouth; cell7 gently tired restful sitting. Never crop body, ears, paws or tail. Subject: EXACT original white plush puppy from reference: same enormous round head, long floppy ears, tiny chocolate button nose, glossy dark round eyes, pink round blush cheeks, little forehead tuft, plump short body and pink paw pads. Preserve original likeness rigorously. Only pose/expression varies."
+    },
+    {
+      "species": "dog",
+      "type": "wardrobe",
+      "path": "assets/dog-wardrobe.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "grid": [
+        4,
+        4
+      ],
+      "initialPrompt": "Use case: stylized-concept. Asset type: production pet WARDROBE sprite sheet. Create a SQUARE image divided into EXACTLY FOUR COLUMNS and FOUR ROWS of sixteen EQUAL invisible square cells. One full-body pet centered in every cell, consistent scale, generous 15% inner padding all around, no body/accessory clipped or touching neighboring cells. Flat warm ivory #fff8ee background, no lines, no borders, no text, no labels, no floating symbols. Soft 3D fluffy plush render. Reference 1 original puppy is style reference; reference 2 is the EXACT species identity to preserve including face and body proportions. Eight outfits, each outfit appears TWICE in adjacent cells: first seated friendly open-eyed smile, second joyful eyes-closed paws/flippers up. STRICT cell map row-major: ROW1 columns1-2 peach bandana around neck (friendly then joy); columns3-4 peach ribbon bow on head (friendly then joy). ROW2 columns1-2 tiny gold crown (friendly then joy); columns3-4 muted lavender cape (friendly then joy). ROW3 columns1-2 daisy flower crown (friendly then joy); columns3-4 soft blue nightcap (friendly then joy). ROW4 columns1-2 pumpkin costume around body with face unobstructed (friendly then joy); columns3-4 red Santa hat AND red scarf (friendly then joy). Keep all sixteen characters and all costume parts fully within the equal cells. Do not mix outfits. No unrequested accessories. Subject: EXACT original white plush puppy from reference: same enormous round head, long floppy ears, tiny chocolate button nose, glossy dark round eyes, pink round blush cheeks, little forehead tuft, plump short body and pink paw pads. Preserve original likeness rigorously. Only pose/expression varies.",
+      "correctionPrompt": "Use case: precise-object-edit. Edit this exact wardrobe sprite sheet. Preserve all 16 characters, exact identity, exact existing placement, poses, sizes, 4-column by 4-row equal grid and all costume items EXCEPT two mistakes: remove the peach bandana from row1 column4 (joyful ribbon bow character) and row2 column2 (joyful gold crown character). Those two characters must have bare fluffy necks; retain their bow or crown. KEEP peach bandanas on row1 columns1 and2. Make background fully OPAQUE flat warm ivory #fff8ee throughout (no transparent areas). Do not change any other details. No borders, text or labels."
+    },
+    {
+      "species": "cat",
+      "type": "base",
+      "path": "assets/cat-expressions.png",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "grid": [
+        4,
+        2
+      ],
+      "prompt": "Use case: stylized-concept. Asset type: production pet sprite sheet for cozy app. Reference image is character identity and plush style reference, NOT layout reference. Generate a wide 2:1 image with EXACTLY 4 columns and 2 rows of equally sized invisible square cells, eight full-body characters, one centered in each cell. Every cell equal size, generous uniform 15% padding, consistent character scale. Background perfectly flat warm ivory #fff8ee, no grid lines, no borders, no text, no labels, no accessories, no floating icons, no hands. Soft high quality 3D plush fur like reference, warm gentle lighting, faint ground contact shadow only. Row-major expressions: cell0 friendly seated smile; cell1 eyes-closed bliss while being petted (no hand shown); cell2 curled sleeping; cell3 joyful paws-up celebration; cell4 wink; cell5 bashful blush; cell6 surprised round mouth; cell7 gently tired restful sitting. Never crop body, ears, paws or tail. Subject: matching CAT species in reference puppy's exact plush rendering style and face aesthetic: white/very pale gray fluffy plush fur, large rounded head, triangular cat ears, small pink nose, fine whiskers, curled cat tail, glossy dark eyes, blush cheeks, plump short body. Clearly a cat, not a puppy. Same cat identity in all cells."
+    },
+    {
+      "species": "cat",
+      "type": "wardrobe",
+      "path": "assets/cat-wardrobe.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "grid": [
+        4,
+        4
+      ],
+      "initialPrompt": "Use case: stylized-concept. Asset type: production pet WARDROBE sprite sheet. Create a SQUARE image divided into EXACTLY FOUR COLUMNS and FOUR ROWS of sixteen EQUAL invisible square cells. One full-body pet centered in every cell, consistent scale, generous 15% inner padding all around, no body/accessory clipped or touching neighboring cells. Flat warm ivory #fff8ee background, no lines, no borders, no text, no labels, no floating symbols. Soft 3D fluffy plush render. Reference 1 original puppy is style reference; reference 2 is the EXACT species identity to preserve including face and body proportions. Eight outfits, each outfit appears TWICE in adjacent cells: first seated friendly open-eyed smile, second joyful eyes-closed paws/flippers up. STRICT cell map row-major: ROW1 columns1-2 peach bandana around neck (friendly then joy); columns3-4 peach ribbon bow on head (friendly then joy). ROW2 columns1-2 tiny gold crown (friendly then joy); columns3-4 muted lavender cape (friendly then joy). ROW3 columns1-2 daisy flower crown (friendly then joy); columns3-4 soft blue nightcap (friendly then joy). ROW4 columns1-2 pumpkin costume around body with face unobstructed (friendly then joy); columns3-4 red Santa hat AND red scarf (friendly then joy). Keep all sixteen characters and all costume parts fully within the equal cells. Do not mix outfits. No unrequested accessories. Subject: matching CAT species in reference puppy's exact plush rendering style and face aesthetic: white/very pale gray fluffy plush fur, large rounded head, triangular cat ears, small pink nose, fine whiskers, curled cat tail, glossy dark eyes, blush cheeks, plump short body. Clearly a cat, not a puppy. Same cat identity in all cells.",
+      "correctionPrompt": "Use case: precise-object-edit. Edit this exact wardrobe sprite sheet. Preserve all 16 characters, exact identity, exact existing placement, poses, sizes, 4-column by 4-row equal grid and all costume items EXCEPT two mistakes: remove the peach bandana from row1 column4 (joyful ribbon bow character) and row2 column2 (joyful gold crown character). Those two characters must have bare fluffy necks; retain their bow or crown. KEEP peach bandanas on row1 columns1 and2. Make background fully OPAQUE flat warm ivory #fff8ee throughout (no transparent areas). Do not change any other details. No borders, text or labels."
+    },
+    {
+      "species": "penguin",
+      "type": "base",
+      "path": "assets/penguin-expressions.png",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "grid": [
+        4,
+        2
+      ],
+      "prompt": "Use case: stylized-concept. Asset type: production pet sprite sheet for cozy app. Reference image is character identity and plush style reference, NOT layout reference. Generate a wide 2:1 image with EXACTLY 4 columns and 2 rows of equally sized invisible square cells, eight full-body characters, one centered in each cell. Every cell equal size, generous uniform 15% padding, consistent character scale. Background perfectly flat warm ivory #fff8ee, no grid lines, no borders, no text, no labels, no accessories, no floating icons, no hands. Soft high quality 3D plush fur like reference, warm gentle lighting, faint ground contact shadow only. Row-major expressions: cell0 friendly seated smile; cell1 eyes-closed bliss while being petted (no hand shown); cell2 curled sleeping; cell3 joyful paws-up celebration; cell4 wink; cell5 bashful blush; cell6 surprised round mouth; cell7 gently tired restful sitting. Never crop body, ears, paws or tail. Subject: matching PENGUIN species in reference puppy's exact plush rendering style and face aesthetic: fluffy muted blue-gray back and head, ivory face and belly, tiny orange beak and feet, rounded flippers, glossy dark eyes, blush cheeks, huge round head and plump short body. Clearly a penguin. Same penguin identity in all cells. Paws-up means flippers-up."
+    },
+    {
+      "species": "penguin",
+      "type": "wardrobe",
+      "path": "assets/penguin-wardrobe.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "grid": [
+        4,
+        4
+      ],
+      "initialPrompt": "Use case: stylized-concept. Asset type: production pet WARDROBE sprite sheet. Create a SQUARE image divided into EXACTLY FOUR COLUMNS and FOUR ROWS of sixteen EQUAL invisible square cells. One full-body pet centered in every cell, consistent scale, generous 15% inner padding all around, no body/accessory clipped or touching neighboring cells. Flat warm ivory #fff8ee background, no lines, no borders, no text, no labels, no floating symbols. Soft 3D fluffy plush render. Reference 1 original puppy is style reference; reference 2 is the EXACT species identity to preserve including face and body proportions. Eight outfits, each outfit appears TWICE in adjacent cells: first seated friendly open-eyed smile, second joyful eyes-closed paws/flippers up. STRICT cell map row-major: ROW1 columns1-2 peach bandana around neck (friendly then joy); columns3-4 peach ribbon bow on head (friendly then joy). ROW2 columns1-2 tiny gold crown (friendly then joy); columns3-4 muted lavender cape (friendly then joy). ROW3 columns1-2 daisy flower crown (friendly then joy); columns3-4 soft blue nightcap (friendly then joy). ROW4 columns1-2 pumpkin costume around body with face unobstructed (friendly then joy); columns3-4 red Santa hat AND red scarf (friendly then joy). Keep all sixteen characters and all costume parts fully within the equal cells. Do not mix outfits. No unrequested accessories. Subject: matching PENGUIN species in reference puppy's exact plush rendering style and face aesthetic: fluffy muted blue-gray back and head, ivory face and belly, tiny orange beak and feet, rounded flippers, glossy dark eyes, blush cheeks, huge round head and plump short body. Clearly a penguin. Same penguin identity in all cells. Paws-up means flippers-up.",
+      "correctionPrompt": "Use case: precise-object-edit. Edit this exact wardrobe sprite sheet. Preserve all 16 characters, exact identity, exact existing placement, poses, sizes, 4-column by 4-row equal grid and all costume items EXCEPT two mistakes: remove the peach bandana from row1 column4 (joyful ribbon bow character) and row2 column2 (joyful gold crown character). Those two characters must have bare fluffy necks; retain their bow or crown. KEEP peach bandanas on row1 columns1 and2. Make background fully OPAQUE flat warm ivory #fff8ee throughout (no transparent areas). Do not change any other details. No borders, text or labels."
+    },
+    {
+      "type": "app-icon",
+      "path": "assets/mochi-icon.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "prompt": "Use case: stylized-concept. Asset type: Mochi shared brand smartphone home-screen app icon PNG. Use the original reference image as strict character identity reference. Make ONE centered large head portrait of the EXACT fluffy white plush puppy: same long floppy ears, enormous round head, glossy chocolate black round eyes, tiny chocolate button nose, peach pink blush cheeks, forehead tuft, friendly open-mouth smile. Same high-quality soft 3D plush fur rendering. Head only, no body. Square composition, ample safe margin around ALL ears and tuft, face and ears inside central 75% of square. Fully opaque solid warm ivory #fff8ee background, no transparency. Simple recognizable silhouette at tiny icon sizes. No text, no letters, no symbols, no rounded outer corners, no frame, no UI, no extra objects."
+    }
+  ]
+}

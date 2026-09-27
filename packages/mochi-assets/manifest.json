@@ -1,0 +1,54 @@
+{
+  "version": "0.1.0",
+  "brand": "ふたつむぎ企画室",
+  "assets": [
+    {
+      "file": "cat-expressions.png",
+      "width": 1774,
+      "height": 887,
+      "sha256": "8efff4ec1a06ae0aa735ec48320745095e30af2675a57653e43987aae0d6ea64"
+    },
+    {
+      "file": "cat-wardrobe.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "43b86410e7f31c9024989577743717824e29ba7356e9430a07f7ae4da9267f5d"
+    },
+    {
+      "file": "dog-expressions.png",
+      "width": 1774,
+      "height": 887,
+      "sha256": "f470e42aec51ccf220ecbeeaedda96f7e482ac676abe19d2aa0fe973eb965954"
+    },
+    {
+      "file": "dog-wardrobe.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "99730f31c89d5cb5bb8494dbbfb9ee3d48b6e79056b04f15ccfc80f5e4709d3f"
+    },
+    {
+      "file": "mochi-icon.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "1862088c4e2fb7836c64debff5515b87b621b48ec87013b3bfdae6c8fefbe0e1"
+    },
+    {
+      "file": "penguin-expressions.png",
+      "width": 1774,
+      "height": 887,
+      "sha256": "5a6cb4ffa1e9bfa14ec89c4c8319b5e69597f574cf51094e4be7b66e6ca13ec9"
+    },
+    {
+      "file": "penguin-wardrobe.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "0b91ed6bc04d0c7d80a02f7f3b2600e68dc274928eb9f5f14ddfd08d637c54eb"
+    },
+    {
+      "file": "puppy.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "f6493e1153eae7724debb19144446189d7ecdb7efc51ad827e67326f0ba4ccb7"
+    }
+  ]
+}
