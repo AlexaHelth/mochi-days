@@ -1,25 +1,24 @@
 {
   "name": "もちと、まいにち",
   "short_name": "もちと、まいにち",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#fff8ee",
   "theme_color": "#fff8ee",
   "lang": "ja",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/pets/mochi-icon.png",
+      "src": "pets/mochi-icon.png",
       "sizes": "1254x1254",
       "type": "image/png",
       "purpose": "any"
     }
   ],
-  "id": "/",
-  "scope": "/"
+  "scope": "./"
 }

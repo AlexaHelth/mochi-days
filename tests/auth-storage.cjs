@@ -4,7 +4,7 @@ function statement(sql,args=[]){return{bind(...values){return statement(sql,valu
 const db={prepare:statement,async batch(list){sqlite.exec('BEGIN');try{const r=list.map(s=>({results:s.all(),success:true}));sqlite.exec('COMMIT');return r}catch(e){sqlite.exec('ROLLBACK');throw e}}};
 let user=null;
 function load(path,mocks){const code=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;const exp={};new Function('require','exports',code)(id=>mocks[id]??require(id),exp);return exp}
-const shared=load('packages/mochi-assets/index.js',{});const helpers=load('lib/mochi.ts',{'../packages/mochi-assets/index.js':shared});const api=load('app/api/state/route.ts',{'../../chatgpt-auth':{getChatGPTUser:async()=>user},'@/lib/store':{database:()=>db},'@/lib/mochi':helpers});
+const shared=load('packages/mochi-assets/index.js',{});const helpers=load('lib/mochi.ts',{'../packages/mochi-assets/index.js':shared});const rules=load('lib/state-rules.ts',{'./mochi':helpers});const api=load('app/api/state/route.ts',{'../../chatgpt-auth':{getChatGPTUser:async()=>user},'@/lib/store':{database:()=>db},'@/lib/mochi':helpers,'@/lib/state-rules':rules});
 const exportApi=load('app/api/export/route.ts',{'../state/route':api,'@/lib/mochi':helpers});
 const body={kind:'entry',day:helpers.today(),weight:60,mood:0,done:['h0']};
 function request(data,origin='https://example.test'){return new Request('https://example.test/api/state',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(data)})}

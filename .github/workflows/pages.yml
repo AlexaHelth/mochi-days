@@ -1,0 +1,59 @@
+# Tests, builds and publishes the static app (vite.pages.config.ts) to
+# https://alexahelth.github.io/mochi-days/ on every push to main.
+# Repository Settings > Pages > Source must be "GitHub Actions".
+name: GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deployment finish; the newest push deploys right after it.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v6
+        with:
+          cache: true
+      - run: pnpm install --frozen-lockfile
+      - name: Test
+        run: |
+          node tests/auth-storage.cjs
+          node tests/api-client.cjs
+          node tests/assets.cjs
+          node tests/device-store.cjs
+      - id: pages
+        uses: actions/configure-pages@v6
+      - name: Build
+        run: pnpm run build:pages
+        env:
+          PAGES_BASE: ${{ steps.pages.outputs.base_path }}/
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist-pages
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
