@@ -4,8 +4,8 @@ import { useEffect, useId, useRef } from 'react';
 
 const rowHeight = 44;
 
-export function WeightWheel({ label, values, value, disabled, onChange }: {
-  label: string; values: number[]; value: number; disabled: boolean; onChange: (value: number) => void;
+export function WeightWheel({ label, values, value, disabled, onChange, formatValue }: {
+  label: string; values: number[]; value: number; disabled: boolean; onChange: (value: number) => void; formatValue?: (value: number) => string;
 }) {
   const id = useId();
   const ref = useRef<HTMLDivElement>(null);
@@ -41,6 +41,6 @@ export function WeightWheel({ label, values, value, disabled, onChange }: {
       else if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); choose(event.key === 'Home' ? values[0] : values[values.length - 1]); }
     }}>
     {values.map(number => <div key={number} id={`${id}-${number}`} role="option" aria-selected={number === value}
-      className={'weight-wheel-option ' + (number === value ? 'selected' : '')} onClick={() => choose(number)}>{number}</div>)}
+      className={'weight-wheel-option ' + (number === value ? 'selected' : '')} onClick={() => choose(number)}>{formatValue ? formatValue(number) : number}</div>)}
   </div>;
 }

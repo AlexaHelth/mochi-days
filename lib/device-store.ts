@@ -17,7 +17,7 @@ export async function requestDeviceState(body?:unknown):Promise<State>{
  if(d.kind==='entry'){
   if(!isRecordableDay(d.day))throw new Error('今日以前の日付を選んでください。');
   const previous=saved.entries.find(e=>e.day===d.day);
-  saved={...saved,entries:[...saved.entries.filter(e=>e.day!==d.day),{day:d.day,weight:d.weight,mood:d.mood,done:d.done,note:d.note??previous?.note??''}],stars:[...new Set([...saved.stars,...starActions(d).map(a=>`${d.day}:${a}`)])]};
+  saved={...saved,entries:[...saved.entries.filter(e=>e.day!==d.day),{day:d.day,weight:d.weight,walkingMinutes:d.walkingMinutes===undefined?previous?.walkingMinutes??null:d.walkingMinutes,mood:d.mood,done:d.done,note:d.note??previous?.note??''}],stars:[...new Set([...saved.stars,...starActions(d).map(a=>`${d.day}:${a}`)])]};
  }else{
   const settings=mergeSettings(normalizeSettings(saved.profile),d);
   const locked=lockedReward(settings,saved.stars.length);if(locked)throw new Error(locked);

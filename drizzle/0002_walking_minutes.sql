@@ -1,0 +1,1 @@
+ALTER TABLE `entries` ADD `walking_minutes` integer;

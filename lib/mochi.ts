@@ -1,4 +1,4 @@
-export type Entry = {day:string;weight:number|null;mood:number|null;done:string[];note?:string};
+export type Entry = {day:string;weight:number|null;walkingMinutes?:number|null;mood:number|null;done:string[];note?:string};
 import { speciesIds, outfitIds, type Species, type Outfit } from '../packages/mochi-assets/index.js';
 export { speciesIds, outfitIds, pets, expressionNames, petSprite, type Species, type Outfit } from '../packages/mochi-assets/index.js';
 export const outfits: {id:Outfit;name:string;cost:number;note:string}[] = [
@@ -12,9 +12,9 @@ export const outfits: {id:Outfit;name:string;cost:number;note:string}[] = [
  {id:'pumpkin',name:'かぼちゃの衣装',cost:70,note:'まあるい秋のおたのしみ。'},
  {id:'santa',name:'サンタのおめかし',cost:90,note:'積み重ねた日々に贈りもの。'},
 ];
-export type Settings = {name:string;habits:string[];showWeight:boolean;room:string;species:Species;outfit:Outfit;onboardingComplete:boolean};
+export type Settings = {name:string;habits:string[];showWeight:boolean;room:string;species:Species;outfit:Outfit;onboardingComplete:boolean;goal:string};
 export type State = {entries:Entry[];settings:Settings;stars:number};
-export const defaults:Settings={name:'もち',habits:['少し歩く','からだを伸ばす','ゆっくり食べる'],showWeight:true,room:'cream',species:'dog',outfit:'none',onboardingComplete:false};
+export const defaults:Settings={name:'もち',habits:['少し歩く','からだを伸ばす','ゆっくり食べる'],showWeight:true,room:'cream',species:'dog',outfit:'none',onboardingComplete:false,goal:''};
 export const rooms=[{id:'cream',name:'ひだまりのお部屋',cost:0,color:'#fff8ee'},{id:'peach',name:'もものお部屋',cost:10,color:'#ffe4db'},{id:'sky',name:'青空のお部屋',cost:25,color:'#e5f1fa'},{id:'flower',name:'お花のお部屋',cost:50,color:'#f6e6f0'}];
 export function today(){return new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo'}).format(new Date());}
 export function daysAgo(day:string,n:number){const d=new Date(day+'T12:00:00+09:00');d.setUTCDate(d.getUTCDate()-n);return new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo'}).format(d);}
@@ -22,6 +22,7 @@ export function daysAgo(day:string,n:number){const d=new Date(day+'T12:00:00+09:
 // Old profiles and people with existing records keep their original puppy and progress.
 export function normalizeSettings(raw:Partial<Settings>|null,hasEntries=false):Settings {
  return {...defaults,...raw,
+  goal:typeof raw?.goal==='string'?raw.goal.trim().slice(0,80):'',
   species:speciesIds.includes(raw?.species as Species)?raw!.species!:'dog',
   outfit:outfitIds.includes(raw?.outfit as Outfit)?raw!.outfit!:'none',
   onboardingComplete:raw?.onboardingComplete??(raw!==null||hasEntries)};

@@ -15,6 +15,13 @@
       "when": 1790496130122,
       "tag": "0001_burly_spencer_smythe",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790849995822,
+      "tag": "0002_walking_minutes",
+      "breakpoints": true
     }
   ]
 }

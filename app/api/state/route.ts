@@ -6,7 +6,7 @@ export const dynamic='force-dynamic';
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store','Vary':'Cookie','X-Content-Type-Options':'nosniff'}});
 async function state(id:string){
  const db=database();const results=await db.batch<Record<string,unknown>>([
- db.prepare('SELECT day, weight, mood, done, note FROM entries WHERE user_id = ? ORDER BY day DESC').bind(id),
+ db.prepare('SELECT day, weight, walking_minutes AS walkingMinutes, mood, done, note FROM entries WHERE user_id = ? ORDER BY day DESC').bind(id),
  db.prepare('SELECT settings FROM profiles WHERE user_id = ?').bind(id),
  db.prepare('SELECT COUNT(*) AS count FROM stars WHERE user_id = ?').bind(id)]);
  return {entries:results[0].results.map((r:any)=>({...r,done:JSON.parse(r.done)})),settings:normalizeSettings(results[1].results.length?JSON.parse(results[1].results[0].settings as string):null,results[0].results.length>0),stars:results[2].results[0].count};
@@ -27,7 +27,7 @@ export async function POST(req:Request){
  if(d.kind==='entry'){
  if(!isRecordableDay(d.day))return json({error:'今日以前の日付を選んでください。'},400);
  const actions=starActions(d);
- await db.batch([db.prepare("INSERT INTO entries(user_id,day,weight,mood,done,note) VALUES(?,?,?,?,?,COALESCE(?,'')) ON CONFLICT(user_id,day) DO UPDATE SET weight=excluded.weight,mood=excluded.mood,done=excluded.done,note=COALESCE(?,entries.note)").bind(id,d.day,d.weight,d.mood,JSON.stringify(d.done),d.note??null,d.note??null),...actions.map(a=>db.prepare('INSERT OR IGNORE INTO stars(user_id,day,action) VALUES(?,?,?)').bind(id,d.day,a))]);
+ await db.batch([db.prepare("INSERT INTO entries(user_id,day,weight,mood,done,note,walking_minutes) VALUES(?,?,?,?,?,COALESCE(?,''),?) ON CONFLICT(user_id,day) DO UPDATE SET weight=excluded.weight,mood=excluded.mood,done=excluded.done,note=COALESCE(?,entries.note),walking_minutes=CASE WHEN ? THEN excluded.walking_minutes ELSE entries.walking_minutes END").bind(id,d.day,d.weight,d.mood,JSON.stringify(d.done),d.note??null,d.walkingMinutes??null,d.note??null,d.walkingMinutes===undefined?0:1),...actions.map(a=>db.prepare('INSERT OR IGNORE INTO stars(user_id,day,action) VALUES(?,?,?)').bind(id,d.day,a))]);
  }else{
  const count=await db.prepare('SELECT COUNT(*) AS count FROM stars WHERE user_id=?').bind(id).first<{count:number}>();
  const profile=await db.prepare('SELECT settings FROM profiles WHERE user_id = ?').bind(id).first<{settings:string}>();

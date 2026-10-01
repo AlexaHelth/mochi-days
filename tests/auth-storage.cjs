@@ -40,11 +40,15 @@ assert.equal((await api.POST(request({kind:'settings',...data.settings,outfit:'r
 await api.POST(request({kind:'settings',...data.settings,species:'penguin',onboardingComplete:false}));
 data=await(await api.GET()).json();assert.equal(data.settings.species,'penguin');assert.equal(data.settings.outfit,'bandana');assert.equal(data.settings.onboardingComplete,true);assert.equal(data.entries.length,1);assert.equal(data.stars,5);
 // An older open client must not erase the new pet choice or outfit.
+const goal='休日に、もちと15分のおさんぽ';
+for(const badGoal of [12,null,'あ'.repeat(81)])assert.equal((await api.POST(request({kind:'settings',...data.settings,goal:badGoal}))).status,400);
+assert.equal((await api.POST(request({kind:'settings',...data.settings,goal:'  '+goal+'  '}))).status,200);
+data=await(await api.GET()).json();assert.equal(data.settings.goal,goal);assert.equal(data.entries.length,1);assert.equal(data.stars,5);
 const oldSettings={name:'もち',habits:['歩く'],showWeight:true,room:'cream'};
-await api.POST(request({kind:'settings',...oldSettings}));data=await(await api.GET()).json();assert.equal(data.settings.species,'penguin');assert.equal(data.settings.outfit,'bandana');
+await api.POST(request({kind:'settings',...oldSettings}));data=await(await api.GET()).json();assert.equal(data.settings.species,'penguin');assert.equal(data.settings.outfit,'bandana');assert.equal(data.settings.goal,goal);
 user={userId:'legacy-pet',email:'legacy@example.test'};
 sqlite.prepare('INSERT INTO profiles(user_id,settings) VALUES(?,?)').run(user.userId,JSON.stringify(oldSettings));
-data=await(await api.GET()).json();assert.equal(data.settings.onboardingComplete,true);assert.equal(data.settings.species,'dog');assert.equal(data.settings.outfit,'none');assert.equal(data.settings.habits[0],'歩く');
+data=await(await api.GET()).json();assert.equal(data.settings.onboardingComplete,true);assert.equal(data.settings.species,'dog');assert.equal(data.settings.outfit,'none');assert.equal(data.settings.habits[0],'歩く');assert.equal(data.settings.goal,'');
 user={userId:'legacy-records',email:'legacy-records@example.test'};await api.POST(request(body));
 data=await(await api.GET()).json();assert.equal(data.settings.onboardingComplete,true);assert.equal(data.settings.species,'dog');
 user={userId:'another-pet',email:'another@example.test'};
@@ -67,6 +71,19 @@ const exported=await exportApi.GET();assert.equal(exported.status,200);assert.ma
 const backup=await exported.json();assert.equal(backup.format,'mochi-days-export');assert.equal(backup.entries[0].note,note);assert.equal(backup.version,1);assert.equal(backup.userId,undefined);
 user={userId:'notes-b',email:'other@example.test'};const other=await(await exportApi.GET()).json();assert.equal(other.entries.length,0);
 user={userId:'notes-a',email:'notes@example.test'};await api.POST(request({...body,note:''}));data=await(await api.GET()).json();assert.equal(data.entries[0].note,'');
+// Walking duration is validated, private, persistent and preserved for older clients.
+user={userId:'walking-a',email:'walk@example.test'};
+const walkBody={...body,walkingMinutes:35,note:'歩いた日のメモ'};
+for(const walkingMinutes of [-1,2.5,1441,'30'])assert.equal((await api.POST(request({...walkBody,walkingMinutes}))).status,400);
+let walkingResponse=await api.POST(request(walkBody));assert.equal(walkingResponse.status,200);
+data=await walkingResponse.json();assert.equal(data.entries[0].walkingMinutes,35);assert.equal(data.entries[0].weight,60);assert.equal(data.entries[0].note,walkBody.note);assert.deepEqual(data.entries[0].done,['h0']);const walkingStars=data.stars;
+const {walkingMinutes:omitted,...oldBody}=walkBody;
+await api.POST(request({...oldBody,weight:61}));data=await(await api.GET()).json();assert.equal(data.entries[0].walkingMinutes,35);assert.equal(data.stars,walkingStars);
+await api.POST(request({...walkBody,walkingMinutes:0}));data=await(await api.GET()).json();assert.equal(data.entries[0].walkingMinutes,0);
+await api.POST(request({...walkBody,walkingMinutes:null}));data=await(await api.GET()).json();assert.equal(data.entries[0].walkingMinutes,null);
+await api.POST(request(walkBody));const walkingExport=await(await exportApi.GET()).json();assert.equal(walkingExport.entries[0].walkingMinutes,35);
+user={userId:'walking-b',email:'walk-b@example.test'};assert.equal((await(await api.GET()).json()).entries.length,0);assert.equal((await(await exportApi.GET()).json()).entries.length,0);
+console.log('PASS: persisted walking minutes, integer validation, zero/clearing, older-client preservation, unchanged rewards and private export.');
 assert.equal(helpers.daysAgo('2026-03-01',1),'2026-02-28');
 console.log('PASS: note storage/clearing, old-client preservation, note length/type validation, no note reward inflation, authenticated private export, export account isolation and date boundary.');
 console.log('PASS: first-use onboarding, legacy profile/record migration, species and outfit persistence, server-side unlock boundary, invalid pet/outfit rejection, old-client compatibility, progress preservation, per-user wardrobe isolation, sprite cells.');
