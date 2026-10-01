@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "brand": "ふたつむぎ企画室",
   "assets": [
     {
@@ -7,6 +7,30 @@
       "width": 1774,
       "height": 887,
       "sha256": "8efff4ec1a06ae0aa735ec48320745095e30af2675a57653e43987aae0d6ea64"
+    },
+    {
+      "file": "cat-rewards-cozy.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "bed528fb8e16f8cb8fba304d5b4e9564d2ecc13c14edfaa3277a03a2f81893e2"
+    },
+    {
+      "file": "cat-rewards-dream.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "47445e0bef13647548397304f939979dc6b7632371af91e9ea0154c24c080bb8"
+    },
+    {
+      "file": "cat-rewards-garden.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "11c7ee8cc7d42bf9df9de74825ca9686382f2b5f3152344f683227f645b3eabd"
+    },
+    {
+      "file": "cat-special.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "e46380430cff45531c6e219a2e837edd4f3f0086cd1e17954086d5e6182e2326"
     },
     {
       "file": "cat-wardrobe.png",
@@ -19,6 +43,30 @@
       "width": 1774,
       "height": 887,
       "sha256": "f470e42aec51ccf220ecbeeaedda96f7e482ac676abe19d2aa0fe973eb965954"
+    },
+    {
+      "file": "dog-rewards-cozy.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "1317bcec8cee42ff4c668e58df4a8ce0f62205ab3b507673e9a06080770ff395"
+    },
+    {
+      "file": "dog-rewards-dream.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "c785d11771b31534950e2d83b6d89f9a63b359cfc3eb2c77a2d483aafbd148a7"
+    },
+    {
+      "file": "dog-rewards-garden.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "372d74dca4efcf969149f3bba603d0949c198a17eee6395ac1bd9e6d47013993"
+    },
+    {
+      "file": "dog-special.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "c3ad091da4391abf4ca71d0b34babe58009fec1d771ebd0d1160c557fba534f9"
     },
     {
       "file": "dog-wardrobe.png",
@@ -37,6 +85,30 @@
       "width": 1774,
       "height": 887,
       "sha256": "5a6cb4ffa1e9bfa14ec89c4c8319b5e69597f574cf51094e4be7b66e6ca13ec9"
+    },
+    {
+      "file": "penguin-rewards-cozy.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "98457b751fb578f6e82fec4b82d1cfba3887de42e906ef5cd24c7d2f0a77538d"
+    },
+    {
+      "file": "penguin-rewards-dream.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "25654a72c0ccfc647534394193635e726871f4390a7327bf42c1e22fab991b75"
+    },
+    {
+      "file": "penguin-rewards-garden.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "d7c3557130bb1be0da45e238cf74e2eba6668ac06f20d8a3256a19edcffc70ca"
+    },
+    {
+      "file": "penguin-special.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "726eec0007bd8cbeec834dd75ca565ccd0e1cbe3b097403edfe0e6dd77e77352"
     },
     {
       "file": "penguin-wardrobe.png",

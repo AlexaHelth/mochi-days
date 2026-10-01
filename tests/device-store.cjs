@@ -49,6 +49,24 @@ data=await request({...walkBody,walkingMinutes:0});assert.equal(data.entries[0].
 data=await request({...walkBody,walkingMinutes:null});assert.equal(data.entries[0].walkingMinutes,null);
 data=await request(walkBody);assert.deepEqual(await request(),data);
 const walkExport=JSON.parse(await device.exportDeviceRecords().text());assert.equal(walkExport.entries[0].walkingMinutes,35);
+// Earn all rewards through recorded days, without injecting a star balance.
+items.clear();
+for(let i=89;i>=0;i--)data=await request({kind:'entry',day:helpers.daysAgo(today,i),weight:60,walkingMinutes:20,mood:0,done:i===0?['h0','h1']:['h0','h1','h2'],note:'ごほうびを集めた日'});
+assert.equal(data.stars,449);
+await assert.rejects(()=>request({kind:'settings',...data.settings,outfit:'birthday'}),/衣装/);
+await assert.rejects(()=>request({kind:'settings',...data.settings,outfit:'starlight'}),/特別/);
+data=await request({kind:'entry',day:today,weight:60,walkingMinutes:20,mood:0,done:['h0','h1','h2'],note:'ごほうびを集めた日'});assert.equal(data.stars,450);
+for(const outfit of helpers.regularOutfits){
+ data=await request({kind:'settings',...data.settings,outfit:outfit.id});assert.equal(data.settings.outfit,outfit.id);assert.equal(data.stars,450);
+}
+for(const species of helpers.speciesIds){
+ data=await request({kind:'settings',...data.settings,species,outfit:'starlight'});
+ assert.equal(data.settings.species,species);assert.equal(data.settings.outfit,'starlight');assert.equal(data.stars,450);assert.equal(data.entries.length,90);
+ assert.deepEqual(await request(),data);
+}
+data=await request({kind:'settings',name:'もち',habits:['歩く'],showWeight:true,room:'cream'});assert.equal(data.settings.outfit,'starlight');assert.equal(data.settings.species,'penguin');
+const rewardExport=JSON.parse(await device.exportDeviceRecords().text());assert.equal(rewardExport.settings.outfit,'starlight');assert.equal(rewardExport.entries.length,90);assert.equal(rewardExport.entries[0].walkingMinutes,20);
+console.log('PASS: device collection unlock at 450 earned stars, locked at 449, all 32 outfits, three special pets, reload, older-client persistence and export.');
 console.log('PASS: integer walking validation, optional/zero/clear semantics, reload, older-client preservation, unchanged rewards and exported duration.');
 console.log('PASS: device storage validation, first-use choice, star deduplication, reward unlocks, old-client settings, note preservation, namespaced persistence, write failure, corrupted storage and export.');
 })().catch(e=>{console.error(e);process.exitCode=1});

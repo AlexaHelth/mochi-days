@@ -83,6 +83,27 @@ await api.POST(request({...walkBody,walkingMinutes:0}));data=await(await api.GET
 await api.POST(request({...walkBody,walkingMinutes:null}));data=await(await api.GET()).json();assert.equal(data.entries[0].walkingMinutes,null);
 await api.POST(request(walkBody));const walkingExport=await(await exportApi.GET()).json();assert.equal(walkingExport.entries[0].walkingMinutes,35);
 user={userId:'walking-b',email:'walk-b@example.test'};assert.equal((await(await api.GET()).json()).entries.length,0);assert.equal((await(await exportApi.GET()).json()).entries.length,0);
+// Earn the whole collection through real entries, then check the final unlock boundary.
+user={userId:'all-rewards',email:'rewards@example.test'};
+for(let i=89;i>=0;i--){
+ const earned=await api.POST(request({kind:'entry',day:helpers.daysAgo(helpers.today(),i),weight:60,walkingMinutes:20,mood:0,done:i===0?['h0','h1']:['h0','h1','h2'],note:'ごほうびを集めた日'}));
+ assert.equal(earned.status,200);
+}
+data=await(await api.GET()).json();assert.equal(data.stars,449);
+assert.equal((await api.POST(request({kind:'settings',...data.settings,outfit:'birthday'}))).status,403);
+assert.equal((await api.POST(request({kind:'settings',...data.settings,outfit:'starlight'}))).status,403);
+await api.POST(request({kind:'entry',day:helpers.today(),weight:60,walkingMinutes:20,mood:0,done:['h0','h1','h2'],note:'ごほうびを集めた日'}));
+data=await(await api.GET()).json();assert.equal(data.stars,450);
+for(const species of helpers.speciesIds){
+ assert.equal((await api.POST(request({kind:'settings',...data.settings,species,outfit:'starlight'}))).status,200);
+ data=await(await api.GET()).json();assert.equal(data.settings.species,species);assert.equal(data.settings.outfit,'starlight');assert.equal(data.stars,450);assert.equal(data.entries.length,90);
+}
+assert.equal((await api.POST(request({kind:'settings',...oldSettings}))).status,200);
+data=await(await api.GET()).json();assert.equal(data.settings.outfit,'starlight');assert.equal(data.settings.species,'penguin');
+const rewardBackup=await(await exportApi.GET()).json();assert.equal(rewardBackup.settings.outfit,'starlight');assert.equal(rewardBackup.entries.length,90);assert.equal(rewardBackup.entries[0].walkingMinutes,20);
+user={userId:'no-rewards',email:'no-rewards@example.test'};
+assert.equal((await api.POST(request({kind:'settings',...helpers.defaults,outfit:'starlight'}))).status,403);
+console.log('PASS: server collection unlock at 450 earned stars, locked at 449, all three special pets, older-client persistence, export and account isolation.');
 console.log('PASS: persisted walking minutes, integer validation, zero/clearing, older-client preservation, unchanged rewards and private export.');
 assert.equal(helpers.daysAgo('2026-03-01',1),'2026-02-28');
 console.log('PASS: note storage/clearing, old-client preservation, note length/type validation, no note reward inflation, authenticated private export, export account isolation and date boundary.');

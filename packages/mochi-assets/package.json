@@ -1,6 +1,6 @@
 {
   "name": "@futatsumugi/mochi-assets",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "ふたつむぎ企画室の姉妹アプリ共通もち素材",
@@ -19,7 +19,8 @@
     "manifest.json",
     "copy-assets.mjs",
     "README.md",
-    "generation-prompts.json"
+    "generation-prompts.json",
+    "reward-generation-prompts.json"
   ],
   "scripts": {
     "copy-assets": "node copy-assets.mjs"
