@@ -37,6 +37,7 @@ jobs:
           node tests/api-client.cjs
           node tests/assets.cjs
           node tests/device-store.cjs
+          node tests/weight.cjs
       - id: pages
         uses: actions/configure-pages@v6
       - name: Build
