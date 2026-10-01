@@ -23,7 +23,11 @@ const MoodIcons=[Smile,Meh,Moon];
 const base=import.meta.env.BASE_URL;
 function Pet({species='dog',pose=0,outfit='none',small=false}:{species?:Species;pose?:number;outfit?:Outfit;small?:boolean}){
  const sprite=petSprite(species,pose,outfit,base+'pets'),column=sprite.cell%sprite.columns,row=Math.floor(sprite.cell/sprite.columns);
- return <div className={'puppy pet-art '+(small?'small':'')} role="img" aria-label={`${pets.find(p=>p.id===species)?.name}・${outfit==='none'?expressionNames[pose]:(sprite.cell%2?'ごきげん':'にっこり')}・${outfits.find(o=>o.id===outfit)?.name}`} style={{backgroundImage:`url('${sprite.src}')`,backgroundSize:`${sprite.columns*100}% ${sprite.rows*100}%`,backgroundPosition:`${column/(sprite.columns-1)*100}% ${row/(sprite.rows-1)*100}%`}}/>;
+ // The original puppy sheet has more padding; zoom each cell around its center.
+ const scale=sprite.columns===2?1.1:1,width=sprite.columns*scale,height=sprite.rows*scale;
+ // The jumping puppy sits high in its cell; leave room above its tuft.
+ const offsetY=scale>1&&sprite.cell===3?.07:0;
+ return <div className={'puppy pet-art '+(small?'small':'')} role="img" aria-label={`${pets.find(p=>p.id===species)?.name}・${outfit==='none'?expressionNames[pose]:(sprite.cell%2?'ごきげん':'にっこり')}・${outfits.find(o=>o.id===outfit)?.name}`} style={{backgroundImage:`url('${sprite.src}')`,backgroundSize:`${width*100}% ${height*100}%`,backgroundPosition:`${((column+.5)*scale-.5)/(width-1)*100}% ${((row+.5)*scale-.5-offsetY)/(height-1)*100}%`}}/>;
 }
 function PetPicker({value,onChange,disabled=false}:{value:Species;onChange:(value:Species)=>void;disabled?:boolean}){
  return <RadioGroup className="pet-picker" value={value} onValueChange={v=>onChange(v as Species)} disabled={disabled} aria-label="相棒を選ぶ">{pets.map(p=><label key={p.id} className={'pet-choice '+(value===p.id?'selected':'')}><RadioGroupItem value={p.id} className="sr-only"/><Pet species={p.id}/><strong>{p.name}</strong><span>{p.description}</span>{value===p.id&&<Check className="choice-check" size={18}/>}</label>)}</RadioGroup>;
