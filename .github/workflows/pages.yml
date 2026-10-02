@@ -40,6 +40,7 @@ jobs:
           node tests/weight.cjs
           node tests/walking.cjs
           node tests/history.cjs
+          node tests/care.cjs
       - id: pages
         uses: actions/configure-pages@v6
       - name: Build

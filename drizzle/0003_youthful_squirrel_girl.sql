@@ -1,0 +1,1 @@
+ALTER TABLE `entries` ADD `care` text DEFAULT '{}' NOT NULL;

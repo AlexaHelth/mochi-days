@@ -3,7 +3,7 @@ function load(path,mocks){const code=ts.transpileModule(fs.readFileSync(path,'ut
 const items=new Map();let full=false;
 global.localStorage={getItem:k=>items.has(k)?items.get(k):null,setItem(k,v){if(full)throw new DOMException('Quota exceeded','QuotaExceededError');items.set(k,String(v))},removeItem:k=>items.delete(k)};
 const shared=load('packages/mochi-assets/index.js',{});const helpers=load('lib/mochi.ts',{'../packages/mochi-assets/index.js':shared});
-const rules=load('lib/state-rules.ts',{'./mochi':helpers});const device=load('lib/device-store.ts',{'./mochi':helpers,'./state-rules':rules});
+const rules=load('lib/state-rules.ts',{'./mochi':helpers}),care=load('lib/care.ts',{'./mochi':helpers});const device=load('lib/device-store.ts',{'./mochi':helpers,'./state-rules':rules,'./care':care});
 const request=device.requestDeviceState,today=helpers.today(),yesterday=helpers.daysAgo(today,1);
 const body={kind:'entry',day:today,weight:60,mood:0,done:['h0']};
 (async()=>{
@@ -69,4 +69,31 @@ const rewardExport=JSON.parse(await device.exportDeviceRecords().text());assert.
 console.log('PASS: device collection unlock at 450 earned stars, locked at 449, all 32 outfits, three special pets, reload, older-client persistence and export.');
 console.log('PASS: integer walking validation, optional/zero/clear semantics, reload, older-client preservation, unchanged rewards and exported duration.');
 console.log('PASS: device storage validation, first-use choice, star deduplication, reward unlocks, old-client settings, note preservation, namespaced persistence, write failure, corrupted storage and export.');
+
+// Daily care is independent of health data and the star ledger.
+const preserved=JSON.parse(JSON.stringify(data));
+data=await request({kind:'care',day:today,visited:true,resting:true,light:true,quiet:true,finished:true});
+assert.equal(data.stars,preserved.stars);assert.equal(data.settings.outfit,'starlight');
+assert.deepEqual({...data.entries[0],care:undefined},{...preserved.entries[0],care:undefined});
+assert.deepEqual(data.entries[0].care,{visited:true,resting:true,light:true,quiet:true,finished:true});
+assert.deepEqual(await request(),data);
+data=await request({kind:'care',day:today,finished:false});assert.equal(data.entries[0].care.resting,true);assert.equal(data.entries[0].care.quiet,true);
+data=await request({kind:'entry',...data.entries[0],note:'休んだ日のメモ',care:{visited:false,resting:false}});
+assert.equal(data.entries[0].care.resting,true,'Health edits cannot clear an independently saved rest choice');
+assert.equal(data.entries[0].care.visited,true);assert.equal(data.stars,450);
+const oldGoal=data.settings.goal;
+data=await request({kind:'settings',...data.settings,weeklyDays:2});
+data=await request({kind:'settings',name:'もち',habits:['歩く'],showWeight:true,room:'cream'});
+assert.equal(data.settings.weeklyDays,2);assert.equal(data.settings.goal,oldGoal);
+for(const bad of [{kind:'care',day:today},{kind:'care',day:today,visited:false},{kind:'care',day:today,resting:'yes'},{kind:'care',day:yesterday,visited:true},{kind:'care',day:'2999-01-01',resting:true},{kind:'care',day:today,stars:450,resting:true}])await assert.rejects(()=>request(bad));
+for(const weeklyDays of [0,8,1.2,'2'])await assert.rejects(()=>request({kind:'settings',...data.settings,weeklyDays}));
+assert.equal(JSON.parse(await device.exportDeviceRecords().text()).entries[0].care.resting,true);
+items.clear();data=await request({kind:'care',day:today,visited:true});
+assert.equal(data.stars,0);assert.equal(data.entries[0].weight,null);assert.equal(data.entries[0].mood,null);assert.deepEqual(data.entries[0].done,[]);
+data=await request({kind:'care',day:today,resting:true});assert.equal(data.stars,0);assert.equal(data.entries.length,1);
+const restSaved=items.get('mochi-days:v1');full=true;
+await assert.rejects(()=>request({kind:'care',day:today,resting:false}),/保存できませんでした/);full=false;
+assert.equal(items.get('mochi-days:v1'),restSaved);
+console.log('PASS: persisted visits, rest/light/quiet/finished flags, partial care updates, preserved health/wardrobe/stars, old-client compatibility, weekly pacing, validation, export and write failures.');
+
 })().catch(e=>{console.error(e);process.exitCode=1});

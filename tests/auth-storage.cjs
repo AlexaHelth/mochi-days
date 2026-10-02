@@ -108,5 +108,30 @@ console.log('PASS: persisted walking minutes, integer validation, zero/clearing,
 assert.equal(helpers.daysAgo('2026-03-01',1),'2026-02-28');
 console.log('PASS: note storage/clearing, old-client preservation, note length/type validation, no note reward inflation, authenticated private export, export account isolation and date boundary.');
 console.log('PASS: first-use onboarding, legacy profile/record migration, species and outfit persistence, server-side unlock boundary, invalid pet/outfit rejection, old-client compatibility, progress preservation, per-user wardrobe isolation, sprite cells.');
-console.log('PASS: unauthenticated denial, cross-origin denial, input validation, invalid/future dates, ownership isolation, persistent updates, reward deduplication, non-decreasing stars, locked rewards, settings, private caching.');sqlite.close();
+console.log('PASS: unauthenticated denial, cross-origin denial, input validation, invalid/future dates, ownership isolation, persistent updates, reward deduplication, non-decreasing stars, locked rewards, settings, private caching.');
+
+// Care flags never mutate health data, stars or another person's account.
+user={userId:'care-a',email:'care-a@example.test'};
+await api.POST(request({...body,walkingMinutes:22,note:'その日のメモ'}));
+const careBefore=await(await api.GET()).json();
+assert.equal((await api.POST(request({kind:'care',day:helpers.today(),visited:true,resting:true,light:true,quiet:true,finished:true}))).status,200);
+data=await(await api.GET()).json();
+assert.equal(data.stars,careBefore.stars);
+assert.deepEqual({...data.entries[0],care:undefined},{...careBefore.entries[0],care:undefined});
+assert.deepEqual(data.entries[0].care,{visited:true,resting:true,light:true,quiet:true,finished:true});
+await api.POST(request({kind:'care',day:helpers.today(),finished:false}));
+await api.POST(request({...body,weight:61}));
+data=await(await api.GET()).json();assert.equal(data.entries[0].care.resting,true);assert.equal(data.entries[0].care.quiet,true);assert.equal(data.entries[0].care.finished,false);assert.equal(data.entries[0].walkingMinutes,22);assert.equal(data.entries[0].note,'その日のメモ');
+assert.equal((await api.POST(request({kind:'settings',...data.settings,weeklyDays:3}))).status,200);
+await api.POST(request({kind:'settings',...oldSettings}));data=await(await api.GET()).json();assert.equal(data.settings.weeklyDays,3);
+const careExport=await(await exportApi.GET()).json();assert.equal(careExport.entries[0].care.resting,true);
+for(const bad of [{kind:'care',day:helpers.today()},{kind:'care',day:helpers.today(),visited:false},{kind:'care',day:helpers.daysAgo(helpers.today(),1),visited:true},{kind:'care',day:'2026-02-31',resting:true},{kind:'care',day:helpers.today(),resting:'yes'},{kind:'care',day:helpers.today(),userId:'care-b',resting:true}])assert.equal((await api.POST(request(bad))).status,400);
+user={userId:'care-b',email:'care-b@example.test'};
+assert.equal((await(await api.GET()).json()).entries.length,0);
+await api.POST(request({kind:'care',day:helpers.today(),visited:true}));data=await(await api.GET()).json();
+assert.equal(data.entries[0].weight,null);assert.deepEqual(data.entries[0].done,[]);assert.equal(data.stars,0);assert.equal(data.entries[0].care.resting,undefined);
+user={userId:'care-a',email:'care-a@example.test'};assert.equal((await(await api.GET()).json()).entries[0].care.resting,true);
+console.log('PASS: private care flags, independent partial updates, health preservation, no star farming, weekly pace compatibility, export and validation.');
+sqlite.close();
+
 })().catch(e=>{console.error(e);process.exitCode=1});

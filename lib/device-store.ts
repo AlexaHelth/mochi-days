@@ -1,5 +1,6 @@
 import { normalizeSettings, today, type Entry, type Settings, type State } from './mochi';
 import { updateSchema, isRecordableDay, starActions, mergeSettings, lockedReward } from './state-rules';
+import { mergeCare } from './care';
 /** GitHub Pages build: the same contract as requestState, but records stay in this browser. No account, server or network. */
 // Every Pages site of the account shares one origin (alexahelth.github.io), so the key names the app.
 const KEY='mochi-days:v1';
@@ -17,7 +18,12 @@ export async function requestDeviceState(body?:unknown):Promise<State>{
  if(d.kind==='entry'){
   if(!isRecordableDay(d.day))throw new Error('今日以前の日付を選んでください。');
   const previous=saved.entries.find(e=>e.day===d.day);
-  saved={...saved,entries:[...saved.entries.filter(e=>e.day!==d.day),{day:d.day,weight:d.weight,walkingMinutes:d.walkingMinutes===undefined?previous?.walkingMinutes??null:d.walkingMinutes,mood:d.mood,done:d.done,note:d.note??previous?.note??''}],stars:[...new Set([...saved.stars,...starActions(d).map(a=>`${d.day}:${a}`)])]};
+  saved={...saved,entries:[...saved.entries.filter(e=>e.day!==d.day),{day:d.day,weight:d.weight,walkingMinutes:d.walkingMinutes===undefined?previous?.walkingMinutes??null:d.walkingMinutes,mood:d.mood,done:d.done,note:d.note??previous?.note??'',...(previous?.care?{care:previous.care}:{})}],stars:[...new Set([...saved.stars,...starActions(d).map(a=>`${d.day}:${a}`)])]};
+ }else if(d.kind==='care'){
+  if(!isRecordableDay(d.day)||d.visited&&d.day!==today())throw new Error('会えた日は今日の日付で残します。');
+  const previous=saved.entries.find(entry=>entry.day===d.day)??{day:d.day,weight:null,walkingMinutes:null,mood:null,done:[],note:''};
+  const {kind,day,...patch}=d;
+  saved={...saved,entries:[...saved.entries.filter(entry=>entry.day!==day),{...previous,care:mergeCare(previous.care,patch)}]};
  }else{
   const settings=mergeSettings(normalizeSettings(saved.profile),d);
   const locked=lockedReward(settings,saved.stars.length);if(locked)throw new Error(locked);

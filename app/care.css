@@ -1,0 +1,75 @@
+/* Calm touch interactions share the existing Mochi artwork and framing. */
+.pet-playground{width:100%;text-align:center}
+.playground-speech{margin:18px auto 4px;max-width:370px;min-height:64px}
+.playground-stage{position:relative;width:min(100%,300px);margin:8px auto 0;padding:8px 0 0}
+.pet-surface{position:relative;display:block;border:0;padding:0;width:100%;background:transparent;border-radius:40%;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:grab}
+.pet-surface.touching{cursor:grabbing}
+.pet-surface:focus-visible{outline:2px solid #b8805b;outline-offset:3px}
+.pet-motion{display:block;transform-origin:50% 82%;will-change:transform}
+.pet-motion.idle{animation:care-breathe 5.8s ease-in-out infinite}
+.pet-motion.reacting.species-dog{animation:dog-wiggle .55s ease-in-out 6}
+.pet-motion.reacting.species-cat{animation:cat-nuzzle 1.1s ease-in-out 3}
+.pet-motion.reacting.species-penguin{animation:penguin-flutter .65s ease-in-out 5}
+.pet-motion.reaction-hug{animation:care-hug 3.3s ease-in-out!important}
+.pet-motion.reaction-brush{animation:care-brush 1.1s ease-in-out 3!important}
+.pet-motion.reaction-snack{animation:care-snack .55s ease-in-out 6!important}
+.pet-motion.reaction-toy{animation:care-toy .8s ease-in-out 4!important}
+.pet-motion .pet-art{pointer-events:none}
+.touch-tool{position:absolute;z-index:3;transform:translate(-50%,-50%) rotate(-16deg);display:grid;place-items:center;width:45px;height:45px;border-radius:50%;background:#ffffffbd;color:#b17452;pointer-events:none;box-shadow:0 3px 12px #b48a4b1c}
+.tool-brush{background:#edf1e3;color:#83956b}.tool-snack{background:#fff1d5;color:#c7934d}.tool-toy{background:#fae4d9;color:#c27e61}
+.playground-effects{position:absolute;inset:0;pointer-events:none;color:#d89682;z-index:2}
+.playground-effects>span{position:absolute;animation:care-sparkle 2.8s ease-out both}
+.playground-effects>span:nth-child(1){left:18%;top:30%}.playground-effects>span:nth-child(2){right:17%;top:42%;animation-delay:.15s}.playground-effects>span:nth-child(3){right:27%;top:22%;animation-delay:.3s}
+.effects-brush{color:#a3ac78}.effects-snack{color:#cc9b56}.effects-toy{color:#c28869}
+.rest-blanket{position:absolute;left:21%;right:21%;bottom:6%;height:16%;border-radius:42% 42% 16px 16px;background:linear-gradient(135deg,#e3dbc8ee,#efe4d3ee);border:1px solid #d8ccb6;display:flex;justify-content:flex-end;align-items:center;padding:10px;color:#a48e6d;pointer-events:none;box-shadow:0 4px 8px #8a684710}
+.pet-playground .pet-name{justify-content:center;margin:0 0 3px}
+.pet-playground .pet-caption{min-height:38px;line-height:1.65;margin:4px 0 8px;padding:0 4px}
+.pet-tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;max-width:360px;margin:auto}
+.pet-tools button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:60px;padding:8px 2px;border:1px solid #e9d9c8;background:#ffffffad;border-radius:15px;color:#967354;font-size:.75rem}
+.pet-tools button[aria-pressed=true]{color:#96583d;background:#f9e6d5;border-color:#d7b192}
+.pet-tools button:hover{background:#f8ecdf}
+.lounge-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;margin:9px auto 0;background:transparent;border:0;color:#927252;font-size:.8125rem;text-decoration:underline;text-underline-offset:4px}
+.playground-note{font-size:.6875rem;color:#9a8370;line-height:1.7;margin:3px 0 11px}
+.expression-details{width:100%;text-align:center;color:#9a806b;font-size:.75rem;margin:4px 0 13px}
+.expression-details summary{min-height:44px;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:center;gap:7px}
+.expression-details summary:after{content:'＋';font-size:1rem}.expression-details[open] summary:after{content:'−'}
+.expression-details .expression-buttons{margin:0 0 10px}
+.companion-counts{width:100%;margin-top:auto}.record-together{border:0;padding-top:10px;color:#ad9785}.record-together strong{font-size:1.1rem}.record-together small{font-size:.75rem}
+.care-mode-buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:16px 0 10px}
+.care-mode-buttons button{white-space:normal;line-height:1.5;color:#947052}
+.daily-care-card .subtle{font-size:.6875rem;white-space:nowrap}
+.care-options{margin-top:10px;border-top:1px dashed #e9dfd2;padding-top:4px}
+.care-options summary{min-height:44px;display:list-item;padding:10px 0 4px;cursor:pointer;margin-left:18px;font-size:.75rem;color:#927962}
+.care-options button{display:flex;width:100%;justify-content:flex-start;font-size:.8125rem;color:#967051;white-space:normal}
+.care-options button[aria-pressed=true]{background:#f4eee5}
+.rest-day-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 25px;background:#fffcf6;color:#927e66}
+.rest-day-card h2{margin-top:13px;color:#725d49}.rest-day-card p{font-size:.875rem;line-height:1.9;margin:12px 0 18px;max-width:340px}.rest-day-card button{margin-top:4px}
+.more-habits{min-height:44px;margin-top:5px;border:0;background:transparent;color:#987254;font-size:.8125rem;padding:7px 8px;text-decoration:underline;text-underline-offset:4px}
+.gentle-habit-summary{margin-top:8px}.gentle-habit-summary>span{font-size:.8125rem;color:#a07d5e}
+.light-habits .habit{min-height:86px;font-size:1.0625rem;padding-top:18px;padding-bottom:18px}
+.today-ending{display:flex;justify-content:center;align-items:center;gap:17px;margin:23px 0 5px;padding:16px;border-radius:20px;background:#faf4eb;border:1px solid #eee2d4}
+.today-ending p{font-size:.8125rem;color:#998069}.today-ending button{color:#976b4b;flex-shrink:0}
+.week-strip:has(.calendar-key){flex-wrap:wrap}.calendar-key{display:flex;align-items:center;gap:7px;justify-content:flex-end;flex-basis:100%;margin:0!important;font-size:.6875rem!important}
+.stamp.rest-stamp{background:#e9e2d3;color:#9b8265}.stamp.visit-stamp{background:#f1e6d7}.visit-dot{display:inline-block;width:7px;height:7px;flex-shrink:0;background:#caa581;border-radius:50%}.stamp .visit-dot{width:10px;height:10px}.week-day.future{opacity:.5}
+.waiting-pet{display:flex;align-items:center;gap:10px;max-width:350px;margin:10px auto 13px;color:#99826b;font-size:.75rem;line-height:1.8}
+.waiting-pet-art{width:65px;flex:0 0 65px;animation:care-breathe 6s ease-in-out infinite}.waiting-pet-art .puppy{max-width:65px}
+.daily-note .waiting-pet{margin:10px 0 0}.daily-note .waiting-pet-art{width:46px;flex-basis:46px}
+.weekly-pace{display:flex;flex-direction:column;gap:8px;font-size:.875rem;font-weight:650;margin:20px 0;color:#80654d}
+.weekly-pace select{width:100%;min-height:48px;background:#fffaf3;border:1px solid #dfd2c2;border-radius:13px;font:inherit;font-weight:400;padding:10px;color:#806a56}
+.weekly-pace small{font-size:.75rem;font-weight:400;color:#9a8774}
+.smaller-goals{display:flex;flex-direction:column;gap:12px;margin:15px 0}.smaller-goals button{white-space:normal;min-height:60px;line-height:1.7;text-align:left;justify-content:flex-start}
+.lounge-dialog{max-width:520px!important;border-radius:30px!important;text-align:center;overflow-y:auto}
+.lounge-dialog [data-slot=dialog-description]{font-size:.8125rem}.lounge-dialog .playground-stage{max-width:245px}.lounge-dialog .playground-speech{min-height:56px;margin-top:5px}.lounge-dialog .pet-caption{font-size:.75rem}.lounge-dialog .pet-tools{margin-bottom:5px}
+.care-reflection-stats{display:flex;gap:17px;flex-wrap:wrap;margin:12px 0 4px;color:#9a8067;font-size:.8125rem}.care-reflection-stats b{color:#7e674f;margin:0 4px}
+.reflection .care-week-days{justify-content:flex-start;margin:18px 0 7px}.history-rest{color:#9a866d!important;display:flex!important;align-items:center;gap:4px}
+@keyframes care-breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.014)}}
+@keyframes dog-wiggle{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg) translateY(-2px)}}
+@keyframes cat-nuzzle{0%,100%{transform:translateX(-6px) rotate(-2deg)}50%{transform:translateX(6px) rotate(2deg)}}
+@keyframes penguin-flutter{0%,100%{transform:rotate(-3deg) scaleX(.985)}50%{transform:rotate(3deg) scaleX(1.015) translateY(-3px)}}
+@keyframes care-hug{0%,100%{transform:scale(1)}25%,75%{transform:scale(1.035) translateY(-3px)}}
+@keyframes care-brush{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1deg) translateY(-1px)}}
+@keyframes care-snack{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.98) translateY(2px)}}
+@keyframes care-toy{0%,100%{transform:translateX(var(--toy-lean,0px)) rotate(-2deg)}50%{transform:translateX(var(--toy-lean,0px)) rotate(2deg) translateY(-4px)}}
+@keyframes care-sparkle{0%{opacity:0;transform:translateY(12px) scale(.7)}20%,70%{opacity:.85}100%{opacity:0;transform:translateY(-26px) scale(1.04)}}
+@media(max-width:760px){.playground-stage{max-width:285px}.daily-care-card{padding:21px 19px}.pet-tools{gap:5px}.pet-tools button{font-size:.6875rem;min-height:58px}.playground-note{font-size:.625rem}.companion-counts .together{font-size:.75rem}.today-ending{flex-direction:column;gap:10px;text-align:center}.week-strip:has(.calendar-key){gap:12px}.care-week-days{gap:12px;justify-content:center;width:100%}.calendar-key{justify-content:center}.lounge-dialog{padding:23px 18px!important}.lounge-dialog .playground-stage{max-width:210px}.lounge-dialog .pet-tools button{min-height:54px}.reflection .care-week-days{gap:12px;justify-content:space-between}.waiting-pet{font-size:.6875rem}}
+@media(prefers-reduced-motion:reduce){.pet-motion,.pet-motion.reacting,.waiting-pet-art,.playground-effects>span{animation:none!important;will-change:auto}.playground-effects>span{opacity:.8}.pet-surface{scroll-behavior:auto}}

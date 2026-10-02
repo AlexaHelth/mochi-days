@@ -22,6 +22,13 @@
       "when": 1790849995822,
       "tag": "0002_walking_minutes",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1790908643847,
+      "tag": "0003_youthful_squirrel_girl",
+      "breakpoints": true
     }
   ]
 }

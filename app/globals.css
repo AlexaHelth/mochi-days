@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./care.css";
 @import "tw-animate-css";
 @import "../vendor/shadcn-tailwind-4.13.0.css";
 :root{--background:#fffcf8;--foreground:#44372f;--card:#fff;--card-foreground:#44372f;--popover:#fffdf9;--popover-foreground:#44372f;--primary:#bc573b;--primary-foreground:#fff;--secondary:#fce8dc;--secondary-foreground:#8c452f;--muted:#f5eee7;--muted-foreground:#827268;--accent:#fff0e5;--accent-foreground:#8c452f;--destructive:#bf3737;--border:#eee5dc;--input:#ded3c7;--ring:#d78d72;--radius:1rem;--font-sans:"Hiragino Maru Gothic ProN","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
