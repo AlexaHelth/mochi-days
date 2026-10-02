@@ -5,3 +5,4 @@ export type Outfit = typeof outfitIds[number];
 export const pets: readonly {id:Species;name:string;description:string}[];
 export const expressionNames: readonly string[];
 export function petSprite(species:Species,pose:number,outfit?:Outfit,baseUrl?:string):{src:string;columns:number;rows:number;cell:number};
+export function petFrame(sprite:{src:string;cell:number}):{x:number;y:number;width:number;height:number;sheetWidth:number;sheetHeight:number}|null;

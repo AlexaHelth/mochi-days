@@ -21,6 +21,17 @@ const fs=require('node:fs');const path=require('node:path');const crypto=require
   const asset=manifest.assets.find(a=>a.file===file);
   assert.equal(asset.width/sprite.columns,asset.height/sprite.rows,'Sprite cells must be square');
   assert.ok(sprite.cell>=0&&sprite.cell<sprite.columns*sprite.rows);
+  const frame=shared.petFrame(sprite);
+  if(outfit!=='none'&&outfit!=='starlight'){
+   assert.ok(frame,`Missing measured frame for ${species}/${outfit}`);
+   assert.equal(frame.sheetWidth,asset.width);assert.equal(frame.sheetHeight,asset.height);
+   for(const value of Object.values(frame))assert.ok(Number.isInteger(value));
+   assert.ok(frame.x>=0&&frame.y>=0&&frame.width>0&&frame.height>0);
+   assert.ok(frame.x+frame.width<=asset.width&&frame.y+frame.height<=asset.height);
+   // These values must remain finite at all gallery and full-size pet widths.
+   assert.ok(Number.isFinite(frame.x/(frame.sheetWidth-frame.width)));
+   assert.ok(Number.isFinite(frame.y/(frame.sheetHeight-frame.height)));
+  }else assert.equal(frame,null,'Original and special illustrations keep their existing frames');
  }
  assert.equal(shared.petSprite('cat',3,'flower','/shared/mochi/').src,'/shared/mochi/cat-wardrobe.png');
  for(const species of shared.speciesIds){
@@ -35,5 +46,13 @@ const fs=require('node:fs');const path=require('node:path');const crypto=require
   assert.equal(special[0].src,`/pets/${species}-special.png`);
  }
  assert.throws(()=>shared.petSprite('dragon',0),RangeError);
+ assert.equal(shared.petFrame({src:'/pets/unknown.png',cell:0}),null);
+ // The next illustration starts above the equal-grid boundary; the preceding frame must stop before it.
+ const dogFlower=shared.petFrame(shared.petSprite('dog',0,'flower')),dogPumpkin=shared.petFrame(shared.petSprite('dog',0,'pumpkin'));
+ assert.equal(dogFlower.y+dogFlower.height,dogPumpkin.y);assert.ok(dogPumpkin.y<940);
+ const catPainter=shared.petFrame(shared.petSprite('cat',0,'painter')),catChef=shared.petFrame(shared.petSprite('cat',0,'chef'));
+ assert.equal(catChef.y+catChef.height,catPainter.y);assert.ok(catPainter.y>313);
+ const party=shared.petFrame(shared.petSprite('penguin',0,'birthday'));assert.ok(party.y<930,'The whole party hat must fit');
+ assert.deepEqual(shared.petFrame(shared.petSprite('dog',0,'flower','/sister-app/pets/')),dogFlower);
  console.log('PASS: standalone ESM package, version, PNG dimensions, hashes, all asset copies, original puppy preserved, every sprite cell and custom asset base URL.');
 })().catch(e=>{console.error(e);process.exitCode=1});

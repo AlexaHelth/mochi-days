@@ -1,6 +1,6 @@
 # もち共通素材 — ふたつむぎ企画室
 
-`@futatsumugi/mochi-assets` v0.2.0。もちと、まいにち／おでかけ／かでん／まんが／こそだておうえんにっきで共有するための、アプリ非依存の素材パッケージです。
+`@futatsumugi/mochi-assets` v0.2.1。もちと、まいにち／おでかけ／かでん／まんが／こそだておうえんにっきで共有するための、アプリ非依存の素材パッケージです。
 
 ## このフォルダが原本
 
@@ -25,6 +25,8 @@
 
 各衣装シートは4列×4行、衣装ごとに左が通常・右がよろこびです。特別なもちは左上にっこり・右上ばんざい・左下すやすや・右下きらめきです。実際の座標は `petSprite` に任せてください。
 
+v0.2.1では `petFrame(sprite)` に衣装192姿の実測表示範囲を追加しました。生成画像のイラストは厳密な等間隔ではないため、衣装を単純な400%の背景で表示すると隣のイラストが混入したり、帽子や足が切れたりします。衣装は `petFrame` の矩形を独立した要素の背景として表示し、縦横比を保って枠内へ収めてください。元のPNG・衣装ID・セルの番号は変わりません。基本表情と特別なもちは `petFrame` が `null` を返し、従来の表示方法を使います。
+
 ## 別のアプリで使う
 
 このフォルダを丸ごと別アプリの `packages/mochi-assets` にコピーし、バージョンを固定します。
@@ -34,16 +36,21 @@ node packages/mochi-assets/copy-assets.mjs public
 ```
 
 ```js
-import {petSprite} from './packages/mochi-assets/index.js';
+import {petSprite,petFrame} from './packages/mochi-assets/index.js';
 const sprite = petSprite('cat', 3, 'flower');
 // {src:'/pets/cat-wardrobe.png', columns:4, rows:4, cell:9}
-const column = sprite.cell % sprite.columns;
-const row = Math.floor(sprite.cell / sprite.columns);
+const frame = petFrame(sprite);
+const side = Math.max(frame.width, frame.height);
+// Place this background element inside a square, position:relative container.
 const style = {
+  position: 'absolute', left: '50%', top: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: `${frame.width / side * 94}%`,
+  height: `${frame.height / side * 94}%`,
   backgroundImage: `url('${sprite.src}')`,
-  backgroundSize: `${sprite.columns * 100}% ${sprite.rows * 100}%`,
-  backgroundPosition: `${column / (sprite.columns - 1) * 100}% ${row / (sprite.rows - 1) * 100}%`,
-  aspectRatio: '1',
+  backgroundRepeat: 'no-repeat',
+  backgroundSize: `${frame.sheetWidth / frame.width * 100}% ${frame.sheetHeight / frame.height * 100}%`,
+  backgroundPosition: `${frame.x / (frame.sheetWidth - frame.width) * 100}% ${frame.y / (frame.sheetHeight - frame.height) * 100}%`,
 };
 ```
 

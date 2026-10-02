@@ -1,6 +1,6 @@
 export type Entry = {day:string;weight:number|null;walkingMinutes?:number|null;mood:number|null;done:string[];note?:string};
 import { speciesIds, outfitIds, type Species, type Outfit } from '../packages/mochi-assets/index.js';
-export { speciesIds, outfitIds, pets, expressionNames, petSprite, type Species, type Outfit } from '../packages/mochi-assets/index.js';
+export { speciesIds, outfitIds, pets, expressionNames, petSprite, petFrame, type Species, type Outfit } from '../packages/mochi-assets/index.js';
 export const outfits: {id:Outfit;name:string;cost:number;note:string}[] = [
  {id:'none',name:'いつものすがた',cost:0,note:'ふわふわ、そのまま。'},
  {id:'bandana',name:'おさんぽバンダナ',cost:5,note:'小さな一歩のおともに。'},
