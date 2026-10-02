@@ -48,3 +48,4 @@
 .companion-hub button[data-variant=default],.outfit-fitting button[data-variant=default],.reward-delivery button[data-variant=default]{color:#fff}
 
 .note-help .inline-choice{display:flex;align-items:center;gap:9px;font-size:.83rem;color:#937551;min-height:44px}.note-help input{width:19px;height:19px;accent-color:#b27c55}.note-help summary,.draft-tags summary{padding:12px 0;font-size:.8rem;color:#947653;cursor:pointer}
+.with-scene{padding-top:76px!important}.scene-life{top:31px;right:60px}.scene-season{position:absolute;z-index:1;top:28px;left:calc(50% - 40px);display:flex;align-items:center;gap:8px;color:#b99f79}.decoration-spring{color:#cf9b91}.decoration-summer{color:#c4ae70}.decoration-autumn{color:#b8905b}.decoration-winter{color:#96a9b5}
