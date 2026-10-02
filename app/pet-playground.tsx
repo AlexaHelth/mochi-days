@@ -61,7 +61,7 @@ export function PetPlayground({species,outfit,name,pose,message,resting=false,qu
   <div className="playground-stage">
    <button type="button" className={'pet-surface '+(cursor?'touching':'')} aria-label={`${name}を${tools.find(item=>item.id===tool)!.label==='ぎゅっ'?'ぎゅっとする':tool==='pet'?'なでる':tool==='brush'?'ブラッシングする':tool==='snack'?'おやつで喜ばせる':'おもちゃで遊ぶ'}`} onPointerDown={begin} onPointerMove={move} onPointerUp={event=>finish(event)} onPointerCancel={event=>finish(event,true)} onLostPointerCapture={event=>finish(event,true)} onClick={event=>{if(event.detail===0)respond(tool)}} style={style}>
     <span key={`${species}-${sequence}`} className={`pet-motion species-${species} ${reaction?'reacting reaction-'+reaction:'idle'} ${reduced?'motion-reduced':''}`}><Pet species={species} outfit={outfit} pose={activePose}/></span>
-    {resting&&<span className="rest-blanket" aria-hidden="true"><Moon size={16}/></span>}
+    {resting&&<span className={'rest-blanket blanket-'+species} aria-hidden="true"><Moon size={16}/></span>}
     {reaction&&<span className={'playground-effects effects-'+reaction} key={sequence} aria-hidden="true">{[0,1,2].map(n=><span key={n}>{reaction==='brush'?<Sparkles size={18}/>:reaction==='snack'?<Cookie size={21}/>:reaction==='toy'?<CircleDot size={19}/>:<Heart size={21} fill="currentColor"/>}</span>)}</span>}
     {cursor&&<span className={'touch-tool tool-'+tool} aria-hidden="true" style={{left:cursor.x+'%',top:cursor.y+'%'}}><ToolIcon size={30}/></span>}
    </button>

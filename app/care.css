@@ -22,6 +22,7 @@
 .playground-effects>span:nth-child(1){left:18%;top:30%}.playground-effects>span:nth-child(2){right:17%;top:42%;animation-delay:.15s}.playground-effects>span:nth-child(3){right:27%;top:22%;animation-delay:.3s}
 .effects-brush{color:#a3ac78}.effects-snack{color:#cc9b56}.effects-toy{color:#c28869}
 .rest-blanket{position:absolute;left:21%;right:21%;bottom:6%;height:16%;border-radius:42% 42% 16px 16px;background:linear-gradient(135deg,#e3dbc8ee,#efe4d3ee);border:1px solid #d8ccb6;display:flex;justify-content:flex-end;align-items:center;padding:10px;color:#a48e6d;pointer-events:none;box-shadow:0 4px 8px #8a684710}
+.blanket-dog{left:44%;right:8%;bottom:25%;height:15%;transform:rotate(-7deg)}.blanket-cat{left:62%;right:3%;bottom:10%;height:12%;transform:rotate(5deg)}
 .pet-playground .pet-name{justify-content:center;margin:0 0 3px}
 .pet-playground .pet-caption{min-height:38px;line-height:1.65;margin:4px 0 8px;padding:0 4px}
 .pet-tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;max-width:360px;margin:auto}
