@@ -3,7 +3,7 @@ function load(path,mocks){const code=ts.transpileModule(fs.readFileSync(path,'ut
 const items=new Map();let full=false;
 global.localStorage={getItem:k=>items.has(k)?items.get(k):null,setItem(k,v){if(full)throw new DOMException('Quota exceeded','QuotaExceededError');items.set(k,String(v))},removeItem:k=>items.delete(k)};
 const shared=load('packages/mochi-assets/index.js',{});const helpers=load('lib/mochi.ts',{'../packages/mochi-assets/index.js':shared});
-const content=load('lib/companion-content.ts',{}),companion=load('lib/companion.ts',{'./mochi':helpers,'./companion-content':content});const rules=load('lib/state-rules.ts',{'./mochi':helpers,'./companion':companion,'./companion-content':content}),care=load('lib/care.ts',{'./mochi':helpers});const device=load('lib/device-store.ts',{'./mochi':helpers,'./state-rules':rules,'./care':care,'./companion':companion});
+const content=load('lib/companion-content.ts',{}),companion=load('lib/companion.ts',{'./mochi':helpers,'./companion-content':content});const habits=load('lib/habits.ts',{});const rules=load('lib/state-rules.ts',{'./mochi':helpers,'./companion':companion,'./companion-content':content}),care=load('lib/care.ts',{'./mochi':helpers});const device=load('lib/device-store.ts',{'./mochi':helpers,'./state-rules':rules,'./care':care,'./companion':companion,'./habits':habits});
 const request=device.requestDeviceState,today=helpers.today(),yesterday=helpers.daysAgo(today,1);
 const body={kind:'entry',day:today,weight:60,mood:0,done:['h0']};
 (async()=>{
@@ -105,4 +105,24 @@ await request({kind:'settings',name:'もち',habits:['歩く'],showWeight:true,r
 const atomic=items.get('mochi-days:v1');full=true;await assert.rejects(()=>memory({action:'like',key:'season',value:'冬'}),/保存できません/);full=false;assert.equal(items.get('mochi-days:v1'),atomic);
 assert.equal((await request()).companion.pets.dog.likes.season,'春');assert.equal(JSON.parse(await device.exportDeviceRecords().text()).companion.preferences.callingName,'はな');
 console.log('PASS: persistent companion archive, single-field gifts, independent stars, old-client metadata preservation, export and atomic memory write failures.');
+// Suggestions are an independent dated snapshot, including after old-client health edits.
+items.clear();data=await request({kind:'settings',...helpers.defaults,onboardingComplete:true});
+data=await request({kind:'daily-habits',day:today});const names=[...data.entries[0].habitNames];
+assert.equal(names.length,3);assert.equal(data.stars,0);assert.deepEqual(data.entries[0].done,[]);
+assert.deepEqual(names,habits.dailyHabitIdeas(today));assert.deepEqual(await request(),data);
+data=await request({kind:'entry',day:today,weight:63.4,walkingMinutes:12,mood:1,done:['h0'],note:'名前を保つ',partial:['h1'],habitNames:names});
+const snapshot=structuredClone(data);
+data=await request({kind:'daily-habits',day:today});assert.deepEqual(data,snapshot);
+const forged=['別の習慣1','別の習慣2','別の習慣3'];
+data=await request({kind:'entry',day:today,weight:63.4,mood:1,done:['h0'],habitNames:forged});
+assert.deepEqual(data.entries[0].habitNames,names);assert.equal(data.entries[0].note,'名前を保つ');assert.equal(data.entries[0].walkingMinutes,12);assert.equal(data.stars,3);
+data=await request({kind:'entry',day:today,weight:63.4,mood:1,done:['h0']});assert.deepEqual(data.entries[0].habitNames,names);
+assert.deepEqual(JSON.parse(await device.exportDeviceRecords().text()).entries[0].habitNames,names);
+const atomicNames=items.get('mochi-days:v1');full=true;await assert.rejects(()=>request({kind:'daily-habits',day:today}),/保存できません/);full=false;assert.equal(items.get('mochi-days:v1'),atomicNames);
+for(const habitNames of [[],['ひとつ'],['同じ','同じ','同じ'],['あ'.repeat(31),'ふたつ','みっつ']])await assert.rejects(()=>request({kind:'entry',day:today,weight:null,mood:null,done:[],habitNames}));
+await assert.rejects(()=>request({kind:'daily-habits',day:'2999-01-01'}));
+items.clear();const legacyNames=['前の歩く習慣','前の伸ばす習慣','前の食べる習慣'];
+await request({kind:'settings',...helpers.defaults,habits:legacyNames});await request({kind:'entry',day:today,weight:60,mood:null,done:['h0'],partial:['h1']});
+data=await request({kind:'daily-habits',day:today});assert.deepEqual(data.entries[0].habitNames,legacyNames);assert.deepEqual(data.entries[0].done,['h0']);assert.deepEqual(data.entries[0].partial,['h1']);assert.equal(data.stars,2);
+console.log('PASS: dated habit snapshots, no suggestion rewards, health and old-client preservation, immutable names, export, atomic write failure and legacy migration.');
 })().catch(e=>{console.error(e);process.exitCode=1});

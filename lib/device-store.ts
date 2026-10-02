@@ -1,6 +1,7 @@
 import { normalizeSettings, today, type Entry, type Settings, type State } from './mochi';
 import { updateSchema, isRecordableDay, starActions, mergeSettings, lockedReward } from './state-rules';
 import { mergeCare } from './care';
+import { habitNamesFor } from './habits';
 import { normalizeCompanion, syncCompanion, applyCompanionAction, rewardSource, type CompanionState, type CompanionAction } from './companion';
 /** GitHub Pages build: the same contract as requestState, but records stay in this browser. No account, server or network. */
 // Every Pages site of the account shares one origin (alexahelth.github.io), so the key names the app.
@@ -20,7 +21,11 @@ export async function requestDeviceState(body?:unknown):Promise<State>{
  if(d.kind==='entry'){
   if(!isRecordableDay(d.day))throw new Error('今日以前の日付を選んでください。');
   const previous=saved.entries.find(e=>e.day===d.day);
-  saved={...saved,entries:[...saved.entries.filter(e=>e.day!==d.day),{day:d.day,weight:d.weight,walkingMinutes:d.walkingMinutes===undefined?previous?.walkingMinutes??null:d.walkingMinutes,mood:d.mood,done:d.done,note:d.note??previous?.note??'',partial:(d.partial??previous?.partial??[]).filter(h=>!d.done.includes(h as 'h0'|'h1'|'h2')),feelings:d.feelings??previous?.feelings??[],tags:d.tags??previous?.tags??[],...(previous?.care?{care:previous.care}:{})}],stars:[...new Set([...saved.stars,...starActions(d).map(a=>`${d.day}:${a}`)])]};
+  saved={...saved,entries:[...saved.entries.filter(e=>e.day!==d.day),{day:d.day,weight:d.weight,walkingMinutes:d.walkingMinutes===undefined?previous?.walkingMinutes??null:d.walkingMinutes,mood:d.mood,done:d.done,note:d.note??previous?.note??'',partial:(d.partial??previous?.partial??[]).filter(h=>!d.done.includes(h as 'h0'|'h1'|'h2')),feelings:d.feelings??previous?.feelings??[],tags:d.tags??previous?.tags??[],...((previous?.habitNames??d.habitNames)?{habitNames:previous?.habitNames??d.habitNames}:{}),...(previous?.care?{care:previous.care}:{})}],stars:[...new Set([...saved.stars,...starActions(d).map(a=>`${d.day}:${a}`)])]};
+ }else if(d.kind==='daily-habits'){
+  if(!isRecordableDay(d.day))throw new Error('今日以前の日付を選んでください。');
+  const previous=saved.entries.find(entry=>entry.day===d.day)??{day:d.day,weight:null,walkingMinutes:null,mood:null,done:[],note:''};
+  saved={...saved,entries:[...saved.entries.filter(entry=>entry.day!==d.day),{...previous,habitNames:habitNamesFor(previous,view(saved).settings.habits)}]};
  }else if(d.kind==='care'){
   if(!isRecordableDay(d.day)||d.visited&&d.day!==today())throw new Error('会えた日は今日の日付で残します。');
   const previous=saved.entries.find(entry=>entry.day===d.day)??{day:d.day,weight:null,walkingMinutes:null,mood:null,done:[],note:''};

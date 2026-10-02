@@ -4,7 +4,7 @@ function statement(sql,args=[]){return{bind(...values){return statement(sql,valu
 const db={prepare:statement,async batch(list){sqlite.exec('BEGIN');try{const r=list.map(s=>({results:s.all(),success:true}));sqlite.exec('COMMIT');return r}catch(e){sqlite.exec('ROLLBACK');throw e}}};
 let user=null;
 function load(path,mocks){const code=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;const exp={};new Function('require','exports',code)(id=>mocks[id]??require(id),exp);return exp}
-const shared=load('packages/mochi-assets/index.js',{});const helpers=load('lib/mochi.ts',{'../packages/mochi-assets/index.js':shared});const content=load('lib/companion-content.ts',{}),companion=load('lib/companion.ts',{'./mochi':helpers,'./companion-content':content});const rules=load('lib/state-rules.ts',{'./mochi':helpers,'./companion':companion,'./companion-content':content});const api=load('app/api/state/route.ts',{'../../chatgpt-auth':{getChatGPTUser:async()=>user},'@/lib/store':{database:()=>db},'@/lib/mochi':helpers,'@/lib/state-rules':rules,'@/lib/companion':companion});
+const shared=load('packages/mochi-assets/index.js',{});const helpers=load('lib/mochi.ts',{'../packages/mochi-assets/index.js':shared});const content=load('lib/companion-content.ts',{}),companion=load('lib/companion.ts',{'./mochi':helpers,'./companion-content':content});const habits=load('lib/habits.ts',{});const rules=load('lib/state-rules.ts',{'./mochi':helpers,'./companion':companion,'./companion-content':content});const api=load('app/api/state/route.ts',{'../../chatgpt-auth':{getChatGPTUser:async()=>user},'@/lib/store':{database:()=>db},'@/lib/mochi':helpers,'@/lib/state-rules':rules,'@/lib/companion':companion,'@/lib/habits':habits});
 const exportApi=load('app/api/export/route.ts',{'../state/route':api,'@/lib/mochi':helpers});
 const body={kind:'entry',day:helpers.today(),weight:60,mood:0,done:['h0']};
 function request(data,origin='https://example.test'){return new Request('https://example.test/api/state',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(data)})}
@@ -149,6 +149,25 @@ await api.POST(request({kind:'entry',day:helpers.today(),weight:null,mood:null,d
 const memoryExport=await(await exportApi.GET()).json();assert.equal(memoryExport.companion.preferences.callingName,'はな');
 user={userId:'memories-b',email:'mb@example.test'};data=await(await api.GET()).json();assert.equal(data.companion.preferences.callingName,'');assert.deepEqual(data.companion.pets,{});
 console.log('PASS: private companion archives and export, overlapping command retries, no star farming, metadata persistence across old clients, partial completion semantics and account isolation.');
+// Snapshot writes add no rewards and never replace an existing completed habit's name.
+user={userId:'daily-habits-a',email:'habits-a@example.test'};
+await api.POST(request({kind:'settings',...helpers.defaults,onboardingComplete:true}));
+r=await api.POST(request({kind:'daily-habits',day:helpers.today()}));assert.equal(r.status,200);data=await r.json();
+const dailyNames=[...data.entries[0].habitNames];assert.deepEqual(dailyNames,habits.dailyHabitIdeas(helpers.today()));assert.equal(data.stars,0);
+await api.POST(request({kind:'entry',day:helpers.today(),weight:63.4,mood:1,done:['h0'],walkingMinutes:12,note:'名前を保つ',partial:['h1'],habitNames:dailyNames}));
+const dailySaved=await(await api.GET()).json();await api.POST(request({kind:'daily-habits',day:helpers.today()}));assert.deepEqual(await(await api.GET()).json(),dailySaved);
+await api.POST(request({kind:'entry',day:helpers.today(),weight:63.4,mood:1,done:['h0'],habitNames:['別の1','別の2','別の3']}));
+await api.POST(request({kind:'entry',day:helpers.today(),weight:63.4,mood:1,done:['h0']}));data=await(await api.GET()).json();
+assert.deepEqual(data.entries[0].habitNames,dailyNames);assert.equal(data.entries[0].walkingMinutes,12);assert.equal(data.entries[0].note,'名前を保つ');assert.equal(data.stars,3);
+assert.deepEqual((await(await exportApi.GET()).json()).entries[0].habitNames,dailyNames);
+for(const habitNames of [[],['ひとつ'],['同じ','同じ','同じ'],['あ'.repeat(31),'ふたつ','みっつ']])assert.equal((await api.POST(request({kind:'entry',day:helpers.today(),weight:null,mood:null,done:[],habitNames}))).status,400);
+assert.equal((await api.POST(request({kind:'daily-habits',day:'2999-01-01'}))).status,400);
+user={userId:'daily-habits-b',email:'habits-b@example.test'};data=await(await api.GET()).json();assert.equal(data.entries.length,0);
+const legacyNames=['前の歩く習慣','前の伸ばす習慣','前の食べる習慣'];
+await api.POST(request({kind:'settings',...helpers.defaults,habits:legacyNames}));await api.POST(request({kind:'entry',day:helpers.today(),weight:60,mood:null,done:['h0'],partial:['h1']}));
+data=await(await api.POST(request({kind:'daily-habits',day:helpers.today()}))).json();assert.deepEqual(data.entries[0].habitNames,legacyNames);assert.deepEqual(data.entries[0].done,['h0']);assert.deepEqual(data.entries[0].partial,['h1']);assert.equal(data.stars,2);
+user=null;assert.equal((await api.POST(request({kind:'daily-habits',day:helpers.today()}))).status,401);
+console.log('PASS: private dated habit snapshots, immutable names across old clients, no star farming, preserved health, export and legacy migration.');
 sqlite.close();
 
 })().catch(e=>{console.error(e);process.exitCode=1});

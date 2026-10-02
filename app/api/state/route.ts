@@ -2,15 +2,16 @@ import { getChatGPTUser } from '../../chatgpt-auth';
 import { database } from '@/lib/store';
 import { normalizeSettings, today, type State } from '@/lib/mochi';
 import { normalizeCompanion, syncCompanion, applyCompanionAction, rewardSource, type CompanionAction, type CompanionState } from '@/lib/companion';
+import { habitNamesFor } from '@/lib/habits';
 import { updateSchema, isRecordableDay, starActions, mergeSettings, lockedReward } from '@/lib/state-rules';
 export const dynamic='force-dynamic';
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store','Vary':'Cookie','X-Content-Type-Options':'nosniff'}});
 async function state(id:string){
  const db=database();const results=await db.batch<Record<string,unknown>>([
- db.prepare('SELECT day, weight, walking_minutes AS walkingMinutes, mood, done, note, care, partial, feelings, tags FROM entries WHERE user_id = ? ORDER BY day DESC').bind(id),
+ db.prepare('SELECT day, weight, walking_minutes AS walkingMinutes, mood, done, note, care, partial, feelings, tags, habit_names AS habitNames FROM entries WHERE user_id = ? ORDER BY day DESC').bind(id),
  db.prepare('SELECT settings FROM profiles WHERE user_id = ?').bind(id),
  db.prepare('SELECT COUNT(*) AS count FROM stars WHERE user_id = ?').bind(id),db.prepare('SELECT state FROM companions WHERE user_id = ?').bind(id)]);
- const result={entries:results[0].results.map((r:any)=>({...r,done:JSON.parse(r.done),care:JSON.parse(r.care),partial:JSON.parse(r.partial),feelings:JSON.parse(r.feelings),tags:JSON.parse(r.tags)})),settings:normalizeSettings(results[1].results.length?JSON.parse(results[1].results[0].settings as string):null,results[0].results.length>0),stars:Number(results[2].results[0].count)};
+ const result={entries:results[0].results.map(({habitNames,...r}:any)=>({...r,...(JSON.parse(habitNames).length?{habitNames:JSON.parse(habitNames)}:{}),done:JSON.parse(r.done),care:JSON.parse(r.care),partial:JSON.parse(r.partial),feelings:JSON.parse(r.feelings),tags:JSON.parse(r.tags)})),settings:normalizeSettings(results[1].results.length?JSON.parse(results[1].results[0].settings as string):null,results[0].results.length>0),stars:Number(results[2].results[0].count)};
  return {...result,companion:normalizeCompanion(results[3].results.length?JSON.parse(results[3].results[0].state as string):null,{...result,day:today()})};
 }
 async function saveCompanion(id:string,initial:CompanionState,command?:CompanionAction,source?:string){
@@ -42,7 +43,12 @@ export async function POST(req:Request){
  if(!isRecordableDay(d.day))return json({error:'今日以前の日付を選んでください。'},400);
  const actions=starActions(d);
  const old=previous.entries.find(entry=>entry.day===d.day),partial=(d.partial??old?.partial??[]).filter(h=>!d.done.includes(h as 'h0'|'h1'|'h2'));
- await db.batch([db.prepare("INSERT INTO entries(user_id,day,weight,mood,done,note,walking_minutes,partial,feelings,tags) VALUES(?,?,?,?,?,COALESCE(?,''),?,?,?,?) ON CONFLICT(user_id,day) DO UPDATE SET weight=excluded.weight,mood=excluded.mood,done=excluded.done,note=COALESCE(?,entries.note),walking_minutes=CASE WHEN ? THEN excluded.walking_minutes ELSE entries.walking_minutes END,partial=excluded.partial,feelings=COALESCE(?,entries.feelings),tags=COALESCE(?,entries.tags)").bind(id,d.day,d.weight,d.mood,JSON.stringify(d.done),d.note??null,d.walkingMinutes??null,JSON.stringify(partial),JSON.stringify(d.feelings??old?.feelings??[]),JSON.stringify(d.tags??old?.tags??[]),d.note??null,d.walkingMinutes===undefined?0:1,d.feelings===undefined?null:JSON.stringify(d.feelings),d.tags===undefined?null:JSON.stringify(d.tags)),...actions.map(a=>db.prepare('INSERT OR IGNORE INTO stars(user_id,day,action) VALUES(?,?,?)').bind(id,d.day,a))]);
+ await db.batch([db.prepare("INSERT INTO entries(user_id,day,weight,mood,done,note,walking_minutes,partial,feelings,tags,habit_names) VALUES(?,?,?,?,?,COALESCE(?,''),?,?,?,?,?) ON CONFLICT(user_id,day) DO UPDATE SET weight=excluded.weight,mood=excluded.mood,done=excluded.done,note=COALESCE(?,entries.note),walking_minutes=CASE WHEN ? THEN excluded.walking_minutes ELSE entries.walking_minutes END,partial=excluded.partial,feelings=COALESCE(?,entries.feelings),tags=COALESCE(?,entries.tags),habit_names=CASE WHEN entries.habit_names='[]' THEN excluded.habit_names ELSE entries.habit_names END").bind(id,d.day,d.weight,d.mood,JSON.stringify(d.done),d.note??null,d.walkingMinutes??null,JSON.stringify(partial),JSON.stringify(d.feelings??old?.feelings??[]),JSON.stringify(d.tags??old?.tags??[]),JSON.stringify(d.habitNames??[]),d.note??null,d.walkingMinutes===undefined?0:1,d.feelings===undefined?null:JSON.stringify(d.feelings),d.tags===undefined?null:JSON.stringify(d.tags)),...actions.map(a=>db.prepare('INSERT OR IGNORE INTO stars(user_id,day,action) VALUES(?,?,?)').bind(id,d.day,a))]);
+ }else if(d.kind==='daily-habits'){
+ if(!isRecordableDay(d.day))return json({error:'今日以前の日付を選んでください。'},400);
+ const entry=previous.entries.find(entry=>entry.day===d.day)??{day:d.day,weight:null,mood:null,done:[]};
+ const names=habitNamesFor(entry,previous.settings.habits);
+ await db.prepare("INSERT INTO entries(user_id,day,done,note,habit_names) VALUES(?,?,'[]','',?) ON CONFLICT(user_id,day) DO UPDATE SET habit_names=CASE WHEN entries.habit_names='[]' THEN excluded.habit_names ELSE entries.habit_names END").bind(id,d.day,JSON.stringify(names)).run();
  }else if(d.kind==='care'){
  if(!isRecordableDay(d.day)||d.visited&&d.day!==new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo'}).format(new Date()))return json({error:'会えた日は今日の日付で残します。'},400);
  const {kind,day,...patch}=d;

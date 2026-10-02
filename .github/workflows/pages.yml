@@ -42,6 +42,7 @@ jobs:
           node tests/history.cjs
           node tests/care.cjs
           node tests/companion.cjs
+          node tests/habits.cjs
           pnpm exec tsc --noEmit --incremental false
       - id: pages
         uses: actions/configure-pages@v6

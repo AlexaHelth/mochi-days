@@ -1,13 +1,14 @@
 'use client';
 import type { ReactNode } from 'react';
-import { ChevronRight, Footprints, Heart, Meh, Moon, NotebookPen, Scale, Smile, StretchHorizontal, Target, Utensils, type LucideIcon } from 'lucide-react';
+import { ChevronRight, Footprints, Heart, Meh, Moon, NotebookPen, Scale, Smile, StretchHorizontal, Target, Utensils, Sun, Leaf, House, MessageCircle, Sparkles, Flower2, type LucideIcon } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { habitTheme, type HabitTheme } from '@/lib/habits';
 import { latestWeight, previousWeight, weightChange, weightDate } from '@/lib/weight';
 import type { CareDay, Entry, Settings } from '@/lib/mochi';
 
 const moods = ['元気！', 'ふつう', 'おつかれ'];
 const moodIcons = [Smile, Meh, Moon];
-const habitIcons = [Footprints, StretchHorizontal, Utensils];
+const habitIcons:Record<HabitTheme,LucideIcon> = {move:Footprints,stretch:StretchHorizontal,rest:Moon,food:Utensils,mind:Heart,senses:Leaf,home:House,routine:Sun,sleep:Moon,connect:MessageCircle,enjoy:Sparkles,kind:Flower2};
 
 function RecordRow({ icon: Icon, label, value, hint, recorded, disabled, onClick }: {
   icon: LucideIcon; label: string; value: string; hint?: string; recorded: boolean;
@@ -20,12 +21,12 @@ function RecordRow({ icon: Icon, label, value, hint, recorded, disabled, onClick
   </button>;
 }
 
-export function TodayView({ entry, entries, settings, care, pet, disabled, saving, saved, recordsOpen, moreHabits, onGoal, onMood, onWeight, onWalking, onNote, onHabit, onToggleHabit, onRest, onResume, onMoreHabits }: {
-  entry: Entry; entries: Entry[]; settings: Settings; care: Required<CareDay>; pet: ReactNode;
-  disabled: boolean; saving: boolean; saved: boolean; recordsOpen: boolean; moreHabits: boolean;
+export function TodayView({ entry, entries, settings, habitNames, care, pet, disabled, saving, saved, recordsOpen, onGoal, onMood, onWeight, onWalking, onNote, onHabit, onToggleHabit, onRest, onResume }: {
+  entry: Entry; entries: Entry[]; settings: Settings; habitNames: string[]; care: Required<CareDay>; pet: ReactNode;
+  disabled: boolean; saving: boolean; saved: boolean; recordsOpen: boolean;
   onGoal: () => void; onMood: () => void; onWeight: () => void; onWalking: () => void;
   onNote: () => void; onHabit: (index: number) => void; onToggleHabit: (index: number, checked: boolean) => void;
-  onRest: () => void; onResume: () => void; onMoreHabits: () => void;
+  onRest: () => void; onResume: () => void;
 }) {
   const weightRecord = entry.weight !== null ? entry : latestWeight(entries, entry.day);
   const previous = previousWeight(entries, entry.day);
@@ -47,16 +48,15 @@ export function TodayView({ entry, entries, settings, care, pet, disabled, savin
         <RecordRow icon={NotebookPen} label="メモ" value={entry.note?.trim() ? 'ひとこと残せたね' : '未記録'} hint={entry.note?.trim() || undefined} recorded={!!entry.note?.trim()} disabled={disabled} onClick={onNote}/>
       </section>
       <section className="today-habits" aria-labelledby="today-habit-title">
-        <div className="today-section-heading"><h2 id="today-habit-title">きょうの小さな習慣</h2><span>{care.light ? '今日はひとつから' : 'できる日に、ひとつずつ'}</span></div>
-        <div className="today-habit-list">{settings.habits.map((habit, index) => {
-          if (care.light && !moreHabits && index > 0) return null;
-          const id = 'h' + index, checked = entry.done.includes(id), partial = entry.partial?.includes(id), Icon = habitIcons[index] ?? Heart;
+        <div className="today-section-heading"><h2 id="today-habit-title">きょうの小さな習慣</h2><span>今日の3つ · できるものだけ</span></div>
+        <div className="today-habit-list">{habitNames.map((habit, index) => {
+          const id = 'h' + index, checked = entry.done.includes(id), partial = entry.partial?.includes(id), Icon = habitIcons[habitTheme(habit)];
           return <div key={id} className={'today-habit-row ' + (checked ? 'completed' : partial ? 'partly' : '')}>
             <button type="button" className="today-habit-detail" disabled={disabled} onClick={() => onHabit(index)} aria-label={`習慣「${habit}」を記録する`}><span className={'habit-icon habit-' + index}><Icon size={19}/></span><span>{habit}{partial && !checked && <small>少しできた</small>}</span></button>
             <label className="today-habit-check"><Checkbox checked={checked} disabled={disabled} onCheckedChange={value => onToggleHabit(index, value === true)} aria-label={`${habit}ができた`}/></label>
           </div>;
         })}</div>
-        {care.light && settings.habits.length > 1 && <button type="button" className="more-habits" aria-expanded={moreHabits} onClick={onMoreHabits}>{moreHabits ? 'ひとつだけに戻す' : 'ほかの習慣も見る'}</button>}
+
       </section>
     </> : <section className="today-rest" aria-label="今日のおやすみ">
       <Moon size={22}/><h2>{care.finished ? '今日はここまでで、花まる。' : '今日は、一緒におやすみ。'}</h2>

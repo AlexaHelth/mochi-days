@@ -55,9 +55,46 @@
 .mochi-home { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:start; gap:24px; }
 .mochi-home .mochi-room { padding:23px 25px; }
 .mochi-home-menu { display:grid; gap:20px; }
-.mochi-pace > summary { min-height:30px; font-size:.9375rem; font-weight:600; cursor:pointer; }
-.mochi-pace[open] > summary { margin-bottom:16px; }
-.mochi-pace > button { width:100%; justify-content:flex-start; margin:6px 0; white-space:normal; height:auto; min-height:44px; }
+.interaction-memories { padding:0 12px; color:#947c68; font-size:.8125rem; }
+.interaction-memories > summary { min-height:44px; padding:10px 0; cursor:pointer; }
+.interaction-memories .companion-counts { margin:12px 0; }
+.mochi-room .focus-tools { display:grid; grid-template-columns:144px minmax(0,1fr); column-gap:16px; align-items:center; margin-top:10px; }
+.mochi-room .focus-tools .playground-stage { grid-column:1; grid-row:1 / 4; width:144px; max-width:144px; margin:0; }
+.mochi-room .focus-tools .playground-stage.with-scene { padding-top:38px!important; border-radius:18px; }
+.mochi-room .focus-tools .playground-speech { grid-column:2; grid-row:2; margin:0; min-height:0; padding:9px 10px; font-size:.8125rem; line-height:1.8; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:5; overflow:hidden; }
+.mochi-room .focus-tools .playground-speech::after { display:none; }
+.mochi-room .focus-tools .pet-name { grid-column:2; grid-row:1; font-size:.9375rem; margin:0; align-self:end; overflow-wrap:anywhere; }
+.mochi-room .focus-tools .pet-caption { grid-column:2; grid-row:3; min-height:0; font-size:.625rem; margin:5px 0 0; line-height:1.7; align-self:start; }
+.mochi-room .focus-tools .pet-tools { grid-column:1 / -1; width:100%; max-width:none; margin-top:12px; }
+.mochi-room .focus-tools .pet-tools button { min-height:52px; padding:6px 2px; font-size:.6875rem; }
+.mochi-room .focus-tools .playground-extras { grid-column:1 / -1; font-size:.75rem; color:#94775f; }
+.mochi-room .focus-tools .playground-extras > summary { min-height:36px; padding:8px 0 0; cursor:pointer; }
+.mochi-room .focus-tools .scene-window { left:7px; top:5px; width:27px; height:32px; border-width:2px; border-radius:7px 7px 2px 2px; }
+.mochi-room .focus-tools .scene-window > svg { width:13px; height:13px; top:3px; right:1px; }
+.mochi-room .focus-tools .window-cross::after { width:2px; }
+.mochi-room .focus-tools .scene-lamp { width:19px; height:12px; top:10px; right:8px; }
+.mochi-room .focus-tools .scene-lamp::after { height:14px; width:2px; top:10px; }
+.mochi-room .focus-tools .scene-life { top:10px; right:38px; }
+.mochi-room .focus-tools .scene-life svg { width:16px; height:16px; }
+.mochi-room .focus-tools .scene-weather { left:9px; top:7px; width:23px; height:28px; }
+.mochi-room .focus-tools .scene-season { top:10px; left:40px; gap:3px; }
+.mochi-room .focus-tools .scene-season svg { width:12px; height:12px; }
+.mochi-room .focus-tools .scene-plant,.mochi-room .focus-tools .scene-furniture { min-height:44px; min-width:44px; bottom:5px; left:2px; background:#fff8ebb5; }
+.mochi-room .focus-tools .scene-furniture { left:auto; right:2px; }
+.mochi-room .focus-tools .scene-furniture svg { width:23px; height:23px; }
+.mochi-room .focus-tools .scene-plant > svg { max-width:22px; max-height:22px; }
+.mochi-room .focus-tools .plant-pot { width:17px; height:10px; }
+.companion-gateway .gateway-choices { display:grid; grid-template-columns:minmax(0,1fr); gap:10px; }
+.companion-gateway .gateway-choices button { display:flex; align-items:center; gap:12px; min-height:86px; padding:14px 12px; text-align:left; border-radius:16px; position:relative; }
+.companion-gateway .gateway-icon { display:grid; place-items:center; flex:0 0 42px; height:42px; border-radius:14px; background:#f4e7d8; color:#a27753; }
+.companion-gateway .gateway-rest { background:#e9ede0; color:#7b8d62; }
+.companion-gateway .gateway-room { background:#e6ecea; color:#7d9891; }
+.companion-gateway .gateway-gifts { background:#faf0d8; color:#b59350; }
+.companion-gateway .gateway-copy { flex:1; min-width:0; }
+.companion-gateway .gateway-copy strong { display:block; font-size:.875rem; font-weight:650; line-height:1.5; }
+.companion-gateway .gateway-copy small { display:block; font-size:.6875rem; line-height:1.7; color:#9b846e; margin-top:4px; }
+.companion-gateway .gateway-choices button > svg { flex-shrink:0; color:#af967c; }
+.companion-gateway .gift-dot { position:absolute; top:9px; right:9px; }
 .habit-progress-options { display:grid; gap:12px; margin-top:12px; }
 .habit-progress-options button { min-height:48px; }
 .mood-only-dialog .mood-options { margin:14px 0; }
@@ -82,6 +119,13 @@
   .today-record-main { font-size:.8125rem; }
   .today-habits { margin-top:20px; }
   .mochi-home { grid-template-columns:minmax(0,1fr); gap:18px; }
+  .mochi-home .mochi-room { padding:13px 12px 8px; border-radius:21px; }
+  .mochi-home .companion-top .small-label { font-size:.8125rem; }
+  .mochi-home .room-label { display:none; }
+  .mochi-home-menu .companion-gateway { padding:17px 15px; }
+  .mochi-home-menu .companion-gateway .section-heading { margin-bottom:12px; }
+  .mochi-room .focus-tools { grid-template-columns:136px minmax(0,1fr); column-gap:12px; margin-top:9px; }
+  .mochi-room .focus-tools .playground-stage { width:136px; max-width:136px; }
 }
 @media (max-width:360px) {
   .focused-layout .page-heading h1 { font-size:1rem; letter-spacing:0; }
@@ -92,4 +136,9 @@
   .today-record-row { padding-inline:12px; gap:8px; }
   .today-record-icon { flex-basis:28px; height:30px; }
   .today-section-heading { gap:4px 8px; }
+  .mochi-room .focus-tools { grid-template-columns:118px minmax(0,1fr); column-gap:9px; }
+  .mochi-room .focus-tools .playground-stage { width:118px; max-width:118px; }
+  .mochi-room .focus-tools .playground-speech { padding:7px; font-size:.75rem; }
+  .companion-gateway .gateway-choices button { gap:9px; padding:12px 10px; }
+  .companion-gateway .gateway-copy strong { font-size:.8125rem; }
 }

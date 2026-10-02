@@ -1,0 +1,1 @@
+ALTER TABLE `entries` ADD `habit_names` text DEFAULT '[]' NOT NULL;

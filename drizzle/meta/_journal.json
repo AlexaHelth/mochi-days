@@ -36,6 +36,13 @@
       "when": 1790913259510,
       "tag": "0004_rich_hannibal_king",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1790978461578,
+      "tag": "0005_daily_habit_names",
+      "breakpoints": true
     }
   ]
 }

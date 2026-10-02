@@ -12,8 +12,16 @@ import { bondCount, bondLevel, plantStage, lettersFor, dailyQuestion, goalStep, 
 
 export type HubPage='profile'|'talk'|'journey'|'rest'|'room'|'gifts';
 const pages=[['profile','もちのこと',Heart],['talk','お話',MessageCircle],['journey','おさんぽ',Footprints],['rest','ひと休み',Moon],['room','模様がえ',Home],['gifts','贈りもの',Gift]] as const;
+const actions:Record<HubPage,{title:string;description:string}>={
+ profile:{title:'もちのこと・思い出',description:'性格や好きなもの、お手紙を見る'},
+ talk:{title:'もちとお話しする',description:'今日のお話や、やさしい言葉を選ぶ'},
+ journey:{title:'おさんぽの物語',description:'歩いた記録で物語を進める・タイマーも'},
+ rest:{title:'ひと休み・小さな遊び',description:'深呼吸やミニゲーム、好きな音で休む'},
+ room:{title:'お部屋を模様がえ',description:'家具・天気・色を好みに変える'},
+ gifts:{title:'もちからの贈りもの',description:'お手紙や思い出の品を受け取る'},
+};
 export function CompanionGateway({onOpen,ready,quiet}:{onOpen:(page:HubPage)=>void;ready:number;quiet:boolean}){
- return <section className="card companion-gateway"><div className="section-heading"><h2>もちとの時間</h2><span className="subtle">好きなときに</span></div><div className="gateway-choices">{pages.map(([id,label,Icon])=><button type="button" key={id} onClick={()=>onOpen(id)}><Icon size={18}/>{label}{id==='gifts'&&ready>0&&<span className="gift-dot" aria-label="受け取れる贈りもの"/>}</button>)}</div>{!quiet&&<p className="support-copy">お話も、遊びも。気になるところから。</p>}</section>;
+ return <section className="card companion-gateway"><div className="section-heading"><h2>もちとの時間</h2><span className="subtle">好きなときに</span></div><div className="gateway-choices">{pages.map(([id,,Icon])=><button type="button" key={id} onClick={()=>onOpen(id)} aria-label={actions[id].title+'を開く'}><span className={'gateway-icon gateway-'+id}><Icon size={23}/></span><span className="gateway-copy"><strong>{actions[id].title}</strong><small>{actions[id].description}</small></span><ChevronRight size={18}/>{id==='gifts'&&ready>0&&<span className="gift-dot" aria-label="受け取れる贈りもの"/>}</button>)}</div>{!quiet&&<p className="support-copy">お話も、遊びも。気になるところから。</p>}</section>;
 }
 export function CompanionHub({open,onOpenChange,initialPage,state,companion,day,hour,scope,disabled,onCommand,onInteract,onWalking,onStretch,onNote,onSwitch,onBedtime}:{open:boolean;onOpenChange:(open:boolean)=>void;initialPage:HubPage;state:State;companion:CompanionState;day:string;hour:number;scope:string;disabled:boolean;onCommand:(command:CompanionAction)=>Promise<boolean>;onInteract:(kind:Interaction)=>void;onWalking:(minutes:number)=>void;onStretch:()=>void;onNote:()=>void;onSwitch:(species:Species)=>Promise<boolean>;onBedtime:(selfWords:string,tomorrow:string)=>Promise<boolean>}){
  const [page,setPage]=useState<HubPage>(initialPage),[viewSpecies,setViewSpecies]=useState<Species>(state.settings.species),[letter,setLetter]=useState<{title:string;text:string}|null>(null),[archive,setArchive]=useState(false),[selectedEpisode,setSelectedEpisode]=useState<string|null>(null),[openedGift,setOpenedGift]=useState<string|null>(null);
