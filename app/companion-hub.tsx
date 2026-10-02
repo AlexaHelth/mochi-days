@@ -11,7 +11,7 @@ import { personalities, tones, supports, memoryQuestions, routes, seasonStories,
 import { bondCount, bondLevel, plantStage, lettersFor, dailyQuestion, goalStep, walkingJourney, type CompanionState, type CompanionAction, type Interaction, type RoomDesign } from '@/lib/companion';
 
 export type HubPage='profile'|'talk'|'journey'|'rest'|'room'|'gifts';
-const pages=[['profile','もちのこと',Heart],['talk','お話',MessageCircle],['journey','おさんぽ',Footprints],['rest','ひと休み',Moon],['room','お部屋',Home],['gifts','贈りもの',Gift]] as const;
+const pages=[['profile','もちのこと',Heart],['talk','お話',MessageCircle],['journey','おさんぽ',Footprints],['rest','ひと休み',Moon],['room','模様がえ',Home],['gifts','贈りもの',Gift]] as const;
 export function CompanionGateway({onOpen,ready,quiet}:{onOpen:(page:HubPage)=>void;ready:number;quiet:boolean}){
  return <section className="card companion-gateway"><div className="section-heading"><h2>もちとの時間</h2><span className="subtle">好きなときに</span></div><div className="gateway-choices">{pages.map(([id,label,Icon])=><button type="button" key={id} onClick={()=>onOpen(id)}><Icon size={18}/>{label}{id==='gifts'&&ready>0&&<span className="gift-dot" aria-label="受け取れる贈りもの"/>}</button>)}</div>{!quiet&&<p className="support-copy">お話も、遊びも。気になるところから。</p>}</section>;
 }

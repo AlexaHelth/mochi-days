@@ -19,7 +19,7 @@ const replies:Record<Tool,Record<Species,string>>={
 };
 type Gesture={id:number;x:number;y:number;distance:number;reacted:boolean;hold:ReturnType<typeof setTimeout>|null};
 
-export function PetPlayground({species,outfit,name,pose,message,resting=false,quiet=false,onInteract,onLounge,compact=false,design,hour=12,plant=0,bond=0,personality='calm',voice=false,volume=.15,haptics=false,onActivities}:{species:Species;outfit:Outfit;name:string;pose:number;message:string;resting?:boolean;quiet?:boolean;onInteract?:(kind:Interaction)=>void;onLounge?:()=>void;compact?:boolean;design?:RoomDesign;hour?:number;plant?:number;bond?:number;personality?:CompanionProfile['personality'];voice?:boolean;volume?:number;haptics?:boolean;onActivities?:()=>void}){
+export function PetPlayground({species,outfit,name,pose,message,resting=false,quiet=false,onInteract,onLounge,compact=false,minimal=false,design,hour=12,plant=0,bond=0,personality='calm',voice=false,volume=.15,haptics=false,onActivities}:{species:Species;outfit:Outfit;name:string;pose:number;message:string;resting?:boolean;quiet?:boolean;onInteract?:(kind:Interaction)=>void;onLounge?:()=>void;compact?:boolean;minimal?:boolean;design?:RoomDesign;hour?:number;plant?:number;bond?:number;personality?:CompanionProfile['personality'];voice?:boolean;volume?:number;haptics?:boolean;onActivities?:()=>void}){
  const [tool,setTool]=useState<Tool>('pet'),[reaction,setReaction]=useState<Tool|'costume'|null>(null),[sequence,setSequence]=useState(0),[cursor,setCursor]=useState<{x:number;y:number}|null>(null),[blink,setBlink]=useState(false),[reduced,setReduced]=useState(false),[furnitureMessage,setFurnitureMessage]=useState<string|null>(null),[furniturePose,setFurniturePose]=useState<number|null>(null);
  const sound=useRef<MochiSound|null>(null);
  const gesture=useRef<Gesture|null>(null),reactionTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -64,7 +64,7 @@ export function PetPlayground({species,outfit,name,pose,message,resting=false,qu
  const shownMessage=furnitureMessage??(reaction?personalityPrefix+(reaction==='costume'?costumeReply:replies[reaction][species]):resting?'今日は一緒に、のんびりしよう。休む時間も大切だね。':message);
  const ToolIcon=tools.find(item=>item.id===tool)!.Icon;
  const style={'--toy-lean':`${tool==='toy'&&cursor?(cursor.x-50)*.32:0}px`} as CSSProperties;
- return <div className={'pet-playground '+(compact?'compact ':'')+(resting?'resting ':'')}>
+ return <div className={'pet-playground '+(compact?'compact ':'')+(minimal?'minimal ':'')+(resting?'resting ':'')}>
   <div className="speech playground-speech" aria-live="polite">{shownMessage}</div>
   <div className={'playground-stage '+(design?'with-scene':'')}>
    {design&&<RoomScene design={design} hour={hour} plant={plant} onPlant={()=>{onInteract?.('garden');setFurnitureMessage('小さな鉢も、一緒に育っているよ。休んでも、しおれないからね。');if(reactionTimer.current)clearTimeout(reactionTimer.current);reactionTimer.current=setTimeout(()=>setFurnitureMessage(null),3400)}} onFurniture={()=>{respond(design.furniture==='ball'?'toy':'hug');setFurniturePose(design.furniture==='bed'?2:design.furniture==='ball'?4:1);setFurnitureMessage({bed:'ベッドで、ゆっくり一緒におやすみ。',cushion:'クッションへ、ちょこん。そばでくつろごう。',book:'絵本の好きなページを、一緒に眺めよう。',ball:'ころころ。お部屋のボールと、小さな寄り道。'}[design.furniture])}}/>}
@@ -77,12 +77,14 @@ export function PetPlayground({species,outfit,name,pose,message,resting=false,qu
    </button>
   </div>
   <p className="pet-name">{name}<Heart size={14}/></p>
-  <p className="pet-caption">{quiet?'そばで、のんびりしているよ。':hints[tool]}</p>
+  <p className="pet-caption">{minimal?'タップで、なでてね':quiet?'そばで、のんびりしているよ。':hints[tool]}</p>
+  {!minimal&&<>
   <div className="pet-tools" aria-label="もちとの触れ合い">{tools.map(({id,label,Icon})=><button key={id} type="button" aria-label={id==='hug'?'ぎゅっとする':id==='brush'?'ブラッシング':id==='snack'?'おやつをあげる':id==='toy'?'おもちゃで遊ぶ':'なでる'} aria-pressed={tool===id} onClick={()=>{setTool(id);respond(id)}}><Icon size={18}/><span>{label}</span></button>)}</div>
   {outfit!=='none'&&<button type="button" className="costume-action" onClick={()=>respond('costume')}><Sparkles size={15}/>この衣装のしぐさ</button>}
   {design&&!resting&&<p className="hourly-scene">{hour<6||hour>=21?'すやすや。静かな、おやすみの時間。':hour<10?'おててを伸ばして、朝のひと息。':hour<16?'お茶をそばに、昼のひと休み。':'絵本をひらいて、夕方のひと息。'}</p>}{onLounge&&<button type="button" className="lounge-link" onClick={onLounge}><Moon size={15}/>もちと、ひと休み</button>}
   {onActivities&&<button type="button" className="lounge-link" onClick={onActivities}>遊びや音を選ぶ</button>}
   {!quiet&&<p className="playground-note">回数も、お世話のノルマもないよ。気が向いたときに。</p>}
+  </>}
  </div>;
 }
 

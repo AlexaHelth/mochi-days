@@ -1,0 +1,67 @@
+'use client';
+import type { ReactNode } from 'react';
+import { ChevronRight, Footprints, Heart, Meh, Moon, NotebookPen, Scale, Smile, StretchHorizontal, Target, Utensils, type LucideIcon } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { latestWeight, previousWeight, weightChange, weightDate } from '@/lib/weight';
+import type { CareDay, Entry, Settings } from '@/lib/mochi';
+
+const moods = ['元気！', 'ふつう', 'おつかれ'];
+const moodIcons = [Smile, Meh, Moon];
+const habitIcons = [Footprints, StretchHorizontal, Utensils];
+
+function RecordRow({ icon: Icon, label, value, hint, recorded, disabled, onClick }: {
+  icon: LucideIcon; label: string; value: string; hint?: string; recorded: boolean;
+  disabled: boolean; onClick: () => void;
+}) {
+  return <button type="button" className={'today-record-row ' + (recorded ? 'recorded' : '')} disabled={disabled} onClick={onClick} aria-label={`${label}を${recorded ? '編集' : '記録'}する`}>
+    <span className="today-record-icon"><Icon size={20}/></span>
+    <span className="today-record-copy"><span className="today-record-main"><span>{label}</span><strong>{value}</strong></span>{hint && <small>{hint}</small>}</span>
+    <ChevronRight size={17} className="today-row-arrow"/>
+  </button>;
+}
+
+export function TodayView({ entry, entries, settings, care, pet, disabled, saving, saved, recordsOpen, moreHabits, onGoal, onMood, onWeight, onWalking, onNote, onHabit, onToggleHabit, onRest, onResume, onMoreHabits }: {
+  entry: Entry; entries: Entry[]; settings: Settings; care: Required<CareDay>; pet: ReactNode;
+  disabled: boolean; saving: boolean; saved: boolean; recordsOpen: boolean; moreHabits: boolean;
+  onGoal: () => void; onMood: () => void; onWeight: () => void; onWalking: () => void;
+  onNote: () => void; onHabit: (index: number) => void; onToggleHabit: (index: number, checked: boolean) => void;
+  onRest: () => void; onResume: () => void; onMoreHabits: () => void;
+}) {
+  const weightRecord = entry.weight !== null ? entry : latestWeight(entries, entry.day);
+  const previous = previousWeight(entries, entry.day);
+  const weightHint = entry.weight !== null
+    ? previous ? `${weightChange(entry.weight, previous.weight)} · ${weightDate(previous.day)}比` : 'はじめの体重の記録'
+    : weightRecord ? `前回 ${weightDate(weightRecord.day)} · 今日は未記録` : undefined;
+  const MoodIcon = entry.mood === null ? Smile : moodIcons[entry.mood];
+  return <div className="today-home">
+    <button type="button" className="today-goal" onClick={onGoal} disabled={disabled} aria-label={settings.goal ? `目標を変更する：${settings.goal}` : '目標を選ぶ'}>
+      <Target size={15}/><span>{settings.goal || 'これからの、ゆるい目標を選ぶ'}</span><ChevronRight size={15}/>
+    </button>
+    <section className="today-companion" aria-label={`${settings.name}と、ひと息`}>{pet}</section>
+    {recordsOpen ? <>
+      <section className="today-records" aria-labelledby="today-record-title">
+        <div className="today-section-heading"><h2 id="today-record-title">きょうの記録</h2><span>{saving ? '保存中…' : saved ? '保存しました' : 'ひとつだけでも、大丈夫'}</span></div>
+        <RecordRow icon={MoodIcon} label="気分" value={entry.mood === null ? '未記録' : moods[entry.mood]} recorded={entry.mood !== null} disabled={disabled} onClick={onMood}/>
+        {settings.showWeight && <RecordRow icon={Scale} label="体重" value={weightRecord?.weight != null ? `${weightRecord.weight.toFixed(1)} kg` : '未記録'} hint={weightHint} recorded={entry.weight !== null} disabled={disabled} onClick={onWeight}/>}
+        <RecordRow icon={Footprints} label="ウォーキング" value={entry.walkingMinutes == null ? '未記録' : `${entry.walkingMinutes} 分`} recorded={entry.walkingMinutes != null} disabled={disabled} onClick={onWalking}/>
+        <RecordRow icon={NotebookPen} label="メモ" value={entry.note?.trim() ? 'ひとこと残せたね' : '未記録'} hint={entry.note?.trim() || undefined} recorded={!!entry.note?.trim()} disabled={disabled} onClick={onNote}/>
+      </section>
+      <section className="today-habits" aria-labelledby="today-habit-title">
+        <div className="today-section-heading"><h2 id="today-habit-title">きょうの小さな習慣</h2><span>{care.light ? '今日はひとつから' : 'できる日に、ひとつずつ'}</span></div>
+        <div className="today-habit-list">{settings.habits.map((habit, index) => {
+          if (care.light && !moreHabits && index > 0) return null;
+          const id = 'h' + index, checked = entry.done.includes(id), partial = entry.partial?.includes(id), Icon = habitIcons[index] ?? Heart;
+          return <div key={id} className={'today-habit-row ' + (checked ? 'completed' : partial ? 'partly' : '')}>
+            <button type="button" className="today-habit-detail" disabled={disabled} onClick={() => onHabit(index)} aria-label={`習慣「${habit}」を記録する`}><span className={'habit-icon habit-' + index}><Icon size={19}/></span><span>{habit}{partial && !checked && <small>少しできた</small>}</span></button>
+            <label className="today-habit-check"><Checkbox checked={checked} disabled={disabled} onCheckedChange={value => onToggleHabit(index, value === true)} aria-label={`${habit}ができた`}/></label>
+          </div>;
+        })}</div>
+        {care.light && settings.habits.length > 1 && <button type="button" className="more-habits" aria-expanded={moreHabits} onClick={onMoreHabits}>{moreHabits ? 'ひとつだけに戻す' : 'ほかの習慣も見る'}</button>}
+      </section>
+    </> : <section className="today-rest" aria-label="今日のおやすみ">
+      <Moon size={22}/><h2>{care.finished ? '今日はここまでで、花まる。' : '今日は、一緒におやすみ。'}</h2>
+      <p>記録はいつでも、気が向いたときに。</p><button type="button" onClick={onResume} disabled={disabled}>記録を開く<ChevronRight size={15}/></button>
+    </section>}
+    <button type="button" className="today-rest-link" onClick={onRest} disabled={disabled}><Moon size={15}/>{care.resting || care.finished ? 'おやすみを終える' : '今日は休む'}</button>
+  </div>;
+}
