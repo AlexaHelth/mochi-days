@@ -1,4 +1,14 @@
 /* The home screen has one record list; pet activities live in the Mochi tab. */
+/* Numeric record editors keep the save action outside the scrolling content. */
+.app-dialog.numeric-record-dialog { display:flex!important; flex-direction:column; gap:12px!important; max-height:calc(100dvh - 24px); overflow:hidden; padding:22px!important; }
+.numeric-record-dialog [data-slot=dialog-title] { padding-right:22px; font-size:1.125rem; line-height:1.5; flex-shrink:0; }
+.numeric-record-dialog form { display:flex; flex-direction:column; min-height:0; }
+.numeric-record-dialog .record-picker-content { min-height:0; overflow-y:auto; overscroll-behavior-y:contain; }
+.numeric-record-dialog .record-save-footer { flex-shrink:0; padding-top:12px; }
+.numeric-record-dialog .record-save-footer .save-button { margin-top:0; }
+.numeric-record-dialog .weight-record-day { margin:0 0 10px; }
+.numeric-record-dialog .weight-picker { margin-top:0; }
+.numeric-record-dialog .weight-difference { margin:10px 0 8px; padding:8px 10px; border:1px solid #dfb786; border-radius:12px; background:#fff0dc; color:#75472f; font-size:1.125rem; font-weight:700; line-height:1.5; }
 .focused-layout .main-nav { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
 .focused-layout .main-nav [data-slot=tabs-trigger] { min-width:0; padding-inline:12px; }
 .focused-layout .brand small { letter-spacing:.07em; }

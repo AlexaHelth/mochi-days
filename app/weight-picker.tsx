@@ -50,7 +50,6 @@ export function WeightPicker({ value, included, previous, disabled = false, opti
       <span className="weight-wheel-unit" aria-hidden="true">kg</span>
     </div>
     <output className="sr-only" aria-live="polite" aria-label="入力する体重">{current.toFixed(1)} kg</output>
-    <p className="weight-scroll-hint">数字を上下にスクロールして選んでね</p>
     <p className="weight-difference" aria-live="polite">{previous ? weightChange(current, previous.weight) : '最初の記録になります'}</p>
     {previous && <Button type="button" className="weight-reset" variant="ghost" onClick={() => change(String(previous.weight))}><RotateCcw size={14} />前回の値に戻す</Button>}
     <details className="weight-direct"><summary>数値を直接入力する</summary><label className="sr-only" htmlFor="weight-direct">体重を直接入力（kg）</label><Input id="weight-direct" type="text" inputMode="decimal" value={value} placeholder="例：60.0" onChange={event => change(event.target.value)} /></details>

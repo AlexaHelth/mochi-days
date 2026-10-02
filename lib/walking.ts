@@ -17,3 +17,11 @@ export function previousWalking(entries: Entry[], day: string): WalkingEntry | u
   return entries.filter((entry): entry is WalkingEntry => entry.day < day && isWalkingEntry(entry))
     .sort((a, b) => b.day.localeCompare(a.day))[0];
 }
+
+export function walkingDraft(entries: Entry[], entry: Entry, recordWalking = false) {
+  return {
+    value: String(entry.walkingMinutes ?? previousWalking(entries, entry.day)?.walkingMinutes ?? 0),
+    // A previous day's suggestion becomes a new record only when explicitly saved.
+    included: recordWalking || entry.walkingMinutes != null,
+  };
+}
