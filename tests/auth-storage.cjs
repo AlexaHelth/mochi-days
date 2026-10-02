@@ -4,7 +4,7 @@ function statement(sql,args=[]){return{bind(...values){return statement(sql,valu
 const db={prepare:statement,async batch(list){sqlite.exec('BEGIN');try{const r=list.map(s=>({results:s.all(),success:true}));sqlite.exec('COMMIT');return r}catch(e){sqlite.exec('ROLLBACK');throw e}}};
 let user=null;
 function load(path,mocks){const code=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;const exp={};new Function('require','exports',code)(id=>mocks[id]??require(id),exp);return exp}
-const shared=load('packages/mochi-assets/index.js',{});const helpers=load('lib/mochi.ts',{'../packages/mochi-assets/index.js':shared});const rules=load('lib/state-rules.ts',{'./mochi':helpers});const api=load('app/api/state/route.ts',{'../../chatgpt-auth':{getChatGPTUser:async()=>user},'@/lib/store':{database:()=>db},'@/lib/mochi':helpers,'@/lib/state-rules':rules});
+const shared=load('packages/mochi-assets/index.js',{});const helpers=load('lib/mochi.ts',{'../packages/mochi-assets/index.js':shared});const content=load('lib/companion-content.ts',{}),companion=load('lib/companion.ts',{'./mochi':helpers,'./companion-content':content});const rules=load('lib/state-rules.ts',{'./mochi':helpers,'./companion':companion,'./companion-content':content});const api=load('app/api/state/route.ts',{'../../chatgpt-auth':{getChatGPTUser:async()=>user},'@/lib/store':{database:()=>db},'@/lib/mochi':helpers,'@/lib/state-rules':rules,'@/lib/companion':companion});
 const exportApi=load('app/api/export/route.ts',{'../state/route':api,'@/lib/mochi':helpers});
 const body={kind:'entry',day:helpers.today(),weight:60,mood:0,done:['h0']};
 function request(data,origin='https://example.test'){return new Request('https://example.test/api/state',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(data)})}
@@ -132,6 +132,23 @@ await api.POST(request({kind:'care',day:helpers.today(),visited:true}));data=awa
 assert.equal(data.entries[0].weight,null);assert.deepEqual(data.entries[0].done,[]);assert.equal(data.stars,0);assert.equal(data.entries[0].care.resting,undefined);
 user={userId:'care-a',email:'care-a@example.test'};assert.equal((await(await api.GET()).json()).entries[0].care.resting,true);
 console.log('PASS: private care flags, independent partial updates, health preservation, no star farming, weekly pace compatibility, export and validation.');
+// New companion state is private, bounded and merged with revision retries.
+user={userId:'memories-a',email:'ma@example.test'};
+assert.equal((await api.POST(request({kind:'settings',...helpers.defaults,onboardingComplete:true}))).status,200);
+const memory=command=>api.POST(request({kind:'companion',command}));
+assert.equal((await memory({action:'visit'})).status,200);
+const parallel=await Promise.all([memory({action:'preference',patch:{callingName:'はな'}}),memory({action:'preference',patch:{tone:'quiet'}}),memory({action:'like',key:'season',value:'春'})]);assert.ok(parallel.every(response=>response.status===200));
+data=await(await api.GET()).json();assert.equal(data.companion.preferences.callingName,'はな');assert.equal(data.companion.preferences.tone,'quiet');assert.equal(data.companion.pets.dog.likes.season,'春');
+const emptyHealth=data.entries,starsBefore=data.stars;
+await memory({action:'interact',interaction:'hug'});await memory({action:'interact',interaction:'hug'});
+data=await(await api.GET()).json();assert.deepEqual(data.entries,emptyHealth);assert.equal(data.stars,starsBefore);assert.equal(data.companion.pets.dog.interactions[helpers.today()].length,1);
+assert.equal((await memory({action:'preference',patch:{stars:999}})).status,400);
+await api.POST(request({kind:'entry',day:helpers.today(),weight:null,mood:null,done:[],note:'もちへの言葉',partial:['h0'],feelings:['ほっとした'],tags:['忙しい日']}));
+data=await(await api.GET()).json();assert.equal(data.stars,0);assert.equal(data.companion.journey.episodes.length,1);assert.deepEqual(data.entries[0].partial,['h0']);assert.deepEqual(data.entries[0].feelings,['ほっとした']);
+await api.POST(request({kind:'entry',day:helpers.today(),weight:null,mood:null,done:['h0']}));data=await(await api.GET()).json();assert.deepEqual(data.entries[0].partial,[]);assert.equal(data.entries[0].note,'もちへの言葉');assert.deepEqual(data.entries[0].tags,['忙しい日']);assert.equal(data.stars,1);
+const memoryExport=await(await exportApi.GET()).json();assert.equal(memoryExport.companion.preferences.callingName,'はな');
+user={userId:'memories-b',email:'mb@example.test'};data=await(await api.GET()).json();assert.equal(data.companion.preferences.callingName,'');assert.deepEqual(data.companion.pets,{});
+console.log('PASS: private companion archives and export, overlapping command retries, no star farming, metadata persistence across old clients, partial completion semantics and account isolation.');
 sqlite.close();
 
 })().catch(e=>{console.error(e);process.exitCode=1});

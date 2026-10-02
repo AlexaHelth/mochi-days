@@ -1,5 +1,6 @@
 export type CareDay = {visited?:boolean;resting?:boolean;light?:boolean;quiet?:boolean;finished?:boolean};
-export type Entry = {day:string;weight:number|null;walkingMinutes?:number|null;mood:number|null;done:string[];note?:string;care?:CareDay};
+import type { CompanionState } from './companion';
+export type Entry = {day:string;weight:number|null;walkingMinutes?:number|null;mood:number|null;done:string[];note?:string;care?:CareDay;partial?:string[];feelings?:string[];tags?:string[]};
 import { speciesIds, outfitIds, type Species, type Outfit } from '../packages/mochi-assets/index.js';
 export { speciesIds, outfitIds, pets, expressionNames, petSprite, petFrame, type Species, type Outfit } from '../packages/mochi-assets/index.js';
 export const outfits: {id:Outfit;name:string;cost:number;note:string}[] = [
@@ -39,7 +40,7 @@ export const outfits: {id:Outfit;name:string;cost:number;note:string}[] = [
  {id:'starlight',name:'ほしぞらの特別なもち',cost:450,note:'全部ひらいた、あなたにだけ。'},
 ];
 export type Settings = {name:string;habits:string[];showWeight:boolean;room:string;species:Species;outfit:Outfit;onboardingComplete:boolean;goal:string;weeklyDays:number|null};
-export type State = {entries:Entry[];settings:Settings;stars:number};
+export type State = {entries:Entry[];settings:Settings;stars:number;companion?:CompanionState};
 export const defaults:Settings={name:'もち',habits:['少し歩く','からだを伸ばす','ゆっくり食べる'],showWeight:true,room:'cream',species:'dog',outfit:'none',onboardingComplete:false,goal:'',weeklyDays:null};
 export const rooms=[{id:'cream',name:'ひだまりのお部屋',cost:0,color:'#fff8ee'},{id:'peach',name:'もものお部屋',cost:10,color:'#ffe4db'},{id:'sky',name:'青空のお部屋',cost:25,color:'#e5f1fa'},{id:'flower',name:'お花のお部屋',cost:50,color:'#f6e6f0'}];
 export const regularOutfits=outfits.filter(o=>o.id!=='none'&&o.id!=='starlight');

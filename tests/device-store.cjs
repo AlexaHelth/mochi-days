@@ -3,7 +3,7 @@ function load(path,mocks){const code=ts.transpileModule(fs.readFileSync(path,'ut
 const items=new Map();let full=false;
 global.localStorage={getItem:k=>items.has(k)?items.get(k):null,setItem(k,v){if(full)throw new DOMException('Quota exceeded','QuotaExceededError');items.set(k,String(v))},removeItem:k=>items.delete(k)};
 const shared=load('packages/mochi-assets/index.js',{});const helpers=load('lib/mochi.ts',{'../packages/mochi-assets/index.js':shared});
-const rules=load('lib/state-rules.ts',{'./mochi':helpers}),care=load('lib/care.ts',{'./mochi':helpers});const device=load('lib/device-store.ts',{'./mochi':helpers,'./state-rules':rules,'./care':care});
+const content=load('lib/companion-content.ts',{}),companion=load('lib/companion.ts',{'./mochi':helpers,'./companion-content':content});const rules=load('lib/state-rules.ts',{'./mochi':helpers,'./companion':companion,'./companion-content':content}),care=load('lib/care.ts',{'./mochi':helpers});const device=load('lib/device-store.ts',{'./mochi':helpers,'./state-rules':rules,'./care':care,'./companion':companion});
 const request=device.requestDeviceState,today=helpers.today(),yesterday=helpers.daysAgo(today,1);
 const body={kind:'entry',day:today,weight:60,mood:0,done:['h0']};
 (async()=>{
@@ -96,4 +96,13 @@ await assert.rejects(()=>request({kind:'care',day:today,resting:false}),/保存�
 assert.equal(items.get('mochi-days:v1'),restSaved);
 console.log('PASS: persisted visits, rest/light/quiet/finished flags, partial care updates, preserved health/wardrobe/stars, old-client compatibility, weekly pacing, validation, export and write failures.');
 
+// Memories persist independently from health and older clients; failed writes are atomic.
+items.clear();data=await request({kind:'settings',...helpers.defaults,onboardingComplete:true});
+const memory=command=>request({kind:'companion',command});
+await memory({action:'visit'});await memory({action:'preference',patch:{callingName:'はな',tone:'quiet'}});await memory({action:'like',key:'season',value:'春'});await memory({action:'interact',interaction:'hug'});
+data=await request({kind:'entry',day:today,weight:null,mood:null,done:[],note:'もちへ',partial:['h0'],feelings:['ほっとした'],tags:['忙しい日']});assert.equal(data.stars,0);assert.equal(data.companion.journey.episodes.length,1);
+await request({kind:'settings',name:'もち',habits:['歩く'],showWeight:true,room:'cream'});data=await request({kind:'entry',day:today,weight:null,mood:null,done:['h0']});assert.equal(data.companion.preferences.callingName,'はな');assert.equal(data.companion.pets.dog.likes.season,'春');assert.deepEqual(data.entries[0].tags,['忙しい日']);assert.equal(data.entries[0].note,'もちへ');assert.deepEqual(data.entries[0].partial,[]);assert.equal(data.stars,1);
+const atomic=items.get('mochi-days:v1');full=true;await assert.rejects(()=>memory({action:'like',key:'season',value:'冬'}),/保存できません/);full=false;assert.equal(items.get('mochi-days:v1'),atomic);
+assert.equal((await request()).companion.pets.dog.likes.season,'春');assert.equal(JSON.parse(await device.exportDeviceRecords().text()).companion.preferences.callingName,'はな');
+console.log('PASS: persistent companion archive, single-field gifts, independent stars, old-client metadata preservation, export and atomic memory write failures.');
 })().catch(e=>{console.error(e);process.exitCode=1});

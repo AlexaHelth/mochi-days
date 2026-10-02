@@ -1,7 +1,10 @@
 'use client';
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
-import { Brush, CircleDot, Cookie, Hand, Heart, Moon, Sparkles } from 'lucide-react';
+import { Brush, CircleDot, Cookie, Hand, Heart, Moon, Sparkles, Search, Umbrella, Palette } from 'lucide-react';
 import { Pet } from './pet';
+import { RoomScene } from './room-scene';
+import { MochiSound } from '@/lib/mochi-sound';
+import type { RoomDesign, Interaction, CompanionProfile } from '@/lib/companion';
 import type { Outfit, Species } from '@/lib/mochi';
 
 type Tool='pet'|'hug'|'brush'|'snack'|'toy';
@@ -16,8 +19,9 @@ const replies:Record<Tool,Record<Species,string>>={
 };
 type Gesture={id:number;x:number;y:number;distance:number;reacted:boolean;hold:ReturnType<typeof setTimeout>|null};
 
-export function PetPlayground({species,outfit,name,pose,message,resting=false,quiet=false,onInteract,onLounge,compact=false}:{species:Species;outfit:Outfit;name:string;pose:number;message:string;resting?:boolean;quiet?:boolean;onInteract?:()=>void;onLounge?:()=>void;compact?:boolean}){
- const [tool,setTool]=useState<Tool>('pet'),[reaction,setReaction]=useState<Tool|null>(null),[sequence,setSequence]=useState(0),[cursor,setCursor]=useState<{x:number;y:number}|null>(null),[blink,setBlink]=useState(false),[reduced,setReduced]=useState(false);
+export function PetPlayground({species,outfit,name,pose,message,resting=false,quiet=false,onInteract,onLounge,compact=false,design,hour=12,plant=0,bond=0,personality='calm',voice=false,volume=.15,haptics=false,onActivities}:{species:Species;outfit:Outfit;name:string;pose:number;message:string;resting?:boolean;quiet?:boolean;onInteract?:(kind:Interaction)=>void;onLounge?:()=>void;compact?:boolean;design?:RoomDesign;hour?:number;plant?:number;bond?:number;personality?:CompanionProfile['personality'];voice?:boolean;volume?:number;haptics?:boolean;onActivities?:()=>void}){
+ const [tool,setTool]=useState<Tool>('pet'),[reaction,setReaction]=useState<Tool|'costume'|null>(null),[sequence,setSequence]=useState(0),[cursor,setCursor]=useState<{x:number;y:number}|null>(null),[blink,setBlink]=useState(false),[reduced,setReduced]=useState(false),[furnitureMessage,setFurnitureMessage]=useState<string|null>(null),[furniturePose,setFurniturePose]=useState<number|null>(null);
+ const sound=useRef<MochiSound|null>(null);
  const gesture=useRef<Gesture|null>(null),reactionTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
  useEffect(()=>{const media=window.matchMedia('(prefers-reduced-motion: reduce)'),sync=()=>setReduced(media.matches);sync();media.addEventListener('change',sync);return()=>media.removeEventListener('change',sync)},[]);
  useEffect(()=>{
@@ -26,11 +30,13 @@ export function PetPlayground({species,outfit,name,pose,message,resting=false,qu
   const timer=setInterval(()=>{setBlink(true);end=setTimeout(()=>setBlink(false),160)},6200);
   return()=>{clearInterval(timer);clearTimeout(end);setBlink(false)};
  },[reduced,resting,reaction,pose,outfit]);
- useEffect(()=>()=>{if(reactionTimer.current)clearTimeout(reactionTimer.current);if(gesture.current?.hold)clearTimeout(gesture.current.hold)},[]);
- function respond(kind:Tool){
+ useEffect(()=>()=>{if(reactionTimer.current)clearTimeout(reactionTimer.current);if(gesture.current?.hold)clearTimeout(gesture.current.hold);sound.current?.destroy()},[]);
+ function respond(kind:Tool|'costume'){
   if(reactionTimer.current)clearTimeout(reactionTimer.current);
-  setReaction(kind);setSequence(n=>n+1);onInteract?.();
-  reactionTimer.current=setTimeout(()=>setReaction(null),3400);
+  setFurniturePose(null);setReaction(kind);setSequence(n=>n+1);setFurnitureMessage(null);onInteract?.(kind);
+  if(haptics)navigator.vibrate?.(12);
+  if(voice)void (sound.current??(sound.current=new MochiSound())).voice(species,volume).catch(()=>{});
+  reactionTimer.current=setTimeout(()=>{setReaction(null);setFurnitureMessage(null);setFurniturePose(null)},3400);
  }
  function point(event:PointerEvent<HTMLButtonElement>){const bounds=event.currentTarget.getBoundingClientRect();return {x:Math.max(8,Math.min(92,(event.clientX-bounds.left)/bounds.width*100)),y:Math.max(8,Math.min(92,(event.clientY-bounds.top)/bounds.height*100))};}
  function begin(event:PointerEvent<HTMLButtonElement>){
@@ -52,24 +58,30 @@ export function PetPlayground({species,outfit,name,pose,message,resting=false,qu
   gesture.current=null;setCursor(null);
   if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);
  }
- const activePose=reaction==='hug'||reaction==='pet'||reaction==='brush'?1:reaction==='snack'?3:reaction==='toy'?4:resting?2:blink?1:pose;
- const shownMessage=reaction?replies[reaction][species]:resting?'今日は一緒に、のんびりしよう。休む時間も大切だね。':message;
+ const activePose=furniturePose??(reaction==='hug'||reaction==='pet'||reaction==='brush'?1:reaction==='snack'||reaction==='costume'?3:reaction==='toy'?4:resting?2:blink?1:design&&pose===0&&hour>=6&&hour<10?3:pose);
+ const costumeReply=outfit==='sailor'?'小さな羽やおててで、そっと敬礼。出発は、好きなときに。':outfit==='painter'?'今日の色をひとつ。小さな絵を、一緒に描こう。':outfit==='detective'?'虫めがねで、小さな幸せを見つけたよ。':outfit==='raincoat'?'傘をゆらゆら。雨音も、一緒に楽しもう。':outfit==='birthday'?'ここまでのまいにちに、小さな拍手。':outfit==='starlight'?'思い出の星が、ふわっときらめいたよ。':'おめかしして、くるん。今日もそばにいるよ。';
+ const personalityPrefix=personality==='shy'?'ふふ、':personality==='curious'?'ねえねえ、':'';
+ const shownMessage=furnitureMessage??(reaction?personalityPrefix+(reaction==='costume'?costumeReply:replies[reaction][species]):resting?'今日は一緒に、のんびりしよう。休む時間も大切だね。':message);
  const ToolIcon=tools.find(item=>item.id===tool)!.Icon;
  const style={'--toy-lean':`${tool==='toy'&&cursor?(cursor.x-50)*.32:0}px`} as CSSProperties;
  return <div className={'pet-playground '+(compact?'compact ':'')+(resting?'resting ':'')}>
   <div className="speech playground-speech" aria-live="polite">{shownMessage}</div>
-  <div className="playground-stage">
+  <div className={'playground-stage '+(design?'with-scene':'')}>
+   {design&&<RoomScene design={design} hour={hour} plant={plant} onPlant={()=>{onInteract?.('garden');setFurnitureMessage('小さな鉢も、一緒に育っているよ。休んでも、しおれないからね。');if(reactionTimer.current)clearTimeout(reactionTimer.current);reactionTimer.current=setTimeout(()=>setFurnitureMessage(null),3400)}} onFurniture={()=>{respond(design.furniture==='ball'?'toy':'hug');setFurniturePose(design.furniture==='bed'?2:design.furniture==='ball'?4:1);setFurnitureMessage({bed:'ベッドで、ゆっくり一緒におやすみ。',cushion:'クッションへ、ちょこん。そばでくつろごう。',book:'絵本の好きなページを、一緒に眺めよう。',ball:'ころころ。お部屋のボールと、小さな寄り道。'}[design.furniture])}}/>}
    <button type="button" className={'pet-surface '+(cursor?'touching':'')} aria-label={`${name}を${tools.find(item=>item.id===tool)!.label==='ぎゅっ'?'ぎゅっとする':tool==='pet'?'なでる':tool==='brush'?'ブラッシングする':tool==='snack'?'おやつで喜ばせる':'おもちゃで遊ぶ'}`} onPointerDown={begin} onPointerMove={move} onPointerUp={event=>finish(event)} onPointerCancel={event=>finish(event,true)} onLostPointerCapture={event=>finish(event,true)} onClick={event=>{if(event.detail===0)respond(tool)}} style={style}>
-    <span key={`${species}-${sequence}`} className={`pet-motion species-${species} ${reaction?'reacting reaction-'+reaction:'idle'} ${reduced?'motion-reduced':''}`}><Pet species={species} outfit={outfit} pose={activePose}/></span>
+    <span key={`${species}-${sequence}`} className={`pet-motion species-${species} bond-level-${bond} ${reaction?'reacting reaction-'+reaction:'idle'} ${reduced?'motion-reduced':''}`}><span className="bond-presence"><Pet species={species} outfit={outfit} pose={activePose}/></span></span>
     {resting&&<span className={'rest-blanket blanket-'+species} aria-hidden="true"><Moon size={16}/></span>}
     {reaction&&<span className={'playground-effects effects-'+reaction} key={sequence} aria-hidden="true">{[0,1,2].map(n=><span key={n}>{reaction==='brush'?<Sparkles size={18}/>:reaction==='snack'?<Cookie size={21}/>:reaction==='toy'?<CircleDot size={19}/>:<Heart size={21} fill="currentColor"/>}</span>)}</span>}
+    {reaction==='costume'&&<span className={'costume-gesture gesture-'+outfit} aria-hidden="true">{outfit==='sailor'?<Hand size={30}/>:outfit==='painter'?<><Brush size={31}/><Palette size={19}/></>:outfit==='detective'?<Search size={32}/>:outfit==='raincoat'?<Umbrella size={36}/>:<Sparkles size={30}/>}</span>}
     {cursor&&<span className={'touch-tool tool-'+tool} aria-hidden="true" style={{left:cursor.x+'%',top:cursor.y+'%'}}><ToolIcon size={30}/></span>}
    </button>
   </div>
   <p className="pet-name">{name}<Heart size={14}/></p>
   <p className="pet-caption">{quiet?'そばで、のんびりしているよ。':hints[tool]}</p>
   <div className="pet-tools" aria-label="もちとの触れ合い">{tools.map(({id,label,Icon})=><button key={id} type="button" aria-label={id==='hug'?'ぎゅっとする':id==='brush'?'ブラッシング':id==='snack'?'おやつをあげる':id==='toy'?'おもちゃで遊ぶ':'なでる'} aria-pressed={tool===id} onClick={()=>{setTool(id);respond(id)}}><Icon size={18}/><span>{label}</span></button>)}</div>
-  {onLounge&&<button type="button" className="lounge-link" onClick={onLounge}><Moon size={15}/>もちと、ひと休み</button>}
+  {outfit!=='none'&&<button type="button" className="costume-action" onClick={()=>respond('costume')}><Sparkles size={15}/>この衣装のしぐさ</button>}
+  {design&&!resting&&<p className="hourly-scene">{hour<6||hour>=21?'すやすや。静かな、おやすみの時間。':hour<10?'おててを伸ばして、朝のひと息。':hour<16?'お茶をそばに、昼のひと休み。':'絵本をひらいて、夕方のひと息。'}</p>}{onLounge&&<button type="button" className="lounge-link" onClick={onLounge}><Moon size={15}/>もちと、ひと休み</button>}
+  {onActivities&&<button type="button" className="lounge-link" onClick={onActivities}>遊びや音を選ぶ</button>}
   {!quiet&&<p className="playground-note">回数も、お世話のノルマもないよ。気が向いたときに。</p>}
  </div>;
 }
