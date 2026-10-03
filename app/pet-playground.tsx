@@ -65,7 +65,7 @@ export function PetPlayground({species,outfit,name,pose,message,resting=false,qu
  const ToolIcon=tools.find(item=>item.id===tool)!.Icon;
  const style={'--toy-lean':`${tool==='toy'&&cursor?(cursor.x-50)*.32:0}px`} as CSSProperties;
  return <div className={'pet-playground '+(compact?'compact ':'')+(minimal?'minimal ':'')+(focusTools?'focus-tools ':'')+(resting?'resting ':'')}>
-  <div className="speech playground-speech" aria-live="polite">{shownMessage}</div>
+  {focusTools?<span className="sr-only" role="status">{reaction||furnitureMessage?shownMessage:''}</span>:<div className="speech playground-speech" aria-live="polite">{shownMessage}</div>}
   <div className={'playground-stage '+(design?'with-scene':'')}>
    {design&&<RoomScene design={design} hour={hour} plant={plant} keepsake={keepsake} onPlant={()=>{onInteract?.('garden');setFurnitureMessage('小さな鉢も、一緒に育っているよ。休んでも、しおれないからね。');if(reactionTimer.current)clearTimeout(reactionTimer.current);reactionTimer.current=setTimeout(()=>setFurnitureMessage(null),3400)}} onFurniture={()=>{respond(design.furniture==='ball'?'toy':'hug');setFurniturePose(design.furniture==='bed'?2:design.furniture==='ball'?4:1);setFurnitureMessage({bed:'ベッドで、ゆっくり一緒におやすみ。',cushion:'クッションへ、ちょこん。そばでくつろごう。',book:'絵本の好きなページを、一緒に眺めよう。',ball:'ころころ。お部屋のボールと、小さな寄り道。'}[design.furniture])}}/>}
    <button type="button" className={'pet-surface '+(cursor?'touching':'')} aria-label={`${name}を${tools.find(item=>item.id===tool)!.label==='ぎゅっ'?'ぎゅっとする':tool==='pet'?'なでる':tool==='brush'?'ブラッシングする':tool==='snack'?'おやつで喜ばせる':'おもちゃで遊ぶ'}`} onPointerDown={begin} onPointerMove={move} onPointerUp={event=>finish(event)} onPointerCancel={event=>finish(event,true)} onLostPointerCapture={event=>finish(event,true)} onClick={event=>{if(event.detail===0)respond(tool)}} style={style}>
@@ -76,8 +76,8 @@ export function PetPlayground({species,outfit,name,pose,message,resting=false,qu
     {cursor&&<span className={'touch-tool tool-'+tool} aria-hidden="true" style={{left:cursor.x+'%',top:cursor.y+'%'}}><ToolIcon size={30}/></span>}
    </button>
   </div>
-  <p className="pet-name">{name}<Heart size={14}/></p>
-  <p className="pet-caption">{minimal?'タップで、なでてね':quiet?'そばで、のんびりしているよ。':hints[tool]}</p>
+  {!focusTools&&<><p className="pet-name">{name}<Heart size={14}/></p>
+  <p className="pet-caption">{minimal?'タップで、なでてね':quiet?'そばで、のんびりしているよ。':hints[tool]}</p></>}
   {!minimal&&<>
   <div className="pet-tools" aria-label="もちとの触れ合い">{tools.map(({id,label,Icon})=><button key={id} type="button" aria-label={id==='hug'?'ぎゅっとする':id==='brush'?'ブラッシング':id==='snack'?'おやつをあげる':id==='toy'?'おもちゃで遊ぶ':'なでる'} aria-pressed={tool===id} onClick={()=>{setTool(id);respond(id)}}><Icon size={18}/><span>{focusTools&&id==='toy'?'遊ぶ':label}</span></button>)}</div>
   <PetExtras folded={focusTools}>  {outfit!=='none'&&<button type="button" className="costume-action" onClick={()=>respond('costume')}><Sparkles size={15}/>この衣装のしぐさ</button>}

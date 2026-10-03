@@ -68,18 +68,16 @@
 .interaction-memories { padding:0 12px; color:#947c68; font-size:.8125rem; }
 .interaction-memories > summary { min-height:44px; padding:10px 0; cursor:pointer; }
 .interaction-memories .companion-counts { margin:12px 0; }
-.mochi-room .focus-tools { display:grid; grid-template-columns:144px minmax(0,1fr); column-gap:16px; align-items:center; margin-top:10px; }
-.mochi-room .focus-tools .playground-stage { grid-column:1; grid-row:1 / 4; width:144px; max-width:144px; margin:0; }
+.mochi-room .mochi-room-name { max-width:46%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.9375rem; font-weight:650; color:#7c614b; }
+.mochi-room .companion-top .small-label { white-space:nowrap; }
+.mochi-room .focus-tools { display:flex; flex-direction:column; align-items:center; width:100%; margin-top:10px; }
+.mochi-room .focus-tools .playground-stage { width:clamp(200px,calc(100svh - 460px),300px); max-width:100%; margin:0; }
 .mochi-room .focus-tools .playground-stage.with-scene { padding-top:38px!important; border-radius:18px; }
-.mochi-room .focus-tools .playground-speech { grid-column:2; grid-row:2; margin:0; min-height:0; padding:9px 10px; font-size:.8125rem; line-height:1.8; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:5; overflow:hidden; }
-.mochi-room .focus-tools .playground-speech::after { display:none; }
-.mochi-room .focus-tools .pet-name { grid-column:2; grid-row:1; font-size:.9375rem; margin:0; align-self:end; overflow-wrap:anywhere; }
-.mochi-room .focus-tools .pet-caption { grid-column:2; grid-row:3; min-height:0; font-size:.625rem; margin:5px 0 0; line-height:1.7; align-self:start; }
-.mochi-room .focus-tools .pet-tools { grid-column:1 / -1; width:100%; max-width:none; margin-top:12px; }
+.mochi-room .focus-tools .pet-tools { width:100%; max-width:none; margin-top:12px; }
 .mochi-room .focus-tools .pet-tools button { min-height:52px; padding:6px 2px; font-size:.6875rem; }
-.mochi-room .focus-tools .playground-extras { grid-column:1 / -1; font-size:.75rem; color:#94775f; }
+.mochi-room .focus-tools .playground-extras { width:100%; font-size:.75rem; color:#94775f; }
 .mochi-room .focus-tools .playground-extras > summary { min-height:36px; padding:8px 0 0; cursor:pointer; }
-.mochi-room .focus-tools .scene-window { left:7px; top:5px; width:27px; height:32px; border-width:2px; border-radius:7px 7px 2px 2px; }
+.mochi-room .focus-tools .scene-window { left:8px; top:5px; width:32px; height:37px; border-width:2px; border-radius:7px 7px 2px 2px; }
 .mochi-room .focus-tools .scene-window > svg { width:13px; height:13px; top:3px; right:1px; }
 .mochi-room .focus-tools .window-cross::after { width:2px; }
 .mochi-room .focus-tools .scene-lamp { width:19px; height:12px; top:10px; right:8px; }
@@ -128,14 +126,19 @@
   .today-record-row { padding:11px 14px; gap:10px; min-height:61px; }
   .today-record-main { font-size:.8125rem; }
   .today-habits { margin-top:20px; }
-  .mochi-home { grid-template-columns:minmax(0,1fr); gap:18px; }
-  .mochi-home .mochi-room { padding:13px 12px 8px; border-radius:21px; }
+  .mochi-home { grid-template-columns:minmax(0,1fr); gap:12px; }
+  .mochi-home .mochi-room { padding:10px 12px 6px; border-radius:21px; }
   .mochi-home .companion-top .small-label { font-size:.8125rem; }
   .mochi-home .room-label { display:none; }
   .mochi-home-menu .companion-gateway { padding:17px 15px; }
   .mochi-home-menu .companion-gateway .section-heading { margin-bottom:12px; }
-  .mochi-room .focus-tools { grid-template-columns:136px minmax(0,1fr); column-gap:12px; margin-top:9px; }
-  .mochi-room .focus-tools .playground-stage { width:136px; max-width:136px; }
+  .mochi-room .mochi-room-name { font-size:.8125rem; }
+  .mochi-room .focus-tools { margin-top:7px; }
+  .mochi-room .focus-tools .playground-stage { width:clamp(100px,calc(100svh - 500px - env(safe-area-inset-bottom,0px)),248px); }
+  .mochi-room .focus-tools .playground-stage.with-scene { padding-top:28px!important; }
+  .mochi-room .focus-tools .pet-tools { margin-top:8px; }
+  .mochi-room .focus-tools .pet-tools button { min-height:48px; padding:3px 2px; }
+  .mochi-room .focus-tools .playground-extras > summary { min-height:26px; padding:3px 0 0; }
 }
 @media (max-width:360px) {
   .focused-layout .page-heading h1 { font-size:1rem; letter-spacing:0; }
@@ -146,9 +149,6 @@
   .today-record-row { padding-inline:12px; gap:8px; }
   .today-record-icon { flex-basis:28px; height:30px; }
   .today-section-heading { gap:4px 8px; }
-  .mochi-room .focus-tools { grid-template-columns:118px minmax(0,1fr); column-gap:9px; }
-  .mochi-room .focus-tools .playground-stage { width:118px; max-width:118px; }
-  .mochi-room .focus-tools .playground-speech { padding:7px; font-size:.75rem; }
   .companion-gateway .gateway-choices button { gap:9px; padding:12px 10px; }
   .companion-gateway .gateway-copy strong { font-size:.8125rem; }
 }

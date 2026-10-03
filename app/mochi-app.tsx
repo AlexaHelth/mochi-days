@@ -139,7 +139,7 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
   onRest={()=>{setShowRestRecords(false);void saveCare({resting:!(care.resting||care.finished),finished:false})}}
   onResume={()=>{setShowRestRecords(true);if(care.finished)void saveCare({finished:false})}}/></TabsContent>
  <TabsContent value="companion"><div className="mochi-home">
-  <section className="companion-card mochi-room" style={{backgroundColor:room.color}}><div className="companion-top"><span className="small-label"><Heart size={15}/>{settings.name}のお部屋</span><span className="room-label">{room.name}</span></div>
+  <section className="companion-card mochi-room" style={{backgroundColor:room.color}}><div className="companion-top"><span className="small-label"><Heart size={15}/>もちのお部屋</span><span className="mochi-room-name" title={settings.name}>{settings.name}</span></div>
    <PetPlayground species={settings.species} outfit={settings.outfit} name={settings.name} pose={care.finished?2:pose} message={message} resting={care.resting} quiet={care.quiet} onInteract={interact} onLounge={()=>setLoungeOpen(true)} focusTools {...petExtras}/>
 
   </section>
