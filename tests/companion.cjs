@@ -29,8 +29,18 @@ ctx={...ctx,day:'2026-10-03',entries:[{...blank('2026-10-03'),mood:1},...ctx.ent
 const pending=state.gifts.find(g=>g.episodeId===state.journey.episodes.at(-1).id);assert.throws(()=>act({action:'openGift',id:pending.id}));
 ctx={...ctx,day:'2026-11-29'};act({action:'visit'});act({action:'openGift',id:pending.id});assert.ok(state.gifts.find(g=>g.id===pending.id).opened);assert.equal(lib.bondCount(state.pets.dog),11);
 act({action:'seasonGift',season:'spring'});act({action:'seasonGift',season:'spring'});assert.equal(state.gifts.filter(g=>g.id==='season:spring:dog').length,1);
+// A keepsake can decorate the room only after it was actually received.
+const displayed=state.gifts.find(g=>g.opened),wrapped=state.gifts.find(g=>!g.opened);
+assert.throws(()=>act({action:'preference',patch:{room:{...state.preferences.room,keepsakeId:'missing'}}}));
+assert.ok(wrapped);assert.throws(()=>act({action:'preference',patch:{room:{...state.preferences.room,keepsakeId:wrapped.id}}}));
+act({action:'preference',patch:{room:{...state.preferences.room,keepsakeId:displayed.id}}});
+assert.equal(state.preferences.room.keepsakeId,displayed.id);
+assert.equal(lib.normalizeCompanion(JSON.parse(JSON.stringify(state)),ctx).preferences.room.keepsakeId,displayed.id);
+const {keepsakeId,...oldRoom}=state.preferences.room;
+act({action:'preference',patch:{room:oldRoom}});assert.equal(state.preferences.room.keepsakeId,displayed.id);
+act({action:'preference',patch:{room:{...state.preferences.room,keepsakeId:null}}});assert.equal(state.preferences.room.keepsakeId,null);
 for(const [id] of content.seasonStories)act({action:'seasonGift',season:id});assert.equal(state.gifts.filter(g=>g.id.startsWith('season:')).length,4);
-const room={floor:'rug',furniture:'book',weather:'snow',light:'night',season:'spring',palette:'clear'};act({action:'preference',patch:{room,wishlist:'sailor'}});act({action:'roomFavorite',name:'夜のお部屋'});assert.deepEqual(state.preferences.favorites[0].design,room);
+const room={floor:'rug',furniture:'book',weather:'snow',light:'night',season:'spring',palette:'clear',keepsakeId:null};act({action:'preference',patch:{room,wishlist:'sailor'}});act({action:'roomFavorite',name:'夜のお部屋'});assert.deepEqual(state.preferences.favorites[0].design,room);
 act({action:'preference',patch:{room:{...room,light:'morning'}}});assert.equal(state.preferences.favorites[0].design.light,'night');
 for(const name of ['朝','昼','夕方'])act({action:'roomFavorite',name});assert.throws(()=>act({action:'roomFavorite',name:'5つ目'}));act({action:'removeFavorite',index:1});assert.equal(state.preferences.favorites.length,3);
 const before=structuredClone(state);ctx={...ctx,stars:5};state=lib.syncCompanion(state,ctx);assert.equal(state.receipts.bandana.seen,false);assert.match(state.receipts.bandana.source,/記録/);assert.equal(lib.rewardSource({...blank(day),note:'昨日からのメモ'},{...blank(day),note:'昨日からのメモ',weight:60}),'体重を残した日');act({action:'receipt',id:'bandana'});assert.equal(state.receipts.bandana.seen,true);assert.throws(()=>act({action:'receipt',id:'starlight'}));

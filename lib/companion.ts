@@ -5,7 +5,7 @@ import { memoryQuestions, journeyScene, restStories, routes, seasonStories, feel
 export const interactionKinds=['pet','hug','brush','snack','toy','breathing','puzzle','hide','rhythm','garden','costume'] as const;
 export type Interaction=typeof interactionKinds[number];
 export const daySchema=z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
-const roomSchema=z.object({floor:z.enum(['wood','rug','meadow']).default('wood'),furniture:z.enum(['cushion','bed','book','ball']).default('cushion'),weather:z.enum(['sun','rain','snow']).default('sun'),light:z.enum(['auto','morning','evening','night']).default('auto'),season:z.enum(['plain','spring','summer','autumn','winter']).default('plain'),palette:z.enum(['warm','leaf','sky','clear']).default('warm')});
+const roomSchema=z.object({floor:z.enum(['wood','rug','meadow']).default('wood'),furniture:z.enum(['cushion','bed','book','ball']).default('cushion'),weather:z.enum(['sun','rain','snow']).default('sun'),light:z.enum(['auto','morning','evening','night']).default('auto'),season:z.enum(['plain','spring','summer','autumn','winter']).default('plain'),palette:z.enum(['warm','leaf','sky','clear']).default('warm'),keepsakeId:z.string().max(100).nullable().optional()});
 export type RoomDesign=z.infer<typeof roomSchema>;
 export const preferenceSchema=z.object({callingName:z.string().trim().max(12).default(''),tone:z.enum(['quiet','gentle','bright']).default('gentle'),support:z.enum(['listen','rest','cheer']).default('listen'),ambient:z.enum(['off','rain','sea','forest']).default('off'),volume:z.number().min(0).max(.5).default(.15),haptics:z.boolean().default(false),voice:z.boolean().default(false),music:z.boolean().default(false),melody:z.enum(['tea','moon','garden']).default('tea'),room:roomSchema.default({}),favorites:z.array(z.object({name:z.string().trim().min(1).max(20),design:roomSchema})).max(4).default([]),wishlist:z.enum(outfitIds).nullable().default(null)});
 export type CompanionPreferences=z.infer<typeof preferenceSchema>;
@@ -95,7 +95,7 @@ export function applyCompanionAction(previous:CompanionState,command:CompanionAc
   break;
  }
  case 'personality':pet.personality=command.value;break;
- case 'preference':state.preferences=preferenceSchema.parse({...state.preferences,...command.patch});break;
+ case 'preference':{const displayed=command.patch.room?.keepsakeId;if(displayed&&!state.gifts.some(item=>item.id===displayed&&item.opened))throw new Error('受け取った贈りものを選んでください。');state.preferences=preferenceSchema.parse({...state.preferences,...command.patch,...(command.patch.room?{room:{...state.preferences.room,...command.patch.room}}:{})});break;}
  case 'like':pet.likes[command.key]=command.value;break;
  case 'talk':{
   const question=dailyQuestion(ctx.day),value=question.options[command.choice];
