@@ -8,7 +8,6 @@ import { WalkingPicker } from './walking-picker';
 import { HistoryView } from './history-view';
 import { TodayView } from './today-view';
 import { MoodPicker } from './mood-picker';
-import { RewardDelivery } from './reward-delivery';
 import { RewardGallery } from './reward-gallery';
 import { Pet } from './pet';
 import { PetPlayground, WaitingPet } from './pet-playground';
@@ -33,7 +32,6 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
@@ -101,8 +99,8 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
  const pose=demoPose??(unlockReaction?6:recordMessage.includes('足を休め')?2:celebrate?3:entry.mood===2?7:night?2:habitNames.every((_,i)=>entry.done.includes('h'+i))?5:entry.mood===0?4:0);
  const expressionLabel=(n:number)=>settings.outfit==='none'?expressionNames[n]:settings.outfit==='starlight'?({0:'にっこり',3:'ばんざい',2:'すやすや',6:'きらめき'} as Record<number,string>)[n]??'ばんざい':n===0?'にっこり':'よろこび';
  const message=care.finished?'今日はここまでで、花まる。会いに来てくれて、ありがとう。':demoPose!==null?`${expressionLabel(demoPose)}。いろんな顔で、そばにいるよ。`:unlockReaction?'わあ、新しいごほうびがひらいたよ！':recordMessage?recordMessage:celebrate?'ひとつ残せたね。自分を気にかける時間を、ありがとう。':dailyGreeting(companionPet,companion.preferences,entry.mood,welcomeText(welcome,hour));
- const room=rooms.find(r=>r.id===settings.room)??rooms[0],nextRoom=rooms.find(r=>r.cost>state.stars);
- function prepareEntry(e:Entry,recordWeight=false,mode:'daily'|'weight'|'walking'|'note'='daily'){const candidate=weightDraft(stateRef.current.entries,e,recordWeight),walking=walkingDraft(stateRef.current.entries,e,mode==='walking'),saved=readDraft(draftScope,e.day,mode);savedDraft.current=false;setRestoredDraft(!!saved);setTimerAdded(null);setDraft({...saved?.entry??{...e,done:[...e.done]},habitNames:habitNamesFor(e,stateRef.current.settings.habits)});setWeight(saved?.weight??candidate.value);setWeightIncluded(saved?.weightIncluded??candidate.included);setWalkingMinutes(saved?.walkingMinutes??walking.value);setWalkingIncluded(saved?.walkingIncluded??walking.included);if(saved)setLetterNote(saved.letter)}
+ const room=rooms.find(r=>r.id===settings.room)??rooms[0];
+ function prepareEntry(e:Entry,recordWeight=false,mode:'daily'|'weight'|'walking'|'note'='daily'){const candidate=weightDraft(stateRef.current.entries,e,recordWeight),walking=walkingDraft(stateRef.current.entries,e,mode==='walking'),stored=readDraft(draftScope,e.day,mode),saved=stored&&!(mode==='note'&&!stored.entry.note?.trim()&&e.note?.trim())?stored:null;savedDraft.current=false;setRestoredDraft(!!saved);setTimerAdded(null);setDraft({...saved?.entry??{...e,done:[...e.done]},habitNames:habitNamesFor(e,stateRef.current.settings.habits)});setWeight(saved?.weight??candidate.value);setWeightIncluded(saved?.weightIncluded??candidate.included);setWalkingMinutes(saved?.walkingMinutes??walking.value);setWalkingIncluded(saved?.walkingIncluded??walking.included);if(saved)setLetterNote(saved.letter)}
  function openEntry(e:Entry=entry,recordWeight=false){prepareEntry(e,recordWeight,recordWeight?'weight':'daily');setRecordMode(recordWeight?'weight':'daily');setEntryOpen(true)}
  function openWalking(e:Entry=entry){prepareEntry(e,false,'walking');setWalkingIncluded(true);setRecordMode('walking');setEntryOpen(true)}
  function openNote(e:Entry=entry){prepareEntry(e,false,'note');setRecordMode('note');setEntryOpen(true)}
@@ -114,7 +112,7 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
  if(!weightOnly&&!noteOnly&&minutes!==null&&(!Number.isInteger(minutes)||minutes<0||minutes>1440)){toast.error('ウォーキング時間は0〜1440分の整数で入力してください。');return}
  const savedEntry=stateRef.current.entries.find(e=>e.day===draft.day)??blank(draft.day);
  const next=noteOnly?{...savedEntry,note:draft.note??''}:weightOnly?{...savedEntry,weight:num}:walkingOnly?{...savedEntry,walkingMinutes:minutes}:{...draft,weight:num,walkingMinutes:minutes};
- if(await save({kind:'entry',...next})){savedDraft.current=true;clearDraft(draftScope,draft.day,recordMode);setEntryOpen(false)}
+ if(await save({kind:'entry',...next})){savedDraft.current=true;clearDraft(draftScope,draft.day,recordMode);if(recordMode==='daily')for(const mode of ['note','weight','walking'] as const)clearDraft(draftScope,draft.day,mode);setEntryOpen(false)}
  }
  function changeDate(day:string){const e=state.entries.find(e=>e.day===day)??blank(day);prepareEntry(e,weightIncluded)}
  function saveCare(patch:CareDay){return save({kind:'care',day:currentDay,...patch},true)}
@@ -155,7 +153,7 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
   </div>
  </div></TabsContent>
  <TabsContent value="history"><HistoryView entries={state.entries} day={currentDay} weeklyDays={settings.weeklyDays} onEdit={openEntry} onWeight={()=>openEntry(entry,true)} onWalking={()=>openWalking()} onNote={openNote}/></TabsContent>
- <TabsContent value="rewards"><RewardDelivery companion={companion} species={settings.species} disabled={saving||!!error} onReceive={id=>sendCompanion({action:'receipt',id})} onPreview={setPreviewOutfit}/><section className="reward-intro"><div className="reward-star"><Star fill="currentColor" size={32}/></div><div><h2>集めたおほしさま <strong>{state.stars}<small>こ</small></strong></h2><p>気分・体重・習慣の記録で、それぞれ1日1こ。<br/>一度集めたおほしさまは、減りません。</p></div></section>{nextRoom&&<div className="next-reward"><span>次のお部屋まで、あと <b>{nextRoom.cost-state.stars}こ</b></span><Progress value={state.stars/nextRoom.cost*100}/></div>}<h2 className="reward-section-title">お部屋</h2><div className="rooms-grid">{rooms.map((r,i)=>{const unlocked=state.stars>=r.cost,selected=settings.room===r.id;return <section className={'room-card '+(selected?'chosen':'')} key={r.id}><div className="room-preview" style={{backgroundColor:r.color}}><Pet species={settings.species} small pose={i} outfit={settings.outfit}/>{!unlocked&&<span className="room-lock"><LockKeyhole size={18}/>{r.cost}こでひらく</span>}</div><div className="room-details"><h3>{r.name}</h3><Button variant={selected?'secondary':'outline'} disabled={!unlocked||selected||saving||!!error} onClick={()=>void save({kind:'settings',...settings,room:r.id})}>{selected?<><Check size={15}/>使用中</>:unlocked?'このお部屋にする':<><Star size={15}/>{r.cost}こ</>}</Button></div></section>})}</div><RewardGallery companion={companion} onPreview={setPreviewOutfit} onWishlist={wishlist=>void sendCompanion({action:'preference',patch:{wishlist}})} settings={settings} stars={state.stars} disabled={saving||!!error||!loaded} onEquip={async outfit=>{if(await save({kind:'settings',...settings,outfit},true)){setCelebrate(true);toast.success('衣装に着替えたよ')}}} onMeet={async()=>{if(settings.outfit==='starlight'||await save({kind:'settings',...settings,outfit:'starlight'},true)){setTab('companion');window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});setCelebrate(true);toast.success('特別なもちに会えたよ')}}}/><p className="kind-note"><Heart size={14}/>おほしさまは、体重の増減ではなく「できた」のしるし。</p></TabsContent>
+ <TabsContent value="rewards"><RewardGallery companion={companion} onPreview={setPreviewOutfit} onWishlist={wishlist=>void sendCompanion({action:'preference',patch:{wishlist}})} onReceive={id=>sendCompanion({action:'receipt',id})} settings={settings} stars={state.stars} disabled={saving||!!error||!loaded} onRoom={room=>save({kind:'settings',...stateRef.current.settings,room},true)} onEquip={async outfit=>{if(await save({kind:'settings',...stateRef.current.settings,outfit},true)){setCelebrate(true);toast.success('衣装に着替えたよ');return true}return false}} onMeet={async()=>{if(settings.outfit==='starlight'||await save({kind:'settings',...stateRef.current.settings,outfit:'starlight'},true)){setTab('companion');window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});setCelebrate(true);toast.success('特別なもちに会えたよ')}}}/></TabsContent>
  </>}
  </main></Tabs>
  <Dialog open={loungeOpen} onOpenChange={setLoungeOpen}><DialogContent className="app-dialog lounge-dialog" style={{backgroundColor:room.color}}><DialogTitle>もちと、ひと休み</DialogTitle><DialogDescription>何もしない時間も、一緒に。いつでも閉じられるよ。</DialogDescription><PetPlayground species={settings.species} outfit={settings.outfit} name={settings.name} pose={2} message="ここで、のんびり一緒に過ごそう。" resting quiet compact onInteract={interact} {...petExtras} onActivities={()=>{setLoungeOpen(false);openHub('rest')}}/></DialogContent></Dialog>

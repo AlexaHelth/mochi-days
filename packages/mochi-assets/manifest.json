@@ -1,5 +1,5 @@
 {
-  "version": "0.2.1",
+  "version": "0.2.2",
   "brand": "ふたつむぎ企画室",
   "assets": [
     {
@@ -121,6 +121,179 @@
       "width": 1254,
       "height": 1254,
       "sha256": "f6493e1153eae7724debb19144446189d7ecdb7efc51ad827e67326f0ba4ccb7"
+    }
+  ],
+  "webAssets": [
+    {
+      "source": "cat-expressions.png",
+      "file": "cat-expressions.webp",
+      "width": 1774,
+      "height": 887,
+      "sha256": "5f1c8d8f57209ebda4b8fc90cc4ef85c5e572d34b27909571b8943db18f95693",
+      "bytes": 43086,
+      "sourceBytes": 1425286
+    },
+    {
+      "source": "cat-rewards-cozy.png",
+      "file": "cat-rewards-cozy.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "9892ae5a8256ec8c1348a51147e97c348508f09911005a6cbf2bfe8a7a6b5ab5",
+      "bytes": 130100,
+      "sourceBytes": 1898041
+    },
+    {
+      "source": "cat-rewards-dream.png",
+      "file": "cat-rewards-dream.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "9971543ac83e683977f25fec3b5e7f8ed3e38f88da62959da68ee335e4e3f4c1",
+      "bytes": 139216,
+      "sourceBytes": 1964079
+    },
+    {
+      "source": "cat-rewards-garden.png",
+      "file": "cat-rewards-garden.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "bb3499395bbfc0fe3f0305004094d7eae7ba1765928483931375c4170d83efba",
+      "bytes": 116900,
+      "sourceBytes": 1839267
+    },
+    {
+      "source": "cat-special.png",
+      "file": "cat-special.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "16af2a2fe34c5da56084ed2aabb521ad803e718c18d75ad84f936f22f368201b",
+      "bytes": 97966,
+      "sourceBytes": 1730134
+    },
+    {
+      "source": "cat-wardrobe.png",
+      "file": "cat-wardrobe.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "859b43f1001aa656232fd75fb5e0dd5012ccc91ed3db9c12e051d5f11a3a5ce2",
+      "bytes": 90382,
+      "sourceBytes": 1658734
+    },
+    {
+      "source": "dog-expressions.png",
+      "file": "dog-expressions.webp",
+      "width": 1774,
+      "height": 887,
+      "sha256": "1f331f15a67fa76261fbb9f1ab7dd9765cf6bf3e4a28a443de416194222f2444",
+      "bytes": 46760,
+      "sourceBytes": 1423205
+    },
+    {
+      "source": "dog-rewards-cozy.png",
+      "file": "dog-rewards-cozy.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "4e676519c9eb52262684cdc142bde937a1ae2bfcac37a34e0d1ea9334d102c13",
+      "bytes": 123628,
+      "sourceBytes": 1884119
+    },
+    {
+      "source": "dog-rewards-dream.png",
+      "file": "dog-rewards-dream.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "b2ef92a92b26faf2c41b8aa209963280f38da281d82bb9a8c4154793560e63d5",
+      "bytes": 121692,
+      "sourceBytes": 1846286
+    },
+    {
+      "source": "dog-rewards-garden.png",
+      "file": "dog-rewards-garden.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "490f8a9b83aac561d3998a84934e55170491fa5e563615479d15f696d275a730",
+      "bytes": 127206,
+      "sourceBytes": 1918650
+    },
+    {
+      "source": "dog-special.png",
+      "file": "dog-special.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "438d87f342c8934663240ea7ad9b7e4ad7ed136670bbe149fb3e5c0a35e9ee78",
+      "bytes": 90080,
+      "sourceBytes": 1671482
+    },
+    {
+      "source": "dog-wardrobe.png",
+      "file": "dog-wardrobe.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "4b2c66bfa902244ce91ebb2d23777f84b9dfaec001a537532e64350a6f794955",
+      "bytes": 92692,
+      "sourceBytes": 1745100
+    },
+    {
+      "source": "penguin-expressions.png",
+      "file": "penguin-expressions.webp",
+      "width": 1774,
+      "height": 887,
+      "sha256": "c6b18289f804659d6dcf6414ad649253802d3f13088f7550b012b8551252c5ea",
+      "bytes": 65814,
+      "sourceBytes": 1664267
+    },
+    {
+      "source": "penguin-rewards-cozy.png",
+      "file": "penguin-rewards-cozy.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "310cb70f3aee4cec6310f297b05923c8f72ea83b2a1cff45e99714042456a71b",
+      "bytes": 150772,
+      "sourceBytes": 2041770
+    },
+    {
+      "source": "penguin-rewards-dream.png",
+      "file": "penguin-rewards-dream.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "91cb1bfb4843b53f32431d3004ed6181bd018b60babe9fce456faf7930e8d8a1",
+      "bytes": 133280,
+      "sourceBytes": 1970910
+    },
+    {
+      "source": "penguin-rewards-garden.png",
+      "file": "penguin-rewards-garden.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "2e6cce841ef69cb501be3f8c08b6ef77f13645508a972e165be32d688c114149",
+      "bytes": 139464,
+      "sourceBytes": 2023549
+    },
+    {
+      "source": "penguin-special.png",
+      "file": "penguin-special.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "14aeca9dcd439c2f114231f5f080bcdfb00b73b892add755dc8a5e98c2368ede",
+      "bytes": 120476,
+      "sourceBytes": 1936197
+    },
+    {
+      "source": "penguin-wardrobe.png",
+      "file": "penguin-wardrobe.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "eae6bfaf80d46f165948b63660d45e599e3a7bf44ee50292aa45fdcabd0b9e34",
+      "bytes": 103970,
+      "sourceBytes": 1810876
+    },
+    {
+      "source": "puppy.png",
+      "file": "puppy.webp",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "f7e4b0a51e1bbfa6ae71f118d5d908c99db8beb41eeab83aa8ff4cda47e001da",
+      "bytes": 33352,
+      "sourceBytes": 1382969
     }
   ]
 }

@@ -15,6 +15,19 @@ const fs=require('node:fs');const path=require('node:path');const crypto=require
   assert.deepEqual(source,fs.readFileSync(path.join('public/pets',asset.file)));
  }
  assert.deepEqual(fs.readFileSync('public/puppy.png'),fs.readFileSync(path.join(root,'assets/puppy.png')));
+ const webAssets=manifest.webAssets;
+ assert.equal(webAssets.length,manifest.assets.length-1);
+ for(const asset of webAssets){
+  const source=fs.readFileSync(path.join(root,'web',asset.file)),original=manifest.assets.find(item=>item.file===asset.source);
+  assert.ok(original);assert.equal(asset.width,original.width);assert.equal(asset.height,original.height);
+  assert.equal(source.subarray(0,4).toString(),'RIFF');assert.equal(source.subarray(8,12).toString(),'WEBP');assert.equal(source.readUInt32LE(4)+8,source.length);
+  assert.equal(crypto.createHash('sha256').update(source).digest('hex'),asset.sha256);assert.equal(source.length,asset.bytes);
+  assert.deepEqual(source,fs.readFileSync(path.join('public/pets',asset.file)));
+  assert.ok(asset.bytes<asset.sourceBytes*.2,'Web image must be substantially smaller');
+  const kind=source.subarray(12,16).toString(),offset=20;
+  const dims=kind==='VP8X'?[source.readUIntLE(offset+4,3)+1,source.readUIntLE(offset+7,3)+1]:kind==='VP8 '?[source.readUInt16LE(offset+6)&0x3fff,source.readUInt16LE(offset+8)&0x3fff]:kind==='VP8L'?[(source.readUInt32LE(offset+1)&0x3fff)+1,((source.readUInt32LE(offset+1)>>>14)&0x3fff)+1]:null;
+  assert.deepEqual(dims,[asset.width,asset.height],'Web image preserves sprite geometry');
+ }
  for(const species of shared.speciesIds)for(const outfit of shared.outfitIds)for(let pose=0;pose<8;pose++){
   const sprite=shared.petSprite(species,pose,outfit);const file=path.basename(sprite.src);
   assert.ok(names.has(file),`Missing ${file}`);
@@ -54,5 +67,5 @@ const fs=require('node:fs');const path=require('node:path');const crypto=require
  assert.equal(catChef.y+catChef.height,catPainter.y);assert.ok(catPainter.y>313);
  const party=shared.petFrame(shared.petSprite('penguin',0,'birthday'));assert.ok(party.y<930,'The whole party hat must fit');
  assert.deepEqual(shared.petFrame(shared.petSprite('dog',0,'flower','/sister-app/pets/')),dogFlower);
- console.log('PASS: standalone ESM package, version, PNG dimensions, hashes, all asset copies, original puppy preserved, every sprite cell and custom asset base URL.');
+ console.log('PASS: standalone ESM package, original PNGs preserved, 19 lightweight WebP hashes and dimensions, all public copies, every sprite cell and custom asset base URL.');
 })().catch(e=>{console.error(e);process.exitCode=1});

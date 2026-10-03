@@ -6,12 +6,12 @@ const root=fileURLToPath(new URL('.',import.meta.url));
 const target=resolve(process.argv[2]??'public');
 const check=process.argv.includes('--check');
 const manifest=JSON.parse(await readFile(join(root,'manifest.json'),'utf8'));
-for(const asset of manifest.assets){
- if(!/^[a-z0-9-]+\.png$/.test(asset.file))throw new Error('Invalid asset path');
- const src=join(root,'assets',asset.file),dest=join(target,'pets',asset.file);
+for(const asset of [...manifest.assets,...(manifest.webAssets??[])]){
+ if(!/^[a-z0-9-]+\.(png|webp)$/.test(asset.file))throw new Error('Invalid asset path');
+ const src=join(root,asset.file.endsWith('.webp')?'web':'assets',asset.file),dest=join(target,'pets',asset.file);
  const bytes=await readFile(src);
  if(createHash('sha256').update(bytes).digest('hex')!==asset.sha256)throw new Error(`Source hash mismatch: ${asset.file}`);
  if(check){if(!(await readFile(dest)).equals(bytes))throw new Error(`Asset differs: ${dest}`)}
  else{await mkdir(join(target,'pets'),{recursive:true});await copyFile(src,dest)}
 }
-console.log(`${check?'Verified':'Copied'} ${manifest.assets.length} Mochi assets (${manifest.version})`);
+console.log(`${check?'Verified':'Copied'} ${manifest.assets.length} original and ${manifest.webAssets?.length??0} web Mochi assets (${manifest.version})`);

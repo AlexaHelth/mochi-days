@@ -17,7 +17,7 @@ export function WalkingChart({ entries, day, onRecord }: { entries: Entry[]; day
     <div className="section-heading"><h2>ウォーキング時間のうつりかわり</h2><span className="subtle">直近30日</span></div>
     <div className="average"><span>直近7日の合計</span><strong>{total ?? '—'}<small>分</small></strong></div>
     {records.length ? <>
-      <svg className="weight-chart" viewBox="0 0 500 175" role="img" aria-label="直近30日のウォーキング時間の推移。各日の分数は下の記録一覧で確認できます。">
+      <svg className="weight-chart" viewBox="0 0 500 175" role="img" aria-label="直近30日のウォーキング時間の推移。日付ごとの分数は記録の項目から確認できます。">
         {[0, maximum / 2, maximum].map(minutes => <g key={minutes}><line x1="45" y1={y(minutes)} x2="475" y2={y(minutes)} stroke="#eee7e0" strokeDasharray="4 4" /><text x="0" y={y(minutes) + 4} fill="#82766f" fontSize="12">{minutes}分</text></g>)}
         <polyline points={records.map(entry => `${x(entry.day)},${y(entry.walkingMinutes)}`).join(' ')} fill="none" stroke="#839961" strokeWidth="3" strokeLinejoin="round" />
         {records.map(entry => <circle key={entry.day} cx={x(entry.day)} cy={y(entry.walkingMinutes)} r="4" fill="#839961"><title>{entry.day}: {entry.walkingMinutes}分</title></circle>)}
