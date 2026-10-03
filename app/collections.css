@@ -3,6 +3,31 @@
 .collection-browser .collection-tabs { display:grid; width:100%; height:auto!important; padding:4px; gap:4px; background:#f5eee5; border-radius:17px; position:sticky; top:8px; z-index:10; margin-bottom:13px; }
 .reflection-browser .collection-tabs { grid-template-columns:repeat(5,minmax(0,1fr)); }
 .reward-browser .collection-tabs { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.companion-activities .collection-tabs { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.companion-activities { width:100%; min-width:0; gap:0; }
+.companion-activities .companion-tabs-heading { margin:0 0 9px; padding:0 2px; }
+.companion-tabs-heading h2 { font-size:.9375rem; color:#7e654e; }
+.companion-activities [data-slot=tabs-content][hidden] { display:none!important; }
+.companion-activities [data-slot=tabs-content],.companion-activities .gift-content { scroll-margin-top:85px; }
+.companion-activities .companion-activity-panel { border:1px solid #e8ddce; border-radius:20px; background:#fffdf8; padding:17px 15px; margin:0; }
+.companion-activities .companion-activity-title { color:#927355; font-size:.9375rem; margin:0 0 14px; }
+.companion-activities .hub-content { overflow:visible; padding:0; }
+.companion-activities .companion-tab-badge { position:absolute; top:3px; right:5px; min-width:15px; height:15px; padding:1px 3px; border-radius:8px; background:#c98662; color:white; font-size:.5625rem; line-height:13px; }
+.companion-activities .hub-action-footer { position:sticky; bottom:8px; background:#fffdf8; border-radius:0 0 12px 12px; padding:10px 0 2px; z-index:8; }
+@media(max-width:760px){.companion-activities .hub-action-footer { bottom:83px; }}
+.companion-activities .room-editor-content { padding-bottom:8px; }
+.companion-activities .play-panel { min-height:0; scroll-margin-top:85px; }
+.companion-activities .hub-secondary input,.companion-activities .hub-secondary select { font-size:16px; }
+.companion-activities button[data-slot=button] { border-color:#dfceba; color:#82644b; }
+.companion-activities button[data-slot=button][data-variant=default] { color:#fff; }
+.companion-activities .room-snapshot { min-height:175px; }
+.companion-activities .room-snapshot .playground-stage { width:145px; padding-top:34px!important; }
+.companion-activities .room-category-choices { gap:4px; }
+.companion-activities .room-category-choices button { min-height:50px; }
+.companion-activities .room-visual-choices { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.companion-activities .choices-palette,.companion-activities .choices-furniture,.companion-activities .choices-light { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.companion-activities .room-visual-choices strong { font-size:.6875rem; }
+@media(max-width:360px){.mochi-home { gap:14px; }.mochi-room .focus-tools .playground-stage.with-scene { padding-top:28px!important; }.mochi-room .focus-tools .playground-speech { -webkit-line-clamp:3; }.mochi-room .focus-tools .pet-tools { margin-top:9px; }}
 .collection-browser .collection-tabs [data-slot=tabs-trigger] { display:flex; flex-direction:column; gap:5px; min-height:59px; height:auto; padding:8px 3px; border-radius:13px; color:#937d67; font-size:.75rem; font-weight:650; white-space:normal; line-height:1.25; box-shadow:none; }
 .collection-browser .collection-tabs [data-slot=tabs-trigger][data-state=active] { color:#a76140; background:#fffdf8; box-shadow:0 2px 5px #a77c4910; }
 .collection-browser .collection-tabs svg { width:20px!important; height:20px!important; }

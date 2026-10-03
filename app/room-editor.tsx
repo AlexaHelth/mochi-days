@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Armchair, Bed, BookOpen, CircleDot, Sun, CloudRain, Snowflake, Moon, Clock, Flower2, Leaf, Palette, Home, Lamp, Check, Star, TreePine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Pet } from './pet';
@@ -22,6 +22,7 @@ export function RoomPreview({design,species,outfit,hour,keepsake}:{design:RoomDe
 }
 export function RoomEditor({companion,species,outfit,hour,disabled,onCommand}:{companion:CompanionState;species:Species;outfit:Outfit;hour:number;disabled:boolean;onCommand:(command:CompanionAction)=>Promise<boolean>}){
  const [room,setRoom]=useState(companion.preferences.room),[category,setCategory]=useState<keyof typeof choices>('palette'),[dirty,setDirty]=useState(false),[saved,setSaved]=useState(false),[favoriteName,setFavoriteName]=useState('');
+ useEffect(()=>{if(!dirty)setRoom(companion.preferences.room)},[companion.preferences.room,dirty]);
  const keepsake=companion.gifts.find(item=>item.id===room.keepsakeId&&item.opened);
  async function save(){if(await onCommand({action:'preference',patch:{room}})){setDirty(false);setSaved(true);return true}return false;}
  function choose(value:string){setRoom({...room,[category]:value});setDirty(true);setSaved(false);}

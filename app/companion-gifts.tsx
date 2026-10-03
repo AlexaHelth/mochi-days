@@ -13,7 +13,7 @@ export function CompanionGifts({state,companion,hour,disabled,onCommand,onRoom,o
  const [species,setSpecies]=useState<Species>(state.settings.species),[selected,setSelected]=useState<string|null>(null),[all,setAll]=useState(false);
  const content=useRef<HTMLDivElement>(null);
  const gifts=companion.gifts.filter(item=>item.species===species),received=gifts.filter(item=>item.opened),waiting=gifts.filter(item=>!item.opened).reverse(),item=gifts.find(item=>item.id===selected),displayed=companion.preferences.room.keepsakeId;
- function selectGift(id:string){setSelected(id);requestAnimationFrame(()=>content.current?.scrollTo({top:0}));}
+ function selectGift(id:string){setSelected(id);requestAnimationFrame(()=>content.current?.scrollIntoView({block:'start',behavior:'auto'}));}
  async function open(id:string){if(await onCommand({action:'openGift',id}))selectGift(id);}
  return <div className="hub-content gift-content" ref={content}>
   {item?.opened&&<section className="gift-reveal" key={item.id} aria-label="受け取った贈りもの"><div className="gift-handover"><Pet species={species} outfit={species===state.settings.species?state.settings.outfit:'none'} pose={3} small/><KeepsakeArt label={item.label}/></div><h3>{item.label}</h3><span className="gift-saved"><Check size={16}/>宝もの棚に追加</span>

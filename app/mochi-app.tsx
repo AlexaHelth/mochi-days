@@ -11,14 +11,13 @@ import { MoodPicker } from './mood-picker';
 import { RewardGallery } from './reward-gallery';
 import { Pet } from './pet';
 import { PetPlayground, WaitingPet } from './pet-playground';
-import { CompanionGateway, CompanionHub, type HubPage } from './companion-hub';
+import { CompanionTabs, type HubPage } from './companion-hub';
 import { EntryDetails } from './entry-details';
 import { newCompanion, dailyGreeting, recordReply, bondLevel, plantStage, type CompanionAction, type Interaction } from '@/lib/companion';
 import { readDraft, writeDraft, clearDraft } from '@/lib/record-drafts';
 import { notePrompts } from '@/lib/companion-content';
-import { careFor, visitDays, welcomeKind, welcomeText, type WelcomeKind } from '@/lib/care';
+import { careFor, welcomeKind, welcomeText, type WelcomeKind } from '@/lib/care';
 import { habitNamesFor } from '@/lib/habits';
-import { hasRecord } from '@/lib/history';
 import { GoalPicker } from './goal-picker';
 import { goalOptions } from '@/lib/goals';
 import { previousWalking, walkingDraft } from '@/lib/walking';
@@ -61,7 +60,7 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
  const pending=useRef(false),stateRef=useRef(state);stateRef.current=state;
  const [previewOutfit,setPreviewOutfit]=useState<Outfit|null>(null);
  const [habitOpen,setHabitOpen]=useState<number|null>(null);
- const [hubOpen,setHubOpen]=useState(false),[hubPage,setHubPage]=useState<HubPage>('profile'),[detailsOpen,setDetailsOpen]=useState(false),[detailDraft,setDetailDraft]=useState<Entry>(blank(today())),[partialOpen,setPartialOpen]=useState(false),[letterNote,setLetterNote]=useState(false),[noteHint,setNoteHint]=useState('今日よかったこと、食べたもの、明日の自分へ。'),[draftStored,setDraftStored]=useState(true),[restoredDraft,setRestoredDraft]=useState(false),[recordMessage,setRecordMessage]=useState(''),[recordSequence,setRecordSequence]=useState(0),[timerAdded,setTimerAdded]=useState<number|null>(null);
+ const [hubPage,setHubPage]=useState<HubPage>('rest'),[detailsOpen,setDetailsOpen]=useState(false),[detailDraft,setDetailDraft]=useState<Entry>(blank(today())),[partialOpen,setPartialOpen]=useState(false),[letterNote,setLetterNote]=useState(false),[noteHint,setNoteHint]=useState('今日よかったこと、食べたもの、明日の自分へ。'),[draftStored,setDraftStored]=useState(true),[restoredDraft,setRestoredDraft]=useState(false),[recordMessage,setRecordMessage]=useState(''),[recordSequence,setRecordSequence]=useState(0),[timerAdded,setTimerAdded]=useState<number|null>(null);
  const savedDraft=useRef(false),idle=useRef<Promise<void>>(Promise.resolve()),releaseIdle=useRef<()=>void>(()=>{}),commandQueue=useRef<Promise<boolean>>(Promise.resolve(true)),failureRef=useRef(false),visitedCompanion=useRef(''),queuedInteractions=useRef(new Set<string>());
  useEffect(()=>{const tick=()=>{setCurrentDay(today());setHour(Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Tokyo',hour:'2-digit',hourCycle:'h23'}).format(new Date())))};tick();const timer=setInterval(tick,60000);return()=>clearInterval(timer)},[]);
  const load=useCallback(async()=>{setLoading(true);setError('');try{const d=await request();setState(d);setWelcome(welcomeKind(d.entries,today()));setLoaded(true)}catch(e){setError(e instanceof Error?e.message:'読み込みに失敗しました。')}finally{setLoading(false)}},[request]);
@@ -86,8 +85,7 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
  const entry=state.entries.find(e=>e.day===currentDay)??blank(currentDay),settings=state.settings;
  const habitNames=habitNamesFor(entry,settings.habits);
  const draftPreviousWeight=previousWeight(state.entries,draft.day),draftPreviousWalking=previousWalking(state.entries,draft.day);
- const allDays=state.entries.filter(hasRecord).length;
- const care=careFor(entry),visits=visitDays(state.entries);
+ const care=careFor(entry);
  const companion=useMemo(()=>state.companion??newCompanion({...state,day:currentDay}),[state,currentDay]),companionPet=companion.pets[settings.species];
  const petExtras={design:companion.preferences.room,keepsake:companion.gifts.find(item=>item.id===companion.preferences.room.keepsakeId&&item.opened),hour,plant:plantStage(companionPet),bond:bondLevel(companionPet),personality:companionPet?.personality,voice:companion.preferences.voice,volume:companion.preferences.volume,haptics:companion.preferences.haptics};
  useEffect(()=>{if(loaded&&signedIn&&settings.onboardingComplete&&!entry.habitNames?.length&&!saving&&!error&&!pending.current)void save({kind:'daily-habits',day:currentDay},true)},[loaded,signedIn,settings.onboardingComplete,entry.habitNames,saving,error,currentDay,save]);
@@ -117,7 +115,7 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
  function changeDate(day:string){const e=state.entries.find(e=>e.day===day)??blank(day);prepareEntry(e,weightIncluded)}
  function saveCare(patch:CareDay){return save({kind:'care',day:currentDay,...patch},true)}
  function openGoal(){setGoalDraft(stateRef.current.settings.goal);setGoalOpen(true)}
- function openHub(page:HubPage){setHubPage(page);setHubOpen(true)}
+ function openHub(page:HubPage){setHubPage(page);setTab('companion');requestAnimationFrame(()=>document.querySelector('.companion-activities')?.scrollIntoView({block:'start',behavior:'auto'}))}
  function openDetails(){setDetailDraft({...entry});setDetailsOpen(true)}
  async function setHabitProgress(index:number,progress:'todo'|'partial'|'done'){
   const latest=stateRef.current.entries.find(item=>item.day===currentDay)??blank(currentDay),id='h'+index;
@@ -127,8 +125,6 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
  }
  function changeTab(value:string){setTab(value);window.scrollTo({top:0,behavior:'instant'})}
  function timedWalk(minutes:number){openWalking();setWalkingMinutes(String(Math.min(1440,(entry.walkingMinutes??0)+minutes)));setWalkingIncluded(true);setTimerAdded(minutes)}
- async function switchPet(species:Species){await commandQueue.current;return save({kind:'settings',...stateRef.current.settings,species,name:stateRef.current.companion?.pets[species]?.name??stateRef.current.settings.name},true)}
- async function bedtime(selfWords:string,tomorrow:string){if(!await sendCompanion({action:'bedtime',selfWords,tomorrow}))return false;if(!await saveCare({resting:true,finished:true}))return false;setLoungeOpen(true);return true}
  function openSettings(){setEditSettings({...settings,habits:[...settings.habits]});setSettingsOpen(true)}
  if(!signedIn)return <div className="login-wrap"><header className="brand"><span className="brand-mark"><PawPrint/></span>もちと、まいにち</header><main className="login-card"><div className="eyebrow">MY LITTLE COMPANION</div><Pet/><h1>きょうの小さな「できた」を、<br/>いっしょに。</h1><p>体重も、気分も、毎日の習慣も。<br/>あなたのペースを、もちが応援します。</p><Button className="login-button" asChild><a href={signInPath} target="_top"><LockKeyhole size={18}/>ChatGPTでログイン</a></Button><p className="privacy"><LockKeyhole size={14}/>招待された方だけの、プライベートな記録</p></main><a className="install-link" href={base+'install'}>ホーム画面への追加・使い方</a><footer className="login-footer">おやすみの日があっても、いつでもおかえり。</footer></div>;
  if(signedIn&&!loading&&loaded&&!settings.onboardingComplete)return <div className="onboarding"><Toaster position="top-center" theme="light"/><header className="brand"><span className="brand-mark"><PawPrint/></span>もちと、まいにち</header><main><p className="eyebrow">はじめまして、これからよろしくね</p><h1>まいにちを、一緒に過ごす相棒。</h1><p className="onboarding-copy">気になる子と、これからのゆるい目標を選んでね。<br/>名前も目標も、あとから変えられます。</p>{safariTab&&<p className="device-hint">ホーム画面から使うなら、先にホーム画面に追加してから始めてね。Safariとホーム画面のもちでは、記録が別々に保存されます。<a href={base+'install'}>追加のしかた</a></p>}{error&&<p className="error-banner" role="alert">{error}</p>}<form onSubmit={async e=>{e.preventDefault();if(await save({kind:'settings',...settings,species:chosenSpecies,name:chosenName.trim(),goal:chosenGoal.trim(),onboardingComplete:true},true))window.scrollTo({top:0,behavior:'instant'})}}><PetPicker value={chosenSpecies} onChange={setChosenSpecies} disabled={saving}/><div className="onboarding-name"><label className="field-label" htmlFor="first-pet-name">相棒の名前</label><Input id="first-pet-name" value={chosenName} required maxLength={12} onChange={e=>setChosenName(e.target.value)} disabled={saving}/><GoalPicker value={chosenGoal} onChange={setChosenGoal} disabled={saving}/><Button className="save-button" disabled={saving||!chosenName.trim()}>{saving?<LoaderCircle className="spin"/>:<PawPrint size={19}/>}この子とはじめる</Button></div></form><p className="kind-note">がんばる日も、おやすみの日も。いつも味方だよ。</p></main></div>;
@@ -147,9 +143,7 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
    <PetPlayground species={settings.species} outfit={settings.outfit} name={settings.name} pose={care.finished?2:pose} message={message} resting={care.resting} quiet={care.quiet} onInteract={interact} onLounge={()=>setLoungeOpen(true)} focusTools {...petExtras}/>
 
   </section>
-  <div className="mochi-home-menu"><CompanionGateway onOpen={openHub} ready={companion.gifts.filter(item=>!item.opened&&item.available).length} quiet={care.quiet}/>
-   <details className="interaction-memories"><summary>表情と、これまでのあしあと</summary>   <details className="expression-details"><summary>表情を見てみる</summary><div className="expression-buttons" aria-label="相棒の表情を見てみる">{(settings.outfit==='none'?[4,5,6,2]:settings.outfit==='starlight'?[0,3,2,6]:[0,1]).map(n=><button key={n} type="button" aria-pressed={demoPose===n} onClick={()=>setDemoPose(n)}>{expressionLabel(n)}</button>)}</div></details>
-   <div className="companion-counts"><div className="together"><PawPrint size={18}/><span>会いに来た日</span><strong>{visits.length}<small>日</small></strong></div><div className="together record-together"><span>いっしょに記録した日</span><strong>{allDays}<small>日</small></strong></div></div></details>
+  <div className="mochi-home-menu"><CompanionTabs page={hubPage} onPageChange={setHubPage} state={state} companion={companion} day={currentDay} hour={hour} scope={draftScope} disabled={saving||!!error||!loaded} onCommand={sendCompanion} onInteract={interact} onWalking={timedWalk} onStretch={()=>setPartialOpen(true)}/>
   </div>
  </div></TabsContent>
  <TabsContent value="history"><HistoryView entries={state.entries} day={currentDay} weeklyDays={settings.weeklyDays} onEdit={openEntry} onWeight={()=>openEntry(entry,true)} onWalking={()=>openWalking()} onNote={openNote}/></TabsContent>
@@ -178,7 +172,6 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
  </form>
  </DialogContent></Dialog>
  <Dialog open={previewOutfit!==null} onOpenChange={open=>{if(!open)setPreviewOutfit(null)}}><DialogContent className="app-dialog outfit-fitting"><DialogTitle>{outfits.find(item=>item.id===previewOutfit)?.name}の試着</DialogTitle><DialogDescription>好きな衣装を、そっと試してみよう。</DialogDescription>{previewOutfit&&<><PetPlayground species={settings.species} outfit={previewOutfit} name={settings.name} pose={0} message="この姿も、気になるかな？" compact quiet {...petExtras}/><Button type="button" disabled={saving||!!error||(outfits.find(item=>item.id===previewOutfit)?.cost??Infinity)>state.stars} onClick={async()=>{if(await save({kind:'settings',...stateRef.current.settings,outfit:previewOutfit},true))setPreviewOutfit(null)}}>{(outfits.find(item=>item.id===previewOutfit)?.cost??Infinity)<=state.stars?'この衣装を着る':'ひらいたら、一緒に着ようね'}</Button><Button type="button" variant="ghost" onClick={()=>setPreviewOutfit(null)}>試着をおしまいにする</Button></>}</DialogContent></Dialog>
- <CompanionHub open={hubOpen} onOpenChange={setHubOpen} initialPage={hubPage} state={state} companion={companion} day={currentDay} hour={hour} scope={draftScope} disabled={saving||!!error} onCommand={sendCompanion} onInteract={interact} onWalking={timedWalk} onStretch={()=>setPartialOpen(true)} onNote={()=>openNote()} onSwitch={switchPet} onBedtime={bedtime}/>
  <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}><DialogContent className="app-dialog mood-only-dialog"><DialogTitle>いま、どんな気分？</DialogTitle><DialogDescription>今の自分に近いものを、ひとつ選んでね。</DialogDescription>
   <MoodPicker value={detailDraft.mood} onChange={mood=>setDetailDraft(previous=>({...previous,mood}))} disabled={saving||!!error}/>
   <details className="draft-tags"><summary>気分を言葉で残す・今日のタグ</summary><EntryDetails entry={detailDraft} onChange={setDetailDraft} disabled={saving||!!error}/></details>

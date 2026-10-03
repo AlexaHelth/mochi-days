@@ -79,7 +79,7 @@ export function PetPlayground({species,outfit,name,pose,message,resting=false,qu
   <p className="pet-name">{name}<Heart size={14}/></p>
   <p className="pet-caption">{minimal?'タップで、なでてね':quiet?'そばで、のんびりしているよ。':hints[tool]}</p>
   {!minimal&&<>
-  <div className="pet-tools" aria-label="もちとの触れ合い">{tools.map(({id,label,Icon})=><button key={id} type="button" aria-label={id==='hug'?'ぎゅっとする':id==='brush'?'ブラッシング':id==='snack'?'おやつをあげる':id==='toy'?'おもちゃで遊ぶ':'なでる'} aria-pressed={tool===id} onClick={()=>{setTool(id);respond(id)}}><Icon size={18}/><span>{label}</span></button>)}</div>
+  <div className="pet-tools" aria-label="もちとの触れ合い">{tools.map(({id,label,Icon})=><button key={id} type="button" aria-label={id==='hug'?'ぎゅっとする':id==='brush'?'ブラッシング':id==='snack'?'おやつをあげる':id==='toy'?'おもちゃで遊ぶ':'なでる'} aria-pressed={tool===id} onClick={()=>{setTool(id);respond(id)}}><Icon size={18}/><span>{focusTools&&id==='toy'?'遊ぶ':label}</span></button>)}</div>
   <PetExtras folded={focusTools}>  {outfit!=='none'&&<button type="button" className="costume-action" onClick={()=>respond('costume')}><Sparkles size={15}/>この衣装のしぐさ</button>}
   {design&&!resting&&<p className="hourly-scene">{hour<6||hour>=21?'すやすや。静かな、おやすみの時間。':hour<10?'おててを伸ばして、朝のひと息。':hour<16?'お茶をそばに、昼のひと休み。':'絵本をひらいて、夕方のひと息。'}</p>}{onLounge&&<button type="button" className="lounge-link" onClick={onLounge}><Moon size={15}/>もちと、ひと休み</button>}
   {onActivities&&<button type="button" className="lounge-link" onClick={onActivities}>遊びや音を選ぶ</button>}
