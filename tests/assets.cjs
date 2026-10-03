@@ -28,12 +28,30 @@ const fs=require('node:fs');const path=require('node:path');const crypto=require
   const dims=kind==='VP8X'?[source.readUIntLE(offset+4,3)+1,source.readUIntLE(offset+7,3)+1]:kind==='VP8 '?[source.readUInt16LE(offset+6)&0x3fff,source.readUInt16LE(offset+8)&0x3fff]:kind==='VP8L'?[(source.readUInt32LE(offset+1)&0x3fff)+1,((source.readUInt32LE(offset+1)>>>14)&0x3fff)+1]:null;
   assert.deepEqual(dims,[asset.width,asset.height],'Web image preserves sprite geometry');
  }
+ const interactionAssets=manifest.interactionAssets;
+ assert.equal(interactionAssets.length,webAssets.length,'Every appearance needs a transparent interaction sheet');
+ assert.deepEqual(interactionAssets.map(a=>a.source).sort(),webAssets.map(a=>a.source).sort());
+ for(const asset of interactionAssets){
+  const bytes=fs.readFileSync(path.join(root,'web',asset.file)),original=manifest.assets.find(a=>a.file===asset.source);
+  assert.ok(original);assert.equal(asset.hasAlpha,true);
+  assert.equal(asset.width,original.width);assert.equal(asset.height,original.height);
+  assert.equal(bytes.subarray(0,4).toString(),'RIFF');assert.equal(bytes.subarray(8,12).toString(),'WEBP');
+  assert.equal(bytes.readUInt32LE(4)+8,bytes.length);assert.equal(bytes.subarray(12,16).toString(),'VP8X');
+  assert.ok(bytes[20]&0x10,'Transparent WebP must contain an alpha channel');
+  assert.deepEqual([bytes.readUIntLE(24,3)+1,bytes.readUIntLE(27,3)+1],[original.width,original.height],'Alpha sheet must preserve measured sprite coordinates');
+  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),asset.sha256);assert.equal(bytes.length,asset.bytes);
+  assert.ok(bytes.length<fs.statSync(path.join(root,'assets',asset.source)).size*.2,'Transparent sheet stays light for mobile');
+  assert.deepEqual(bytes,fs.readFileSync(path.join('public/pets',asset.file)));
+ }
+ assert.deepEqual(fs.readdirSync(path.join(root,'web')).filter(n=>n.endsWith('.webp')).sort(),[...webAssets,...interactionAssets].map(a=>a.file).sort());
  for(const species of shared.speciesIds)for(const outfit of shared.outfitIds)for(let pose=0;pose<8;pose++){
   const sprite=shared.petSprite(species,pose,outfit);const file=path.basename(sprite.src);
   assert.ok(names.has(file),`Missing ${file}`);
   const asset=manifest.assets.find(a=>a.file===file);
   assert.equal(asset.width/sprite.columns,asset.height/sprite.rows,'Sprite cells must be square');
   assert.ok(sprite.cell>=0&&sprite.cell<sprite.columns*sprite.rows);
+  assert.ok(interactionAssets.some(a=>a.file===path.basename(shared.petImageSource(sprite,true))),`Missing transparent ${species}/${outfit}/${pose}`);
+  assert.equal(shared.petImageSource(sprite),sprite.src.replace(/\.png$/,'.webp'),'Other screens keep their existing image');
   const frame=shared.petFrame(sprite);
   if(outfit!=='none'&&outfit!=='starlight'){
    assert.ok(frame,`Missing measured frame for ${species}/${outfit}`);
@@ -47,6 +65,7 @@ const fs=require('node:fs');const path=require('node:path');const crypto=require
   }else assert.equal(frame,null,'Original and special illustrations keep their existing frames');
  }
  assert.equal(shared.petSprite('cat',3,'flower','/shared/mochi/').src,'/shared/mochi/cat-wardrobe.png');
+ assert.equal(shared.petImageSource(shared.petSprite('cat',3,'flower','/sister-app/pets/'),true),'/sister-app/pets/cat-wardrobe-interaction.webp');
  for(const species of shared.speciesIds){
   const used=new Set();
   for(const outfit of shared.outfitIds.filter(id=>id!=='none'&&id!=='starlight'))for(const pose of [0,3]){
@@ -67,5 +86,5 @@ const fs=require('node:fs');const path=require('node:path');const crypto=require
  assert.equal(catChef.y+catChef.height,catPainter.y);assert.ok(catPainter.y>313);
  const party=shared.petFrame(shared.petSprite('penguin',0,'birthday'));assert.ok(party.y<930,'The whole party hat must fit');
  assert.deepEqual(shared.petFrame(shared.petSprite('dog',0,'flower','/sister-app/pets/')),dogFlower);
- console.log('PASS: standalone ESM package, original PNGs preserved, 19 lightweight WebP hashes and dimensions, all public copies, every sprite cell and custom asset base URL.');
+ console.log('PASS: original PNGs and regular WebP preserved; 19 transparent WebP sheets with real alpha, matching geometry, mobile sizes, complete appearance coverage and public copies.');
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -1,6 +1,6 @@
 # もち共通素材 — ふたつむぎ企画室
 
-`@futatsumugi/mochi-assets` v0.2.2。もちと、まいにち／おでかけ／かでん／まんが／こそだておうえんにっきで共有するための、アプリ非依存の素材パッケージです。
+`@futatsumugi/mochi-assets` v0.2.3。もちと、まいにち／おでかけ／かでん／まんが／こそだておうえんにっきで共有するための、アプリ非依存の素材パッケージです。
 
 ## このフォルダが原本
 
@@ -10,6 +10,7 @@
 - `manifest.json`: バージョン、サイズ、SHA-256。原本の取り違えを防ぎます。
 - `generation-prompts.json`: 生成と修正に使った指示。
 - `reward-generation-prompts.json`: 新しい衣装24種類・3匹・各2姿と、特別なもち3匹・各4姿の生成指示。built-in image_genで生成しています。
+- `interaction-generation-prompts.json`: ふれあう画像19枚の背景抽出指示。built-in image_genで透過し、元の色と表示座標を保つWebPを `web/*-interaction.webp` に保存しています。
 - `copy-assets.mjs`: 任意のアプリの公開フォルダに素材をコピーし、ハッシュを確認します。
 
 体重・習慣・ログイン・ユーザー情報・衣装を解放する星の数は含みません。これらは各アプリの責任です。素材の共有と、ユーザーの記録や衣装所有権の共有は別です。今回、姉妹アプリ間のアカウント連携は行いません。
@@ -31,6 +32,8 @@ v0.2.1では `petFrame(sprite)` に衣装192姿の実測表示範囲を追加し
 v0.2.2では、SharpのWebP設定 `quality:82, alphaQuality:100, effort:6, smartSubsample:true` で配信用の軽量版を追加しました。19枚の合計は33,834,921バイトから1,966,836バイトへ減っています。PNGを返す既存の `petSprite` APIは互換性を保ち、WebPを使うアプリでは `sprite.src.replace(/\.png$/, '.webp')` で配信用URLを選びます。`petFrame` の座標はそのまま使えます。manifestの `webAssets` に原本との対応、寸法、容量、SHA-256を収録し、コピー処理はPNGとWebPの両方を検証します。
 
 ## 別のアプリで使う
+
+v0.2.3では直接触れるもち用に透過WebP19枚を追加しました。`petImageSource(sprite, true)` は `*-interaction.webp`、省略時は従来のWebPを返します。必ず元のPNG名を持つ `sprite` を `petFrame` へ渡し、表示範囲を取得してから配信用URLを選びます。背景と混色する `mix-blend-mode:multiply` は透過画像で使わず、もち本来の白い毛と衣装の色を保ってください。既存のPNG・通常WebP・衣装ID・フレームは変更していません。`manifest.interactionAssets` とコピー処理で寸法・容量・SHA-256を検証します。
 
 このフォルダを丸ごと別アプリの `packages/mochi-assets` にコピーし、バージョンを固定します。
 

@@ -26,6 +26,11 @@ export function petFrame(sprite){
  return {x:cell[0],y:cell[1],width:cell[2],height:cell[3],sheetWidth:sheet.width,sheetHeight:sheet.height};
 }
 
+// Keep sprite coordinates anchored to the original PNG; opt in to alpha only where needed.
+export function petImageSource(sprite,transparent=false){
+ return sprite.src.replace(/\.png$/,transparent?'-interaction.webp':'.webp');
+}
+
 /** App-independent sprite coordinates; never contains reward or user data. */
 export function petSprite(species,pose,outfit='none',baseUrl='/pets'){
  if(!speciesIds.includes(species))throw new RangeError('Unknown Mochi species');

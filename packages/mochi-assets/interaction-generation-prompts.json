@@ -1,0 +1,84 @@
+{
+  "mode": "built-in image_gen",
+  "useCase": "background-extraction",
+  "scope": "Main interaction pet only. Existing PNGs and regular WebP assets remain unchanged.",
+  "postProcessing": "Preserve original source RGB and sprite geometry, consume extracted alpha, trim cream remnants connected to the exterior, and encode lightweight WebP with alphaQuality 100.",
+  "prompts": [
+    {
+      "source": "puppy.png",
+      "prompt": "Remove only the cream background from the original puppy.png 2x2 sprite sheet; preserve all four poses, original pixels and 1254x1254 geometry; true transparent alpha."
+    },
+    {
+      "source": "dog-expressions.png",
+      "prompt": "Use case: background-extraction. Input image: existing dog-expressions.png sprite sheet, edit target. Remove ONLY the off-white cream backdrop to actual transparent alpha. Retain all eight pet illustrations in the same 4 columns by 2 rows, with exactly the original canvas size 1774 by 887 and identical sprite positions and sizes. Preserve original pixels, poses, facial expressions, white or cream fur and belly, whiskers, colors, details, and soft fur contours. The background between the pets, outside their bodies and in gaps must be completely transparent, with clean soft alpha edges and no stray cream fragments. Remove floor shadow along with cream floor. Do not redraw, rearrange, add or remove pet parts, scale, crop, add outlines or a checkerboard graphic. This is background removal for an already cropped sprite animation, so original geometry is essential."
+    },
+    {
+      "source": "cat-expressions.png",
+      "prompt": "Use case: background-extraction. Input image: existing cat-expressions.png sprite sheet, edit target. Remove ONLY the off-white cream backdrop to actual transparent alpha. Retain all eight pet illustrations in the same 4 columns by 2 rows, with exactly the original canvas size 1774 by 887 and identical sprite positions and sizes. Preserve original pixels, poses, facial expressions, white or cream fur and belly, whiskers, colors, details, and soft fur contours. The background between the pets, outside their bodies and in gaps must be completely transparent, with clean soft alpha edges and no stray cream fragments. Remove floor shadow along with cream floor. Do not redraw, rearrange, add or remove pet parts, scale, crop, add outlines or a checkerboard graphic. This is background removal for an already cropped sprite animation, so original geometry is essential."
+    },
+    {
+      "source": "penguin-expressions.png",
+      "prompt": "Use case: background-extraction. Input image: existing penguin-expressions.png sprite sheet, edit target. Remove ONLY the off-white cream backdrop to actual transparent alpha. Retain all eight pet illustrations in the same 4 columns by 2 rows, with exactly the original canvas size 1774 by 887 and identical sprite positions and sizes. Preserve original pixels, poses, facial expressions, white or cream fur and belly, whiskers, colors, details, and soft fur contours. The background between the pets, outside their bodies and in gaps must be completely transparent, with clean soft alpha edges and no stray cream fragments. Remove floor shadow along with cream floor. Do not redraw, rearrange, add or remove pet parts, scale, crop, add outlines or a checkerboard graphic. This is background removal for an already cropped sprite animation, so original geometry is essential."
+    },
+    {
+      "source": "dog-wardrobe.png",
+      "prompt": "Use case: background-extraction. Edit target: original dog-wardrobe.png, a 1254x1254 sprite atlas. Remove only its off-white/cream background and floor shadows to transparent alpha. Preserve all sixteen pets, their original costumes, white/cream fur, whiskers, expressions, details, colors, sizes and exact positions in the same 4x4 grid. No redraw, redesign, rearrangement, cropping or scaling. Keep the source canvas dimensions and clean soft edges; empty spaces between sprites must be completely transparent. Do not paint or add any checkerboard, colored border or halo. Actual RGBA transparency only."
+    },
+    {
+      "source": "cat-wardrobe.png",
+      "prompt": "Use case: background-extraction. Edit target: original cat-wardrobe.png, a 1254x1254 sprite atlas. Remove only its off-white/cream background and floor shadows to transparent alpha. Preserve all sixteen pets, their original costumes, white/cream fur, whiskers, expressions, details, colors, sizes and exact positions in the same 4x4 grid. No redraw, redesign, rearrangement, cropping or scaling. Keep the source canvas dimensions and clean soft edges; empty spaces between sprites must be completely transparent. Do not paint or add any checkerboard, colored border or halo. Actual RGBA transparency only."
+    },
+    {
+      "source": "penguin-wardrobe.png",
+      "prompt": "Use case: background-extraction. Edit target: original penguin-wardrobe.png, a 1254x1254 sprite atlas. Remove only its off-white/cream background and floor shadows to transparent alpha. Preserve all sixteen pets, their original costumes, white/cream fur, whiskers, expressions, details, colors, sizes and exact positions in the same 4x4 grid. No redraw, redesign, rearrangement, cropping or scaling. Keep the source canvas dimensions and clean soft edges; empty spaces between sprites must be completely transparent. Do not paint or add any checkerboard, colored border or halo. Actual RGBA transparency only."
+    },
+    {
+      "source": "dog-rewards-garden.png",
+      "prompt": "Use case: background-extraction. Edit only the background of the original dog-rewards-garden.png 1254x1254 sprite atlas to genuine transparent alpha. Exactly retain the sixteen original dressed pets in the same 4x4 grid, all expressions, poses, original costume parts, whiskers, white fur, colors, props and original precise sizes and positions. Remove the cream backdrop and floor shadows from the gaps and outer silhouettes. Clean soft fur alpha edges without any loose cream fragments or colored outlines. Do not redraw, rearrange, resize, crop or add anything. Preserve the original sprite sheet geometry, because the application crops original pixel rectangles. Actual transparency; no checkerboard image."
+    },
+    {
+      "source": "cat-rewards-garden.png",
+      "prompt": "Use case: background-extraction. Edit only the background of the original cat-rewards-garden.png 1254x1254 sprite atlas to genuine transparent alpha. Exactly retain the sixteen original dressed pets in the same 4x4 grid, all expressions, poses, original costume parts, whiskers, white fur, colors, props and original precise sizes and positions. Remove the cream backdrop and floor shadows from the gaps and outer silhouettes. Clean soft fur alpha edges without any loose cream fragments or colored outlines. Do not redraw, rearrange, resize, crop or add anything. Preserve the original sprite sheet geometry, because the application crops original pixel rectangles. Actual transparency; no checkerboard image."
+    },
+    {
+      "source": "penguin-rewards-garden.png",
+      "prompt": "Use case: background-extraction. Edit only the background of the original penguin-rewards-garden.png 1254x1254 sprite atlas to genuine transparent alpha. Exactly retain the sixteen original dressed pets in the same 4x4 grid, all expressions, poses, original costume parts, whiskers, white fur, colors, props and original precise sizes and positions. Remove the cream backdrop and floor shadows from the gaps and outer silhouettes. Clean soft fur alpha edges without any loose cream fragments or colored outlines. Do not redraw, rearrange, resize, crop or add anything. Preserve the original sprite sheet geometry, because the application crops original pixel rectangles. Actual transparency; no checkerboard image."
+    },
+    {
+      "source": "dog-rewards-cozy.png",
+      "prompt": "Use case: background-extraction. Edit only the background of the original dog-rewards-cozy.png 1254x1254 sprite atlas to genuine transparent alpha. Exactly retain the sixteen original dressed pets in the same 4x4 grid, all expressions, poses, original costume parts, whiskers, white fur, colors, props and original precise sizes and positions. Remove the cream backdrop and floor shadows from the gaps and outer silhouettes. Clean soft fur alpha edges without any loose cream fragments or colored outlines. Do not redraw, rearrange, resize, crop or add anything. Preserve the original sprite sheet geometry, because the application crops original pixel rectangles. Actual transparency; no checkerboard image."
+    },
+    {
+      "source": "cat-rewards-cozy.png",
+      "prompt": "Use case: background-extraction. Edit only the background of the original cat-rewards-cozy.png 1254x1254 sprite atlas to genuine transparent alpha. Exactly retain the sixteen original dressed pets in the same 4x4 grid, all expressions, poses, original costume parts, whiskers, white fur, colors, props and original precise sizes and positions. Remove the cream backdrop and floor shadows from the gaps and outer silhouettes. Clean soft fur alpha edges without any loose cream fragments or colored outlines. Do not redraw, rearrange, resize, crop or add anything. Preserve the original sprite sheet geometry, because the application crops original pixel rectangles. Actual transparency; no checkerboard image."
+    },
+    {
+      "source": "penguin-rewards-cozy.png",
+      "prompt": "Use case: background-extraction. Edit only the background of the original penguin-rewards-cozy.png 1254x1254 sprite atlas to genuine transparent alpha. Exactly retain the sixteen original dressed pets in the same 4x4 grid, all expressions, poses, original costume parts, whiskers, white fur, colors, props and original precise sizes and positions. Remove the cream backdrop and floor shadows from the gaps and outer silhouettes. Clean soft fur alpha edges without any loose cream fragments or colored outlines. Do not redraw, rearrange, resize, crop or add anything. Preserve the original sprite sheet geometry, because the application crops original pixel rectangles. Actual transparency; no checkerboard image."
+    },
+    {
+      "source": "dog-rewards-dream.png",
+      "prompt": "Use case: background-extraction. Edit target: original dog-rewards-dream.png sprite sheet, 1254x1254. Remove ONLY the cream background/floor and their shadows to true transparent alpha. Keep all sixteen dressed pet sprites in the original 4x4 layout, including all hats, wings, halos and props. Preserve exact original colors, sizes, pixel positions, all original subject details and canvas dimensions. No redraw, cropping, resizing or rearrangement. Clean soft alpha edges, transparent gaps with no cream remnants and no colored outlines. Do not add checkerboard or anything else; actual RGBA transparency. Existing app sprite frame rectangles must remain valid."
+    },
+    {
+      "source": "cat-rewards-dream.png",
+      "prompt": "Use case: background-extraction. Edit target: original cat-rewards-dream.png sprite sheet, 1254x1254. Remove ONLY the cream background/floor and their shadows to true transparent alpha. Keep all sixteen dressed pet sprites in the original 4x4 layout, including all hats, wings, halos and props. Preserve exact original colors, sizes, pixel positions, all original subject details and canvas dimensions. No redraw, cropping, resizing or rearrangement. Clean soft alpha edges, transparent gaps with no cream remnants and no colored outlines. Do not add checkerboard or anything else; actual RGBA transparency. Existing app sprite frame rectangles must remain valid."
+    },
+    {
+      "source": "penguin-rewards-dream.png",
+      "prompt": "Use case: background-extraction. Edit target: original penguin-rewards-dream.png sprite sheet, 1254x1254. Remove ONLY the cream background/floor and their shadows to true transparent alpha. Keep all sixteen dressed pet sprites in the original 4x4 layout, including all hats, wings, halos and props. Preserve exact original colors, sizes, pixel positions, all original subject details and canvas dimensions. No redraw, cropping, resizing or rearrangement. Clean soft alpha edges, transparent gaps with no cream remnants and no colored outlines. Do not add checkerboard or anything else; actual RGBA transparency. Existing app sprite frame rectangles must remain valid."
+    },
+    {
+      "source": "dog-special.png",
+      "prompt": "Use case: background-extraction. Edit target: original dog-special.png sprite sheet, 1254x1254. Remove ONLY the cream background/floor and their shadows to true transparent alpha. Keep all four special pet poses in the original 2x2 layout, including all individual floating stars, gems and sparkle accessories. Preserve exact original colors, sizes, pixel positions, all original subject details and canvas dimensions. No redraw, cropping, resizing or rearrangement. Clean soft alpha edges, transparent gaps with no cream remnants and no colored outlines. Do not add checkerboard or anything else; actual RGBA transparency. Existing app sprite frame rectangles must remain valid."
+    },
+    {
+      "source": "cat-special.png",
+      "prompt": "Use case: background-extraction. Edit target: original cat-special.png sprite sheet, 1254x1254. Remove ONLY the cream background/floor and their shadows to true transparent alpha. Keep all four special pet poses in the original 2x2 layout, including all individual floating stars, gems and sparkle accessories. Preserve exact original colors, sizes, pixel positions, all original subject details and canvas dimensions. No redraw, cropping, resizing or rearrangement. Clean soft alpha edges, transparent gaps with no cream remnants and no colored outlines. Do not add checkerboard or anything else; actual RGBA transparency. Existing app sprite frame rectangles must remain valid."
+    },
+    {
+      "source": "penguin-special.png",
+      "prompt": "Use case: background-extraction. Edit target: original penguin-special.png sprite sheet, 1254x1254. Remove ONLY the cream background/floor and their shadows to true transparent alpha. Keep all four special pet poses in the original 2x2 layout, including all individual floating stars, gems and sparkle accessories. Preserve exact original colors, sizes, pixel positions, all original subject details and canvas dimensions. No redraw, cropping, resizing or rearrangement. Clean soft alpha edges, transparent gaps with no cream remnants and no colored outlines. Do not add checkerboard or anything else; actual RGBA transparency. Existing app sprite frame rectangles must remain valid."
+    }
+  ]
+}

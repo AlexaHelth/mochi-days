@@ -92,6 +92,7 @@
 .mochi-room .focus-tools .scene-furniture svg { width:23px; height:23px; }
 .mochi-room .focus-tools .scene-plant > svg { max-width:22px; max-height:22px; }
 .mochi-room .focus-tools .plant-pot { width:17px; height:10px; }
+.mochi-room .focus-tools .pet-transparent { background-color:transparent; mix-blend-mode:normal; }
 .companion-gateway .gateway-choices { display:grid; grid-template-columns:minmax(0,1fr); gap:10px; }
 .companion-gateway .gateway-choices button { display:flex; align-items:center; gap:12px; min-height:86px; padding:14px 12px; text-align:left; border-radius:16px; position:relative; }
 .companion-gateway .gateway-icon { display:grid; place-items:center; flex:0 0 42px; height:42px; border-radius:14px; background:#f4e7d8; color:#a27753; }
