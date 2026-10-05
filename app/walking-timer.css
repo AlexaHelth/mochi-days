@@ -1,0 +1,74 @@
+.walking-picker .walking-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 4px 6px;
+  text-align: center;
+}
+
+.walking-timer-clock {
+  color: #52683d;
+  font-size: clamp(1.8rem, 8vw, 2.5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.walking-picker .walking-timer-button {
+  width: 80px;
+  height: 80px;
+  min-height: 80px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: #748f5f;
+  color: #fff;
+  box-shadow: 0 7px 18px #6d865635;
+}
+
+.walking-picker .walking-timer-button:hover {
+  background: #607d4c;
+}
+
+.walking-picker .walking-timer-button svg {
+  width: 31px;
+  height: 31px;
+}
+
+.walking-timer-action {
+  color: #597048;
+  font-size: .875rem;
+  font-weight: 700;
+}
+
+.walking-picker .walking-timer-reset {
+  min-height: 44px;
+  color: #647a52;
+  font-size: .8125rem;
+}
+
+.walking-timer-hint {
+  max-width: 30ch;
+  color: #697b5e;
+  font-size: .75rem;
+  line-height: 1.7;
+}
+
+.walking-adjust {
+  margin-top: 10px;
+  border-top: 1px dashed #d8e2c8;
+}
+
+.walking-adjust summary {
+  min-height: 44px;
+  padding: 11px 2px 7px;
+  color: #617650;
+  font-size: .8125rem;
+  cursor: pointer;
+}
+
+.walking-adjust .weight-not-included {
+  margin: 0 0 6px;
+}

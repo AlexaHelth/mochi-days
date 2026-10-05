@@ -44,7 +44,7 @@ export function TodayView({ entry, entries, settings, habitNames, care, pet, dis
         <div className="today-section-heading"><h2 id="today-record-title">きょうの記録</h2><span>{saving ? '保存中…' : saved ? '保存しました' : 'ひとつだけでも、大丈夫'}</span></div>
         <RecordRow icon={MoodIcon} label="気分" value={entry.mood === null ? '未記録' : moods[entry.mood]} recorded={entry.mood !== null} disabled={disabled} onClick={onMood}/>
         {settings.showWeight && <RecordRow icon={Scale} label="体重" value={weightRecord?.weight != null ? `${weightRecord.weight.toFixed(1)} kg` : '未記録'} hint={weightHint} recorded={entry.weight !== null} disabled={disabled} onClick={onWeight}/>}
-        <RecordRow icon={Footprints} label="ウォーキング" value={entry.walkingMinutes == null ? '未記録' : `${entry.walkingMinutes} 分`} recorded={entry.walkingMinutes != null} disabled={disabled} onClick={onWalking}/>
+        <RecordRow icon={Footprints} label="散歩・軽い運動" value={entry.walkingMinutes == null ? '未記録' : `${entry.walkingMinutes} 分`} recorded={entry.walkingMinutes != null} disabled={disabled} onClick={onWalking}/>
         <RecordRow icon={NotebookPen} label="メモ" value={entry.note?.trim() ? 'ひとこと残せたね' : '未記録'} hint={entry.note?.trim() || undefined} recorded={!!entry.note?.trim()} disabled={disabled} onClick={onNote}/>
       </section>
       <section className="today-habits" aria-labelledby="today-habit-title">

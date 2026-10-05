@@ -150,7 +150,7 @@ export function dailyGreeting(pet:CompanionProfile|undefined,prefs:CompanionPref
  return calling+(memory||fallback);
 }
 export function recordReply(before:Entry|undefined,after:Entry){
- if(before?.walkingMinutes!==after.walkingMinutes&&after.walkingMinutes!=null)return 'おかえり。歩いた時間を残せたね。いっしょに足を休めよう。';
+ if(before?.walkingMinutes!==after.walkingMinutes&&after.walkingMinutes!=null)return 'おかえり。からだを動かした時間を残せたね。いっしょに足を休めよう。';
  if(before?.note!==after.note&&after.note?.trim())return '聞かせてくれて、ありがとう。きみの言葉を、ここに大切に残したよ。';
  if(before?.weight!==after.weight&&after.weight!==null)return '今日の体重を残せたね。数字を確かめる時間、おつかれさま。';
  if(after.partial?.length)return '少しできた時間も、ちゃんと残ったよ。今日はそれだけでも大丈夫。';
@@ -162,7 +162,7 @@ export function rewardSource(before:Entry|undefined,after:Entry){
  if(after.mood!=null&&after.mood!==before?.mood)return '気分を残した日';
  if(after.weight!=null&&after.weight!==before?.weight)return '体重を残した日';
  if(after.note?.trim()&&after.note!==before?.note)return 'メモを残した日';
- if(after.walkingMinutes!=null&&after.walkingMinutes!==before?.walkingMinutes)return 'おさんぽの時間を残した日';
+ if(after.walkingMinutes!=null&&after.walkingMinutes!==before?.walkingMinutes)return '散歩や軽い運動の時間を残した日';
  return 'まいにちの小さな記録から';
 }
 export function goalStep(goal:string){return /歩|さんぽ/.test(goal)?'外の空気を、1分だけ感じてみる':/食|ダイエット|産後/.test(goal)?'今日の一食を、ひと口だけゆっくり味わう':/伸|座/.test(goal)?'気が向いたら、肩をひとつゆっくり動かす':'自分のために、30秒だけひと息つく';}

@@ -3,7 +3,7 @@ const {DatabaseSync}=require('node:sqlite');
 function load(path,mocks={}){const code=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;const exp={};new Function('require','exports',code)(id=>mocks[id]??require(id),exp);return exp}
 const assets=load('packages/mochi-assets/index.js');
 const mochi=load('lib/mochi.ts',{'../packages/mochi-assets/index.js':assets});
-const {walkingRecords,previousWalking,walkingDraft}=load('lib/walking.ts',{'./mochi':mochi});
+const {walkingRecords,previousWalking,walkingDraft,walkingTimerMinutes}=load('lib/walking.ts',{'./mochi':mochi});
 const entry=(day,walkingMinutes)=>({day,walkingMinutes,weight:60,mood:0,done:['h0'],note:'保存したメモ'});
 const records=[entry('2026-10-01',35),entry('2026-09-29',0),entry('2026-09-30',null),entry('2026-09-27',20),entry('2026-10-02',40),entry('2026-08-31',15),entry('2026-09-28',undefined)];
 assert.deepEqual(walkingRecords(records,'2026-10-01').map(e=>[e.day,e.walkingMinutes]),[['2026-09-27',20],['2026-09-29',0],['2026-10-01',35]]);
@@ -19,10 +19,17 @@ const blank=entry('2026-10-01',null);
 assert.deepEqual(walkingDraft(records,blank),{value:'0',included:false});
 assert.deepEqual(walkingDraft(records,blank,true),{value:'0',included:true});
 assert.deepEqual(walkingDraft(records,entry('2026-10-03',null)),{value:'40',included:false});
+assert.deepEqual(walkingDraft(records,entry('2026-10-03',null),true),{value:'0',included:true});
 assert.deepEqual(walkingDraft(records,entry('2026-10-02',12),true),{value:'12',included:true});
 assert.deepEqual(walkingDraft(records,entry('2026-10-02',0),true),{value:'0',included:true});
 assert.deepEqual(walkingDraft([entry('2026-10-02',40)],blank),{value:'0',included:false});
 assert.deepEqual(walkingDraft([],blank),{value:'0',included:false});
+assert.equal(walkingTimerMinutes(0),0);
+assert.equal(walkingTimerMinutes(1),1);
+assert.equal(walkingTimerMinutes(59),1);
+assert.equal(walkingTimerMinutes(60),1);
+assert.equal(walkingTimerMinutes(61),2);
+assert.equal(walkingTimerMinutes(86400),1440);
 assert.equal(blank.walkingMinutes,null);
 // Adding walking minutes keeps older rows intact and initially unrecorded.
 const db=new DatabaseSync(':memory:');

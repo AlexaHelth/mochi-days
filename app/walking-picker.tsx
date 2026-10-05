@@ -1,36 +1,123 @@
 'use client';
 
-import { RotateCcw } from 'lucide-react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import { Pause, Play, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import type { WalkingEntry } from '@/lib/walking';
+import { pausedTimer, readTimer, timerElapsed, type TimerData } from '@/lib/activity-timer';
+import { walkingTimerMinutes } from '@/lib/walking';
 import { WeightWheel } from './weight-wheel';
 
 const minutes = Array.from({ length: 1441 }, (_, index) => index);
+const emptyTimer: TimerData = { kind: 'walk', seconds: 0, started: null };
+
+export type WalkingPickerHandle = {
+  pauseAndGetMinutes: () => number | null;
+  resetTimer: () => void;
+};
+
 type Props = {
-  value: string; included: boolean; previous?: WalkingEntry; disabled?: boolean; optional?: boolean;
+  value: string; included: boolean; scope: string; day: string; disabled?: boolean; optional?: boolean;
   onChange: (value: string) => void; onIncludedChange: (included: boolean) => void;
 };
 
-export function WalkingPicker({ value, included, previous, disabled = false, optional = true, onChange, onIncludedChange }: Props) {
+export const WalkingPicker = forwardRef<WalkingPickerHandle, Props>(function WalkingPicker({
+  value, included, scope, day, disabled = false, optional = true, onChange, onIncludedChange,
+}, ref) {
+  const key = 'mochi-days:walking-record-timer:v1:' + encodeURIComponent(scope) + ':' + day;
+  const [timer, setTimer] = useState<TimerData>(() => {
+    if (typeof window === 'undefined') return emptyTimer;
+    try { return readTimer(localStorage.getItem(key)); } catch { return emptyTimer; }
+  });
+  const [, setTick] = useState(0);
+  const running = timer.started !== null;
+  const timerUsed = running || timer.seconds > 0;
+  const elapsedSeconds = timerElapsed(timer);
+  const shownSeconds = Math.floor(elapsedSeconds);
   const parsed = value.trim() === '' ? NaN : Number(value);
   const valid = Number.isInteger(parsed) && parsed >= 0 && parsed <= 1440;
-  const current = valid ? parsed : previous?.walkingMinutes ?? 0;
-  function change(next: string) { onChange(next); onIncludedChange(true); }
+
+  const keep = useCallback((next: TimerData) => {
+    setTimer(next);
+    try { localStorage.setItem(key, JSON.stringify(next)); } catch {}
+  }, [key]);
+
+  useEffect(() => {
+    if (!running) return;
+    const refresh = () => setTick(value => value + 1);
+    const interval = setInterval(refresh, 1000);
+    document.addEventListener('visibilitychange', refresh);
+    window.addEventListener('pageshow', refresh);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', refresh);
+      window.removeEventListener('pageshow', refresh);
+    };
+  }, [running]);
+
+  useEffect(() => {
+    if (timerUsed && !included) {
+      onChange('0');
+      onIncludedChange(true);
+    }
+  }, [timerUsed, included, onChange, onIncludedChange]);
+
+  useImperativeHandle(ref, () => ({
+    pauseAndGetMinutes() {
+      if (!timerUsed) return null;
+      const stopped = pausedTimer(timer);
+      keep(stopped);
+      return walkingTimerMinutes(stopped.seconds);
+    },
+    resetTimer() { keep(emptyTimer); },
+  }), [timer, timerUsed, keep]);
+
+  function change(next: number) {
+    if (timerUsed) return;
+    onChange(String(next));
+    onIncludedChange(true);
+  }
+
+  function toggle() {
+    if (running) {
+      keep(pausedTimer(timer));
+    } else {
+      if (!included) onChange('0');
+      onIncludedChange(true);
+      keep({ ...timer, started: Date.now() });
+    }
+  }
+
+  function include(next: boolean) {
+    if (!next) keep(emptyTimer);
+    onIncludedChange(next);
+  }
 
   return <fieldset className={'weight-picker walking-picker ' + (optional ? '' : 'weight-picker-only')} disabled={disabled}>
-    {optional && <><legend>ウォーキング時間 <span className="subtle">任意</span></legend>
-      <label className="weight-include"><Checkbox aria-label="この日のウォーキング時間を記録する" checked={included} onCheckedChange={checked => onIncludedChange(checked === true)} />この日のウォーキング時間を記録する</label></>}
-    <div className="weight-wheels walking-wheels">
-      <div className="weight-wheel-selection" aria-hidden="true" />
-      <WeightWheel label="ウォーキング時間（分）" values={minutes} value={current} disabled={disabled} onChange={next => change(String(next))} />
-      <span className="weight-wheel-unit" aria-hidden="true">分</span>
+    <legend className={optional ? '' : 'sr-only'}>散歩または軽い運動 {optional && <span className="subtle">任意</span>}</legend>
+    {optional && <label className="weight-include"><Checkbox aria-label="この日の散歩または軽い運動を記録する" checked={included} onCheckedChange={checked => include(checked === true)} />この日の散歩・軽い運動を記録する</label>}
+    <div className="walking-timer">
+      <output className="walking-timer-clock" role="timer" aria-label="計測時間">
+        {String(Math.floor(shownSeconds / 60)).padStart(2, '0')}分{String(shownSeconds % 60).padStart(2, '0')}秒
+      </output>
+      <Button type="button" className="walking-timer-button" aria-label={running ? '計測を一時停止' : timerUsed ? '計測を再開' : '計測を開始'} aria-pressed={running} onClick={toggle} disabled={disabled || elapsedSeconds >= 86400}>
+        {running ? <Pause size={31} fill="currentColor" /> : <Play size={31} fill="currentColor" />}
+      </Button>
+      <span className="walking-timer-action">{running ? '一時停止' : timerUsed ? '再開' : 'スタート'}</span>
+      {timerUsed && <Button type="button" variant="ghost" className="walking-timer-reset" onClick={() => keep(emptyTimer)}><RotateCcw size={15} />最初から計測</Button>}
+      <p className="walking-timer-hint">計測した時間は、保存するとこの日の合計に足されます。1分未満も1分として記録します。</p>
     </div>
-    <output className="sr-only" aria-live="polite" aria-label="入力するウォーキング時間">{current}分</output>
-    {previous && <Button type="button" className="weight-reset" variant="ghost" onClick={() => change(String(previous.walkingMinutes))}><RotateCcw size={14} />前回の時間に戻す</Button>}
-    <details className="weight-direct"><summary>分数を直接入力する</summary><label className="sr-only" htmlFor="walking-direct">ウォーキング時間を直接入力（分）</label><Input id="walking-direct" type="text" inputMode="numeric" value={value} placeholder="例：30" onChange={event => change(event.target.value)} /></details>
-    {!valid && included && <p className="form-error" role="alert">ウォーキング時間は0〜1440分の整数で入力してください。</p>}
-    {optional && !included && <p className="weight-not-included">この日のウォーキング時間は保存しません。</p>}
+    <details className="walking-adjust">
+      <summary>記録する分数を調整する</summary>
+      {timerUsed && <p className="weight-not-included">計測した時間を保存します。分数を調整するときは、先に「最初から計測」を押してください。</p>}
+      <div className="weight-wheels walking-wheels">
+        <div className="weight-wheel-selection" aria-hidden="true" />
+        <WeightWheel label="散歩または軽い運動の時間（分）" values={minutes} value={valid ? parsed : 0} disabled={disabled || timerUsed} onChange={change} />
+        <span className="weight-wheel-unit" aria-hidden="true">分</span>
+      </div>
+      <output className="sr-only" aria-live="polite" aria-label="保存する時間">{valid ? parsed : 0}分</output>
+    </details>
+    {!valid && included && <p className="form-error" role="alert">時間は0〜1440分の整数で指定してください。</p>}
+    {optional && !included && <p className="weight-not-included">この日の散歩・軽い運動の時間は保存しません。</p>}
   </fieldset>;
-}
+});

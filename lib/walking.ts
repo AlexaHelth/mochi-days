@@ -20,8 +20,13 @@ export function previousWalking(entries: Entry[], day: string): WalkingEntry | u
 
 export function walkingDraft(entries: Entry[], entry: Entry, recordWalking = false) {
   return {
-    value: String(entry.walkingMinutes ?? previousWalking(entries, entry.day)?.walkingMinutes ?? 0),
+    value: String(entry.walkingMinutes ?? (recordWalking ? 0 : previousWalking(entries, entry.day)?.walkingMinutes ?? 0)),
     // A previous day's suggestion becomes a new record only when explicitly saved.
     included: recordWalking || entry.walkingMinutes != null,
   };
+}
+
+/** Storage still uses whole minutes; any measured fraction counts as one minute. */
+export function walkingTimerMinutes(seconds: number) {
+  return Math.min(1440, Math.max(0, Math.ceil(seconds / 60)));
 }

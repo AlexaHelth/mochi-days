@@ -1,0 +1,54 @@
+/* The room objects share a soft painted palette with the companion art. */
+.scene-surround {
+  --room-wall:#f6e7d5;
+  --room-floor:#dfc4a3;
+  background:radial-gradient(ellipse at 72% 24%,#fff9e9a8,transparent 48%),linear-gradient(var(--room-wall) 0 74%,var(--room-floor) 74% 100%);
+}
+.scene-surround.palette-leaf { --room-wall:#e8ecdb;--room-floor:#d0d5b8; }
+.scene-surround.palette-sky { --room-wall:#e4eff0;--room-floor:#c9dbd9; }
+.scene-surround.palette-clear { --room-wall:#f8f6ec;--room-floor:#ddd7c9;border:2px solid #837a6d; }
+.scene-surround.light-evening { --room-wall:#efdbc8;--room-floor:#cbb39a;background:radial-gradient(ellipse at 70% 29%,#ffe2b7a6,transparent 53%),linear-gradient(var(--room-wall) 0 74%,var(--room-floor) 74% 100%); }
+.scene-surround.light-night { --room-wall:#d5d8d8;--room-floor:#b9b6ad;background:radial-gradient(ellipse at 78% 30%,#ffe8ba77,transparent 49%),linear-gradient(var(--room-wall) 0 74%,var(--room-floor) 74% 100%); }
+.scene-surround .scene-floor { inset:74% 0 0;border-top:3px solid #bfa98d;background:repeating-linear-gradient(93deg,transparent 0 33px,#aa8d7040 34px 35px),repeating-linear-gradient(0deg,transparent 0 14px,#c5a78d4a 15px 16px); }
+.scene-surround.floor-rug .scene-floor { inset:74% 0 0;border:0;border-top:3px solid #bfa98d;border-radius:0;background:repeating-linear-gradient(93deg,transparent 0 33px,#aa8d7040 34px 35px),repeating-linear-gradient(0deg,transparent 0 14px,#c5a78d4a 15px 16px); }
+.scene-surround.floor-meadow .scene-floor { inset:74% 0 0;border-top:3px solid #8bac82;background:radial-gradient(circle at 17% 65%,#fff3cb 0 2px,transparent 3px),radial-gradient(circle at 78% 43%,#f3c7bd 0 2px,transparent 3px),repeating-linear-gradient(92deg,#b9cba2 0 9px,#9fbb8b 10px 13px); }
+.scene-surround .scene-rug { position:absolute;left:12%;bottom:-2%;width:76%;height:29%;z-index:1; }
+.scene-surround .scene-rug svg { width:100%;height:100%;filter:drop-shadow(0 2px 2px #7c594133); }
+.scene-surround .scene-window { left:12px;top:11px;width:59px;height:69px;border:0;background:transparent;border-radius:0;box-shadow:none;overflow:visible; }
+.scene-surround .scene-window>svg { position:absolute;inset:0;width:100%;height:100%;color:inherit; }
+.scene-surround .scene-season { position:absolute;top:17px;right:69px;left:auto;width:69px;height:49px;display:block;color:inherit;transform:rotate(-2deg);filter:drop-shadow(1px 3px 2px #765b4733); }
+.scene-surround .scene-season svg { display:block;width:100%;height:100%; }
+.scene-surround .scene-lamp { right:20px;top:23px;width:39px;height:25px;border:1px solid #a88061;border-bottom:3px solid #a67857;border-radius:9px 9px 15px 15px;background:linear-gradient(90deg,#cda87c,#f5d5a1 48%,#cda579);box-shadow:0 9px 22px #ffe2a56b; }
+.scene-surround .scene-lamp:before { content:'';position:absolute;left:50%;bottom:100%;width:2px;height:28px;background:#a68d73; }
+.scene-surround .scene-lamp:after { content:'';position:absolute;left:35%;top:19px;width:30%;height:5px;border-radius:50%;background:#ffebc8; }
+.scene-surround.light-night .scene-lamp { box-shadow:0 11px 37px 12px #ffe3a888; }
+.scene-plant,.scene-furniture { z-index:4;min-width:52px;min-height:58px;padding:0;background:transparent;border:0;border-radius:0;filter:drop-shadow(0 2px 2px #75543d24); }
+.scene-plant { left:5px;bottom:5px; }
+.scene-furniture { left:auto;right:4px;bottom:6px; }
+.scene-plant svg,.scene-furniture svg { display:block;width:54px;height:58px;max-width:none;max-height:none; }
+.scene-plant:focus-visible,.scene-furniture:focus-visible { outline:3px solid #b46f4f;outline-offset:1px;border-radius:11px; }
+.room-snapshot .scene-surround .scene-window { left:5px;top:7px;width:43px;height:49px; }
+.room-snapshot .scene-surround .scene-season { top:10px;right:42px;left:auto;width:44px;height:32px; }
+.room-snapshot .scene-surround .scene-lamp { right:8px;top:12px;width:24px;height:16px; }
+.room-snapshot .scene-surround .scene-lamp:before { height:18px; }
+.room-snapshot .scene-surround .scene-lamp:after { top:12px;height:3px; }
+.room-snapshot .scene-plant,.room-snapshot .scene-furniture { min-width:40px;min-height:42px;bottom:3px;padding:0;background:transparent; }
+.room-snapshot .scene-plant { left:1px; }.room-snapshot .scene-furniture { left:auto;right:1px; }
+.room-snapshot .scene-plant svg,.room-snapshot .scene-furniture svg { width:42px;height:46px;max-width:none;max-height:none; }
+.mochi-room .focus-tools .scene-surround .scene-window { left:5%;top:5%;width:28%;height:34%;border:0;border-radius:0; }
+.mochi-room .focus-tools .scene-surround .scene-window>svg { inset:0;width:100%;height:100%; }
+.mochi-room .focus-tools .scene-surround .scene-season { top:7%;right:20%;left:auto;width:29%;height:22%; }
+.mochi-room .focus-tools .scene-surround .scene-lamp { right:6%;top:9%;width:13%;height:9%; }
+.mochi-room .focus-tools .scene-surround .scene-lamp:before { height:23px; }
+.mochi-room .focus-tools .scene-surround .scene-lamp:after { top:17px;height:4px;width:33%;left:33%; }
+.mochi-room .focus-tools .scene-plant,.mochi-room .focus-tools .scene-furniture { min-width:48px;min-height:50px;width:23%;height:25%;bottom:2%;padding:0;background:transparent; }
+.mochi-room .focus-tools .scene-plant { left:1%; }.mochi-room .focus-tools .scene-furniture { left:auto;right:1%; }
+.mochi-room .focus-tools .scene-plant>svg,.mochi-room .focus-tools .scene-furniture>svg { width:100%;height:100%;max-width:none;max-height:none; }
+.favorite-room-preview .scene-surround .scene-season { display:none; }
+.room-editor-content .room-visual-choices { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.room-visual-choices .room-choice-art { display:block;width:100%;height:76px;border:0;border-radius:10px;background:transparent;overflow:hidden; }
+.room-visual-choices .room-choice-art svg { display:block;width:100%;height:100%;filter:drop-shadow(0 2px 2px #87644729); }
+.room-visual-choices button { min-height:126px;gap:3px;padding:7px 5px;background:#fffcf7; }
+.room-visual-choices button[aria-pressed=true] { padding:6px 4px;background:#fff1e1; }
+.room-visual-choices strong { line-height:1.35; }
+@media(max-width:480px) { .room-editor-content .room-visual-choices { grid-template-columns:repeat(2,minmax(0,1fr)); }.room-visual-choices button { min-height:132px; }.room-visual-choices .room-choice-art { height:86px; } }

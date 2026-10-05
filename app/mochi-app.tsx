@@ -4,7 +4,7 @@ import { PawPrint, House, ChartNoAxesCombined, Gift, Settings as SettingsIcon, S
 import { Button } from '@/components/ui/button';
 import { PilotTools } from './pilot-tools';
 import { WeightPicker } from './weight-picker';
-import { WalkingPicker } from './walking-picker';
+import { WalkingPicker, type WalkingPickerHandle } from './walking-picker';
 import { HistoryView } from './history-view';
 import { TodayView } from './today-view';
 import { MoodPicker } from './mood-picker';
@@ -20,7 +20,7 @@ import { careFor, welcomeKind, welcomeText, type WelcomeKind } from '@/lib/care'
 import { habitNamesFor } from '@/lib/habits';
 import { GoalPicker } from './goal-picker';
 import { goalOptions } from '@/lib/goals';
-import { previousWalking, walkingDraft } from '@/lib/walking';
+import { walkingDraft } from '@/lib/walking';
 import { previousWeight, weightDraft } from '@/lib/weight';
 import { requestState } from '@/lib/api-client';
 import { requestDeviceState } from '@/lib/device-store';
@@ -61,7 +61,7 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
  const [previewOutfit,setPreviewOutfit]=useState<Outfit|null>(null);
  const [habitOpen,setHabitOpen]=useState<number|null>(null);
  const [hubPage,setHubPage]=useState<HubPage>('rest'),[detailsOpen,setDetailsOpen]=useState(false),[detailDraft,setDetailDraft]=useState<Entry>(blank(today())),[partialOpen,setPartialOpen]=useState(false),[letterNote,setLetterNote]=useState(false),[noteHint,setNoteHint]=useState('今日よかったこと、食べたもの、明日の自分へ。'),[draftStored,setDraftStored]=useState(true),[restoredDraft,setRestoredDraft]=useState(false),[recordMessage,setRecordMessage]=useState(''),[recordSequence,setRecordSequence]=useState(0),[timerAdded,setTimerAdded]=useState<number|null>(null);
- const savedDraft=useRef(false),idle=useRef<Promise<void>>(Promise.resolve()),releaseIdle=useRef<()=>void>(()=>{}),commandQueue=useRef<Promise<boolean>>(Promise.resolve(true)),failureRef=useRef(false),visitedCompanion=useRef(''),queuedInteractions=useRef(new Set<string>());
+ const savedDraft=useRef(false),walkingPickerRef=useRef<WalkingPickerHandle|null>(null),idle=useRef<Promise<void>>(Promise.resolve()),releaseIdle=useRef<()=>void>(()=>{}),commandQueue=useRef<Promise<boolean>>(Promise.resolve(true)),failureRef=useRef(false),visitedCompanion=useRef(''),queuedInteractions=useRef(new Set<string>());
  useEffect(()=>{const tick=()=>{setCurrentDay(today());setHour(Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Tokyo',hour:'2-digit',hourCycle:'h23'}).format(new Date())))};tick();const timer=setInterval(tick,60000);return()=>clearInterval(timer)},[]);
  const load=useCallback(async()=>{setLoading(true);setError('');try{const d=await request();setState(d);setWelcome(welcomeKind(d.entries,today()));setLoaded(true)}catch(e){setError(e instanceof Error?e.message:'読み込みに失敗しました。')}finally{setLoading(false)}},[request]);
  useEffect(()=>{if(signedIn)void load()},[signedIn,load]);
@@ -84,7 +84,7 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
  useEffect(()=>{if(!saving&&failedBody===null)return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue=''};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn)},[saving,failedBody]);
  const entry=state.entries.find(e=>e.day===currentDay)??blank(currentDay),settings=state.settings;
  const habitNames=habitNamesFor(entry,settings.habits);
- const draftPreviousWeight=previousWeight(state.entries,draft.day),draftPreviousWalking=previousWalking(state.entries,draft.day);
+ const draftPreviousWeight=previousWeight(state.entries,draft.day);
  const care=careFor(entry);
  const companion=useMemo(()=>state.companion??newCompanion({...state,day:currentDay}),[state,currentDay]),companionPet=companion.pets[settings.species];
  const petExtras={design:companion.preferences.room,keepsake:companion.gifts.find(item=>item.id===companion.preferences.room.keepsakeId&&item.opened),hour,plant:plantStage(companionPet),bond:bondLevel(companionPet),personality:companionPet?.personality,voice:companion.preferences.voice,volume:companion.preferences.volume,haptics:companion.preferences.haptics};
@@ -105,12 +105,13 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
  async function submitEntry(ev:React.FormEvent){
  ev.preventDefault();
  const num=weightIncluded?(weight.trim()===''?NaN:Number(weight)):null;
- const minutes=walkingIncluded?(walkingMinutes.trim()===''?NaN:Number(walkingMinutes)):null;
+ const timed=walkingIncluded&&!weightOnly&&!noteOnly?walkingPickerRef.current?.pauseAndGetMinutes()??null:null;
+ const minutes=walkingIncluded?(walkingMinutes.trim()===''?NaN:Math.min(1440,Number(walkingMinutes)+(timed??0))):null;
  if(!walkingOnly&&!noteOnly&&num!==null&&(!Number.isFinite(num)||num<1||num>500)){toast.error('体重は1〜500kgの範囲で入力してください。');return}
- if(!weightOnly&&!noteOnly&&minutes!==null&&(!Number.isInteger(minutes)||minutes<0||minutes>1440)){toast.error('ウォーキング時間は0〜1440分の整数で入力してください。');return}
+ if(!weightOnly&&!noteOnly&&minutes!==null&&(!Number.isInteger(minutes)||minutes<0||minutes>1440)){toast.error('散歩・軽い運動の時間は0〜1440分の整数で入力してください。');return}
  const savedEntry=stateRef.current.entries.find(e=>e.day===draft.day)??blank(draft.day);
  const next=noteOnly?{...savedEntry,note:draft.note??''}:weightOnly?{...savedEntry,weight:num}:walkingOnly?{...savedEntry,walkingMinutes:minutes}:{...draft,weight:num,walkingMinutes:minutes};
- if(await save({kind:'entry',...next})){savedDraft.current=true;clearDraft(draftScope,draft.day,recordMode);if(recordMode==='daily')for(const mode of ['note','weight','walking'] as const)clearDraft(draftScope,draft.day,mode);setEntryOpen(false)}
+ if(await save({kind:'entry',...next})){walkingPickerRef.current?.resetTimer();savedDraft.current=true;clearDraft(draftScope,draft.day,recordMode);if(recordMode==='daily')for(const mode of ['note','weight','walking'] as const)clearDraft(draftScope,draft.day,mode);setEntryOpen(false)}
  }
  function changeDate(day:string){const e=state.entries.find(e=>e.day===day)??blank(day);prepareEntry(e,weightIncluded)}
  function saveCare(patch:CareDay){return save({kind:'care',day:currentDay,...patch},true)}
@@ -156,19 +157,19 @@ export default function MochiApp({signedIn,signInPath='',storage='server',draftS
  <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}><DialogContent className="app-dialog"><DialogTitle>あなたと、相棒のこと</DialogTitle><DialogDescription>心地よく続けられる形にしよう。</DialogDescription><form onSubmit={async e=>{e.preventDefault();if(await save({kind:'settings',...editSettings}))setSettingsOpen(false)}}>{settingsOpen&&<GoalPicker value={editSettings.goal} onChange={goal=>setEditSettings({...editSettings,goal})} disabled={saving}/>}<div className="field-label">相棒の種類</div><PetPicker value={editSettings.species} onChange={species=>setEditSettings({...editSettings,species,name:companion.pets[species]?.name??editSettings.name})} disabled={saving}/><p className="support-copy">相棒を変えても、記録・おほしさま・衣装はそのまま。</p><label className="field-label" htmlFor="pet-name">相棒の名前</label><Input id="pet-name" value={editSettings.name} maxLength={12} required onChange={e=>setEditSettings({...editSettings,name:e.target.value})}/><p className="support-copy">小さな習慣は、毎日3つ届きます。できるものだけで大丈夫。</p><label className="switch-label" htmlFor="show-weight"><span>ホームに体重を表示</span><Switch id="show-weight" checked={editSettings.showWeight} onCheckedChange={v=>setEditSettings({...editSettings,showWeight:v})}/></label><p className="subtle">日本時間で日付が切り替わります。</p><Button className="save-button" disabled={saving}>{saving?<LoaderCircle className="spin"/>:<Check size={18}/>}保存する</Button></form><PilotTools screen={{today:'きょう',history:'ふりかえり',companion:'ふれあう',rewards:'ごほうび'}[tab]??tab} storage={storage}/><a className="install-link" href={base+'install'}>ホーム画面への追加・使い方</a><div className="account-footer"><LockKeyhole size={14}/><span>{onDevice?'記録はこの端末のブラウザの中にだけ保存されます。':'記録はログインした本人だけが見られます。'}</span></div>{!onDevice&&<a className="logout" href="/signout-with-chatgpt?return_to=%2F" target="_top"><LogOut size={15}/>ログアウト</a>}</DialogContent></Dialog>
  <Dialog open={entryOpen} onOpenChange={setEntryOpen}>
  <DialogContent className={'app-dialog '+(singleFieldOnly?'weight-only-dialog ':'')+(weightOnly||walkingOnly?'numeric-record-dialog':'')}>
- <DialogTitle>{noteOnly?(draft.note?'メモを編集':'メモを書く'):walkingOnly?(draft.walkingMinutes!=null?'ウォーキング時間を編集':'ウォーキング時間を記録'):weightOnly?(draft.weight!==null?'体重を編集':'体重を記録'):draft.day===currentDay?'きょうの記録':draft.day.replaceAll('-',' / ')+'の記録'}</DialogTitle>
- <DialogDescription className={weightOnly||walkingOnly?'sr-only':undefined}>{noteOnly?'今日よかったこと、なんでも残してね。':walkingOnly?'ウォーキング時間の入力':weightOnly?'体重の入力':'どれかひとつだけでも、大丈夫。'}</DialogDescription>
+ <DialogTitle>{noteOnly?(draft.note?'メモを編集':'メモを書く'):walkingOnly?(draft.walkingMinutes!=null?'散歩・軽い運動の時間を編集':'散歩または軽い運動を記録'):weightOnly?(draft.weight!==null?'体重を編集':'体重を記録'):draft.day===currentDay?'きょうの記録':draft.day.replaceAll('-',' / ')+'の記録'}</DialogTitle>
+ <DialogDescription className={weightOnly||walkingOnly?'sr-only':undefined}>{noteOnly?'今日よかったこと、なんでも残してね。':walkingOnly?'タイマーで散歩または軽い運動の時間を計測します。':weightOnly?'体重の入力':'どれかひとつだけでも、大丈夫。'}</DialogDescription>
  <form onSubmit={submitEntry}><div className="record-picker-content">{restoredDraft&&!weightOnly&&!walkingOnly&&<p className="draft-status">書きかけから、続けられるよ。</p>}{!draftStored&&<p className="form-error" role="status">下書きをこの端末に保存できませんでした。入力はこの画面に残っています。</p>}{timerAdded!==null&&walkingOnly&&<p className="support-copy">今回の{timerAdded}分を、今日の合計に足しています。保存前に分数を確かめてね。</p>}{!weightOnly&&!walkingOnly&&<WaitingPet species={settings.species} outfit={settings.outfit}/>}
  {singleFieldOnly?!walkingOnly&&<p className="weight-record-day">{new Date(draft.day+'T12:00:00+09:00').toLocaleDateString('ja-JP',{month:'long',day:'numeric',timeZone:'Asia/Tokyo'})}{noteOnly?'のメモ':'の体重'}</p>:<><label className="field-label" htmlFor="entry-day">日付</label><Input type="date" id="entry-day" required value={draft.day} min="2000-01-01" max={currentDay} onChange={e=>changeDate(e.target.value)}/></>}
  {!walkingOnly&&!noteOnly&&<WeightPicker value={weight} included={weightIncluded} previous={draftPreviousWeight} disabled={saving} optional={!weightOnly} onChange={setWeight} onIncludedChange={setWeightIncluded}/>}
- {!weightOnly&&!noteOnly&&<WalkingPicker value={walkingMinutes} included={walkingIncluded} previous={draftPreviousWalking} disabled={saving} optional={!walkingOnly} onChange={setWalkingMinutes} onIncludedChange={setWalkingIncluded}/>}
+ {!weightOnly&&!noteOnly&&<WalkingPicker key={draftScope+':'+draft.day} ref={walkingPickerRef} scope={draftScope} day={draft.day} value={walkingMinutes} included={walkingIncluded} disabled={saving} optional={!walkingOnly} onChange={setWalkingMinutes} onIncludedChange={setWalkingIncluded}/>}
  {!singleFieldOnly&&<>
  <div className="field-label">気分</div><MoodPicker value={draft.mood} onChange={mood=>setDraft(previous=>({...previous,mood}))} disabled={saving}/>
  <div className="field-label">できた習慣</div>{habitNamesFor(draft,settings.habits).map((h,i)=><label className="draft-habit" key={i}><Checkbox checked={draft.done.includes('h'+i)} onCheckedChange={v=>setDraft({...draft,done:v?[...draft.done,'h'+i]:draft.done.filter(x=>x!=='h'+i)})}/>{h}</label>)}
  </>}
  {!singleFieldOnly&&<details className="draft-tags"><summary>気分の言葉・今日のタグ</summary><EntryDetails entry={draft} onChange={setDraft} disabled={saving}/></details>}{noteOnly&&<div className="note-help"><label className="inline-choice"><input type="checkbox" checked={letterNote} onChange={event=>setLetterNote(event.target.checked)}/>もちへのお手紙にする</label><details><summary>メモのきっかけがほしいとき</summary><div className="note-prompts">{notePrompts.map(prompt=><Button type="button" key={prompt} variant="outline" onClick={()=>setNoteHint(prompt)}>{prompt}</Button>)}</div></details></div>}{(!singleFieldOnly||noteOnly)&&<><label className="field-label" htmlFor="daily-note">自由メモ <span className="subtle">任意・2000文字まで</span></label>{noteOnly&&letterNote&&<p className="letter-to">{settings.name}へ</p>}<Textarea className={noteOnly&&letterNote?'letter-paper':''} id="daily-note" value={draft.note??''} disabled={saving} maxLength={2000} rows={4} placeholder={noteHint} onChange={e=>setDraft({...draft,note:e.target.value})}/><p className="subtle note-count">{(draft.note??'').length} / 2000</p></>}
  {error&&<p role="alert" className="form-error">{error}<br/>入力は残っています。下のボタンから再保存できます。</p>}
- </div><div className="record-save-footer"><Button className="save-button" disabled={saving||!draft.day}>{saving?<LoaderCircle className="spin"/>:<Check size={18}/>} {noteOnly?'メモを保存する':walkingOnly?'ウォーキング時間を保存する':weightOnly?'体重を保存する':'記録を保存する'}</Button></div>
+ </div><div className="record-save-footer"><Button className="save-button" disabled={saving||!draft.day}>{saving?<LoaderCircle className="spin"/>:<Check size={18}/>} {noteOnly?'メモを保存する':walkingOnly?'散歩・軽い運動の時間を保存する':weightOnly?'体重を保存する':'記録を保存する'}</Button></div>
  </form>
  </DialogContent></Dialog>
  <Dialog open={previewOutfit!==null} onOpenChange={open=>{if(!open)setPreviewOutfit(null)}}><DialogContent className="app-dialog outfit-fitting"><DialogTitle>{outfits.find(item=>item.id===previewOutfit)?.name}の試着</DialogTitle><DialogDescription>好きな衣装を、そっと試してみよう。</DialogDescription>{previewOutfit&&<><PetPlayground species={settings.species} outfit={previewOutfit} name={settings.name} pose={0} message="この姿も、気になるかな？" compact quiet {...petExtras}/><Button type="button" disabled={saving||!!error||(outfits.find(item=>item.id===previewOutfit)?.cost??Infinity)>state.stars} onClick={async()=>{if(await save({kind:'settings',...stateRef.current.settings,outfit:previewOutfit},true))setPreviewOutfit(null)}}>{(outfits.find(item=>item.id===previewOutfit)?.cost??Infinity)<=state.stars?'この衣装を着る':'ひらいたら、一緒に着ようね'}</Button><Button type="button" variant="ghost" onClick={()=>setPreviewOutfit(null)}>試着をおしまいにする</Button></>}</DialogContent></Dialog>
