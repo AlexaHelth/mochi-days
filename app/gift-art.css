@@ -1,0 +1,50 @@
+/* Gifts look like small objects on the shelf, with the same muted palette as the room. */
+.keepsake-art { width:76px;height:76px;border:0;border-radius:0;background:transparent;color:inherit;filter:drop-shadow(0 3px 2px #77573e29); }
+.keepsake-art > .keepsake-illustration { display:block;width:100%;height:100%;max-width:none;max-height:none;transform:none; }
+.keepsake-small { width:32px;height:32px;filter:drop-shadow(0 1px 1px #77573e33); }
+.keepsake-small > .keepsake-illustration { width:100%;height:100%; }
+.scene-keepsake .keepsake-art { width:100%;height:100%; }
+.scene-keepsake .keepsake-illustration { width:100%;height:100%; }
+.gift-handover .keepsake-art { width:104px;height:104px; }
+.treasure-shelf .keepsake-art { width:70px;height:70px; }
+.treasure-shelf button { min-height:128px; }
+.treasure-shelf button.selected { outline:2px solid #b87856;outline-offset:1px;background:#fff9ea; }
+.treasure-shelf button:focus-visible,.season-box:focus-visible,.gift-package:focus-visible { outline:3px solid #b87856;outline-offset:3px; }
+.treasure-shelf strong,.gift-package strong { overflow-wrap:anywhere; }
+.season-box .keepsake-art { width:82px;height:82px; }
+.gift-package .gift-box-art { display:block;width:100%;max-width:122px;height:91px;border-radius:0;background:transparent;box-shadow:none; }
+.gift-package-art { display:block;width:100%;height:100%; }
+.gift-package-art svg { display:block;width:100%;height:100%;filter:drop-shadow(0 2px 2px #88684924); }
+.gift-package { min-height:178px;justify-content:center;background:linear-gradient(145deg,#fffbf0,#f4e8d2);color:#795e49; }
+.gift-package:disabled { opacity:.67; }
+.gift-package:disabled .gift-package-art { filter:grayscale(.18); }
+.gift-display-pill { color:#657c5b;background:#ecf2e3; }
+.gift-placement-note { max-width:360px;margin:11px auto 0;color:#796b5d;font-size:.8125rem;line-height:1.7; }
+.gift-room-status { display:grid;grid-template-columns:76px minmax(0,1fr);align-items:center;gap:8px 13px;margin:14px 0 18px;padding:15px;border:1px solid #e6d7bb;border-radius:18px;background:linear-gradient(125deg,#fffdf5,#f6ecdc);box-shadow:0 3px 8px #81634a0c; }
+.gift-room-status-art { display:grid;place-items:center;width:76px;height:76px;border-radius:14px;background:#f2e8d7;color:#9c7a5e; }
+.gift-room-status-art .keepsake-art { width:70px;height:70px; }
+.gift-room-status-copy { min-width:0; }
+.gift-room-status-copy small { display:block;color:#957960;font-size:.7rem;font-weight:700;letter-spacing:.05em; }
+.gift-room-status-copy strong { display:block;color:#664d3d;font-size:.875rem;line-height:1.45;overflow-wrap:anywhere; }
+.gift-room-status-copy p { margin-top:4px;color:#8a7764;font-size:.6875rem;line-height:1.5; }
+.gift-room-status-actions { grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:3px; }
+.gift-room-status-actions [data-slot=button] { width:100%;min-height:44px;padding:8px 6px;font-size:.75rem;white-space:normal;line-height:1.25; }
+.gift-use-actions [data-slot=button] { min-height:44px; }
+.gift-room-preview { background:#fffdf8; }
+.gift-room-preview:focus-visible { outline:3px solid #b87856;outline-offset:3px; }
+@media(max-width:480px){
+ .gift-room-status { grid-template-columns:64px minmax(0,1fr);padding:11px;gap:7px 10px; }
+ .gift-room-status-art { width:64px;height:64px; }
+ .gift-room-status-art .keepsake-art { width:60px;height:60px; }
+ .gift-package { min-height:170px;padding:10px 5px; }
+ .gift-package .gift-box-art { height:82px; }
+ .gift-handover .keepsake-art { width:88px;height:88px; }
+ .treasure-shelf .keepsake-art { width:64px;height:64px; }
+ .treasure-shelf button { min-height:122px; }
+ .season-box .keepsake-art { width:72px;height:72px; }
+}
+@media(max-width:350px){
+ .gift-room-status-actions { grid-template-columns:1fr; }
+ .gift-package .gift-box-art { height:72px; }
+ .treasure-shelf .keepsake-art { width:57px;height:57px; }
+}
