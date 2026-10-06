@@ -5,6 +5,7 @@
 .keepsake-small > .keepsake-illustration { width:100%;height:100%; }
 .scene-keepsake .keepsake-art { width:100%;height:100%; }
 .scene-keepsake .keepsake-illustration { width:100%;height:100%; }
+.mochi-room .focus-tools .scene-keepsake { background:transparent; }
 .gift-handover .keepsake-art { width:104px;height:104px; }
 .treasure-shelf .keepsake-art { width:70px;height:70px; }
 .treasure-shelf button { min-height:128px; }
