@@ -30,9 +30,6 @@ assert.equal(walkingTimerMinutes(59),1);
 assert.equal(walkingTimerMinutes(60),1);
 assert.equal(walkingTimerMinutes(61),2);
 assert.equal(walkingTimerMinutes(86400),1440);
-assert.equal(mochi.normalizeSettings(null).walkingGoalMinutes,null);
-assert.equal(mochi.normalizeSettings({walkingGoalMinutes:12}).walkingGoalMinutes,12);
-for(const walkingGoalMinutes of [0,1441,2.5,'10',undefined])assert.equal(mochi.normalizeSettings({walkingGoalMinutes}).walkingGoalMinutes,null);
 assert.equal(blank.walkingMinutes,null);
 // Adding walking minutes keeps older rows intact and initially unrecorded.
 const db=new DatabaseSync(':memory:');

@@ -23,10 +23,7 @@ data=await request({kind:'settings',...data.settings,species:'penguin',onboardin
 const goal='休日に、もちと15分のおさんぽ';
 for(const badGoal of [12,null,'あ'.repeat(81)])await assert.rejects(()=>request({kind:'settings',...data.settings,goal:badGoal}));
 data=await request({kind:'settings',...data.settings,goal:'  '+goal+'  '});assert.equal(data.settings.goal,goal);assert.equal(data.entries.length,1);assert.equal(data.entries[0].weight,60);assert.equal(data.stars,5);
-for(const walkingGoalMinutes of [0,1441,2.5,'10'])await assert.rejects(()=>request({kind:'settings',...data.settings,walkingGoalMinutes}));
-data=await request({kind:'settings',...data.settings,walkingGoalMinutes:12});assert.equal(data.settings.walkingGoalMinutes,12);
 data=await request({kind:'settings',name:'もち',habits:['歩く'],showWeight:true,room:'cream'});assert.equal(data.settings.species,'penguin');assert.equal(data.settings.outfit,'bandana');assert.deepEqual(data.settings.habits,['歩く']);assert.equal(data.settings.goal,goal);
-assert.equal(data.settings.walkingGoalMinutes,12,'Older settings updates keep the walking goal');
 // Notes: kept for old clients, cleared on request, never farm stars.
 const note='今日のよかったこと\nもちに会えた <script>alert(1)</script>';
 data=await request({kind:'entry',day:yesterday,weight:null,mood:null,done:[],note});assert.equal(data.stars,5);assert.deepEqual(data.entries.map(e=>e.day),[today,yesterday]);
@@ -39,8 +36,10 @@ full=true;await assert.rejects(()=>request({...body,weight:61}),/保存できま
 assert.equal(items.get('mochi-days:v1'),before);assert.equal((await request()).entries[0].weight,60);
 items.set('mochi-days:v1','{');await assert.rejects(()=>request(),/読み込めませんでした/);items.set('mochi-days:v1',before);
 const file=device.exportDeviceRecords();assert.match(file.name,/^mochi-days-\d{4}-\d{2}-\d{2}\.json$/);
-const backup=JSON.parse(await file.text());assert.equal(backup.format,'mochi-days-export');assert.equal(backup.version,1);assert.equal(backup.stars,6);assert.equal(backup.entries.length,2);assert.equal(backup.settings.species,'penguin');assert.equal(backup.settings.goal,goal);assert.equal(backup.settings.walkingGoalMinutes,12);
-data=await request({kind:'settings',...data.settings,walkingGoalMinutes:null});assert.equal(data.settings.walkingGoalMinutes,null);
+const backup=JSON.parse(await file.text());assert.equal(backup.format,'mochi-days-export');assert.equal(backup.version,1);assert.equal(backup.stars,6);assert.equal(backup.entries.length,2);assert.equal(backup.settings.species,'penguin');assert.equal(backup.settings.goal,goal);
+const legacyTarget=JSON.parse(items.get('mochi-days:v1'));legacyTarget.profile.walkingGoalMinutes=12;items.set('mochi-days:v1',JSON.stringify(legacyTarget));
+data=await request();assert.equal(Object.hasOwn(data.settings,'walkingGoalMinutes'),false);
+data=await request({kind:'settings',...data.settings});assert.equal(Object.hasOwn(JSON.parse(items.get('mochi-days:v1')).profile,'walkingGoalMinutes'),false);
 // Walking durations persist without adding rewards; omitted fields from older clients keep them.
 const walkBefore=await request(),dayBefore=walkBefore.entries.find(e=>e.day===today);
 const walkBody={kind:'entry',...dayBefore,walkingMinutes:35};

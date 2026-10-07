@@ -39,9 +39,9 @@ export const outfits: {id:Outfit;name:string;cost:number;note:string}[] = [
  {id:'birthday',name:'もちのパーティー',cost:450,note:'ここまでのまいにちに、ありがとう。'},
  {id:'starlight',name:'ほしぞらの特別なもち',cost:450,note:'全部ひらいた、あなたにだけ。'},
 ];
-export type Settings = {name:string;habits:string[];showWeight:boolean;room:string;species:Species;outfit:Outfit;onboardingComplete:boolean;goal:string;weeklyDays:number|null;walkingGoalMinutes:number|null};
+export type Settings = {name:string;habits:string[];showWeight:boolean;room:string;species:Species;outfit:Outfit;onboardingComplete:boolean;goal:string;weeklyDays:number|null};
 export type State = {entries:Entry[];settings:Settings;stars:number;companion?:CompanionState};
-export const defaults:Settings={name:'もち',habits:['少し歩く','からだを伸ばす','ゆっくり食べる'],showWeight:true,room:'cream',species:'dog',outfit:'none',onboardingComplete:false,goal:'',weeklyDays:null,walkingGoalMinutes:null};
+export const defaults:Settings={name:'もち',habits:['少し歩く','からだを伸ばす','ゆっくり食べる'],showWeight:true,room:'cream',species:'dog',outfit:'none',onboardingComplete:false,goal:'',weeklyDays:null};
 export const rooms=[{id:'cream',name:'ひだまりのお部屋',cost:0,color:'#fff8ee'},{id:'peach',name:'もものお部屋',cost:10,color:'#ffe4db'},{id:'sky',name:'青空のお部屋',cost:25,color:'#e5f1fa'},{id:'flower',name:'お花のお部屋',cost:50,color:'#f6e6f0'}];
 export const regularOutfits=outfits.filter(o=>o.id!=='none'&&o.id!=='starlight');
 export const allRewardsCost=Math.max(...regularOutfits.map(o=>o.cost),...rooms.map(r=>r.cost));
@@ -51,10 +51,12 @@ export function daysAgo(day:string,n:number){const d=new Date(day+'T12:00:00+09:
 
 // Old profiles and people with existing records keep their original puppy and progress.
 export function normalizeSettings(raw:Partial<Settings>|null,hasEntries=false):Settings {
- return {...defaults,...raw,
+ // Older saved profiles may still have a walking target; drop it before settings are sent back for editing.
+ const current:Partial<Settings>&{walkingGoalMinutes?:unknown}=raw?{...raw}:{};
+ delete current.walkingGoalMinutes;
+ return {...defaults,...current,
   goal:typeof raw?.goal==='string'?raw.goal.trim().slice(0,80):'',
   weeklyDays:Number.isInteger(raw?.weeklyDays)&&raw!.weeklyDays!>=1&&raw!.weeklyDays!<=7?raw!.weeklyDays!:null,
-  walkingGoalMinutes:Number.isInteger(raw?.walkingGoalMinutes)&&raw!.walkingGoalMinutes!>=1&&raw!.walkingGoalMinutes!<=1440?raw!.walkingGoalMinutes!:null,
   species:speciesIds.includes(raw?.species as Species)?raw!.species!:'dog',
   outfit:outfitIds.includes(raw?.outfit as Outfit)?raw!.outfit!:'none',
   onboardingComplete:raw?.onboardingComplete??(raw!==null||hasEntries)};
