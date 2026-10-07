@@ -18,7 +18,7 @@ const choices={
  season:[['plain','いつも'],['spring','春'],['summer','夏'],['autumn','秋'],['winter','冬']],
 } as const;
 
-export function RoomPreview({design,species,outfit,hour,keepsake}:{design:RoomDesign;species:Species;outfit:Outfit;hour:number;keepsake?:{label:string}}){
+export function RoomPreview({design,species,outfit,hour,keepsake}:{design:RoomDesign;species:Species;outfit:Outfit;hour:number;keepsake?:{id:string;label:string}}){
  return <div className={'room-snapshot snapshot-'+design.palette} role="img" aria-label="選んだお部屋のプレビュー"><div className="playground-stage with-scene"><RoomScene design={design} hour={hour} plant={1} decorative keepsake={keepsake}/><Pet species={species} outfit={outfit} pose={design.furniture==='bed'?2:0}/></div></div>;
 }
 export function RoomEditor({companion,species,outfit,hour,disabled,onCommand}:{companion:CompanionState;species:Species;outfit:Outfit;hour:number;disabled:boolean;onCommand:(command:CompanionAction)=>Promise<boolean>}){

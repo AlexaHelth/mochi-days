@@ -1,3 +1,7 @@
+import { floraArt } from './keepsake-flora-art';
+import { paperArt } from './keepsake-paper-art';
+import { materialArt } from './keepsake-material-art';
+
 type Kind = 'flower'|'shell'|'nut'|'leaf'|'letter'|'map'|'book'|'blanket'|'wool'|'bottle'|'coaster'|'cup'|'bell'|'key'|'ribbon'|'seed'|'rain'|'stone'|'clock'|'lantern'|'driftwood'|'star';
 
 export function kindForLabel(label:string):Kind {
@@ -25,7 +29,9 @@ export function kindForLabel(label:string):Kind {
  return 'star';
 }
 
-export function KeepsakeIllustration({kind}:{kind:Kind}){
+export function KeepsakeIllustration({kind,label,id}:{kind:Kind;label?:string;id?:string}){
+ const special=label?(floraArt(label,id)??paperArt(label)??materialArt(label)):null;
+ if(special)return <svg className="keepsake-illustration" viewBox="0 0 96 96" aria-hidden="true" focusable="false"><ellipse cx="48" cy="82" rx="33" ry="6" fill="#765746" opacity=".13"/>{special}</svg>;
  return <svg className="keepsake-illustration" viewBox="0 0 96 96" aria-hidden="true" focusable="false">
   <ellipse cx="48" cy="82" rx="33" ry="6" fill="#765746" opacity=".13"/>
   {kind==='flower'&&<><path d="M35 47h27l-4 29q-10 7-20 0Z" fill="#b4d3d0" stroke="#709c9b" strokeWidth="2"/><path d="M37 57q10 5 23 0" fill="none" stroke="#e3f1e8" strokeWidth="2"/><path d="M45 59Q35 39 42 21m9 38q3-29 5-38" fill="none" stroke="#648c67" strokeWidth="2.5"/><path d="M42 47Q25 32 27 46q4 8 17 8m7-8q15-17 17-6-1 9-19 13" fill="#89ad82" stroke="#648c67" strokeWidth="1.5"/><g fill="#fff9ee" stroke="#dbb9a5" strokeWidth="1.4"><ellipse cx="39" cy="18" rx="6" ry="10" transform="rotate(-31 39 18)"/><ellipse cx="48" cy="14" rx="6" ry="10"/><ellipse cx="57" cy="19" rx="6" ry="10" transform="rotate(30 57 19)"/><ellipse cx="49" cy="25" rx="6" ry="9" transform="rotate(65 49 25)"/></g><circle cx="48" cy="20" r="5" fill="#e6bd80"/></>}

@@ -12,6 +12,7 @@
 .treasure-shelf button.selected { outline:2px solid #b87856;outline-offset:1px;background:#fff9ea; }
 .treasure-shelf button:focus-visible,.season-box:focus-visible,.gift-package:focus-visible { outline:3px solid #b87856;outline-offset:3px; }
 .treasure-shelf strong,.gift-package strong { overflow-wrap:anywhere; }
+.treasure-shelf .gift-shelf-date { display:block;color:#8d775f;font-size:.6875rem;line-height:1.2; }
 .season-box .keepsake-art { width:82px;height:82px; }
 .gift-package .gift-box-art { display:block;width:100%;max-width:122px;height:91px;border-radius:0;background:transparent;box-shadow:none; }
 .gift-package-art { display:block;width:100%;height:100%; }

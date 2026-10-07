@@ -36,6 +36,7 @@ jobs:
           node tests/auth-storage.cjs
           node tests/api-client.cjs
           node tests/assets.cjs
+          node tests/gift-art.cjs
           node tests/device-store.cjs
           node tests/weight.cjs
           node tests/walking.cjs
