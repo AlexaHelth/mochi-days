@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import { ChevronRight, Footprints, Heart, Meh, Moon, NotebookPen, Scale, Smile, StretchHorizontal, Target, Utensils, Sun, Leaf, House, MessageCircle, Sparkles, Flower2, type LucideIcon } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { habitTheme, type HabitTheme } from '@/lib/habits';
-import { latestWeight, previousWeight, weightChange, weightDate } from '@/lib/weight';
+import { hasRecord } from '@/lib/history';
+import { previousWeight, weightChange, weightDate } from '@/lib/weight';
 import type { CareDay, Entry, Settings } from '@/lib/mochi';
 
 const moods = ['元気！', 'ふつう', 'おつかれ'];
@@ -28,11 +29,11 @@ export function TodayView({ entry, entries, settings, habitNames, care, pet, dis
   onNote: () => void; onHabit: (index: number) => void; onToggleHabit: (index: number, checked: boolean) => void;
   onRest: () => void; onResume: () => void;
 }) {
-  const weightRecord = entry.weight !== null ? entry : latestWeight(entries, entry.day);
   const previous = previousWeight(entries, entry.day);
   const weightHint = entry.weight !== null
     ? previous ? `${weightChange(entry.weight, previous.weight)} · ${weightDate(previous.day)}比` : 'はじめの体重の記録'
-    : weightRecord ? `前回 ${weightDate(weightRecord.day)} · 今日は未記録` : undefined;
+    : previous ? `前回の記録：${previous.weight.toFixed(1)} kg · ${weightDate(previous.day)}` : undefined;
+  const recordedToday = hasRecord(entry);
   const MoodIcon = entry.mood === null ? Smile : moodIcons[entry.mood];
   return <div className="today-home">
     <button type="button" className="today-goal" onClick={onGoal} disabled={disabled} aria-label={settings.goal ? `目標を変更する：${settings.goal}` : '目標を選ぶ'}>
@@ -41,11 +42,11 @@ export function TodayView({ entry, entries, settings, habitNames, care, pet, dis
     <section className="today-companion" aria-label={`${settings.name}と、ひと息`}>{pet}</section>
     {recordsOpen ? <>
       <section className="today-records" aria-labelledby="today-record-title">
-        <div className="today-section-heading"><h2 id="today-record-title">きょうの記録</h2><span>{saving ? '保存中…' : saved ? '保存しました' : 'ひとつだけでも、大丈夫'}</span></div>
-        <RecordRow icon={MoodIcon} label="気分" value={entry.mood === null ? '未記録' : moods[entry.mood]} recorded={entry.mood !== null} disabled={disabled} onClick={onMood}/>
-        {settings.showWeight && <RecordRow icon={Scale} label="体重" value={weightRecord?.weight != null ? `${weightRecord.weight.toFixed(1)} kg` : '未記録'} hint={weightHint} recorded={entry.weight !== null} disabled={disabled} onClick={onWeight}/>}
-        <RecordRow icon={Footprints} label="散歩・軽い運動" value={entry.walkingMinutes == null ? '未記録' : `${entry.walkingMinutes} 分`} recorded={entry.walkingMinutes != null} disabled={disabled} onClick={onWalking}/>
-        <RecordRow icon={NotebookPen} label="メモ" value={entry.note?.trim() ? 'ひとこと残せたね' : '未記録'} hint={entry.note?.trim() || undefined} recorded={!!entry.note?.trim()} disabled={disabled} onClick={onNote}/>
+        <div className={'today-section-heading'+(recordedToday?' has-record':'')}><h2 id="today-record-title">きょうの記録</h2><span>{saving ? '保存中…' : saved ? '保存しました' : recordedToday ? 'きょうも、ひとつ残せたね' : '気が向いたら、ひとつ'}</span></div>
+        <RecordRow icon={MoodIcon} label="気分" value={entry.mood === null ? '今の気分をのこす' : moods[entry.mood]} recorded={entry.mood !== null} disabled={disabled} onClick={onMood}/>
+        {settings.showWeight && <RecordRow icon={Scale} label="体重" value={entry.weight !== null ? `${entry.weight.toFixed(1)} kg` : '測れたら、のこそう'} hint={weightHint} recorded={entry.weight !== null} disabled={disabled} onClick={onWeight}/>}
+        <RecordRow icon={Footprints} label="散歩・軽い運動" value={entry.walkingMinutes == null ? '動いたらのこそう' : `${entry.walkingMinutes} 分`} recorded={entry.walkingMinutes != null} disabled={disabled} onClick={onWalking}/>
+        <RecordRow icon={NotebookPen} label="メモ" value={entry.note?.trim() ? 'ひとこと残せたね' : 'ひとこと残そう'} hint={entry.note?.trim() || undefined} recorded={!!entry.note?.trim()} disabled={disabled} onClick={onNote}/>
       </section>
       <section className="today-habits" aria-labelledby="today-habit-title">
         <div className="today-section-heading"><h2 id="today-habit-title">きょうの小さな習慣</h2><span>今日の3つ · できるものだけ</span></div>

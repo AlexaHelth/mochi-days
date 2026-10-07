@@ -12,6 +12,7 @@
 .focused-layout .main-nav { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
 .focused-layout .main-nav [data-slot=tabs-trigger] { min-width:0; padding-inline:12px; }
 .focused-layout .brand small { letter-spacing:.07em; }
+.focused-layout .today-completion { display:grid; place-items:center; flex:0 0 36px; width:36px; height:36px; border:1px solid #d7e3cb; border-radius:50%; background:#eef4e9; color:#6b8058; box-shadow:0 0 0 3px #f8f9f3; }
 .focused-layout .star-total { padding:8px 12px; gap:6px; font-size:.75rem; }
 .focused-layout .star-total strong { font-size:1rem; }
 .focused-layout .star-total svg { width:15px; height:15px; }
@@ -31,6 +32,7 @@
 .today-section-heading { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:5px 12px; padding:17px 18px 10px; }
 .today-section-heading h2 { font-size:.9375rem; font-weight:700; letter-spacing:.04em; }
 .today-section-heading > span { font-size:.6875rem; color:#897568; }
+.today-section-heading.has-record > span { color:#6b8058; font-weight:600; }
 .today-records { border:1px solid #ecdfd3; border-radius:20px; background:#fff; overflow:hidden; }
 .today-record-row { display:flex; align-items:center; gap:13px; width:100%; min-height:65px; padding:12px 18px; text-align:left; border-top:1px solid #f3eae2; background:#fff; transition:background .15s; }
 .today-record-row:hover { background:#fffcf8; }
@@ -38,8 +40,9 @@
 .today-record-icon { display:grid; place-items:center; flex:0 0 33px; height:33px; border-radius:11px; background:#fbf1e7; color:#ad7958; }
 .today-record-copy { min-width:0; flex:1; }
 .today-record-main { display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:.875rem; }
-.today-record-main strong { font-size:.8125rem; font-weight:400; color:#9b8b80; flex-shrink:0; }
+.today-record-main strong { min-width:0; font-size:.8125rem; font-weight:400; color:#8b786a; text-align:right; line-height:1.45; }
 .today-record-row.recorded strong { font-weight:600; color:#675446; }
+.today-record-row.recorded .today-record-icon { background:#eef4e9; color:#71845e; }
 .today-record-copy small { display:block; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#958171; font-size:.6875rem; }
 .today-row-arrow { flex-shrink:0; color:#b39c88; }
 .today-habits { margin-top:22px; }
@@ -110,8 +113,10 @@
 .mood-only-dialog .draft-tags { margin:12px 0; }
 @media (min-width:1000px) {
   .focused-layout .main-nav { right:64px; gap:6px; }
+  .focused-layout.today-has-record .main-nav { right:112px; }
 }
 @media (max-width:760px) {
+  .focused-layout.today-has-record .header-right { gap:10px; }
   .focused-layout .main-nav { width:100%; gap:0; }
   .focused-layout .main-nav [data-slot=tabs-trigger] { padding-inline:4px; min-height:49px; }
   .focused-layout .main-content { padding-top:18px; }

@@ -1,3 +1,127 @@
+.walking-goal {
+  padding: 12px 14px;
+  border: 1px solid #dce6d3;
+  border-radius: 16px;
+  background: #edf3e8;
+}
+
+.walking-goal-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  color: #4c633c;
+  font-size: .875rem;
+}
+
+.walking-goal-heading span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #fffdf8;
+  color: #51683f;
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+.walking-goal > p {
+  margin: 5px 0 0;
+  color: #657959;
+  font-size: .75rem;
+  line-height: 1.6;
+}
+
+.walking-goal-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 6px 8px;
+  margin-top: 9px;
+}
+
+.walking-goal-controls label {
+  grid-column: 1 / -1;
+  color: #4c633c;
+  font-size: .8125rem;
+  font-weight: 700;
+}
+
+.walking-goal-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.walking-goal-field input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid #b7c8a9;
+  border-radius: 10px;
+  background: #fffdf9;
+  color: #384d2d;
+  font: inherit;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.walking-goal-field input:focus-visible,
+.walking-goal-clear:focus-visible {
+  outline: 3px solid #6f8c57;
+  outline-offset: 2px;
+}
+
+.walking-goal-field input[aria-invalid="true"] {
+  border-color: #b05e48;
+}
+
+.walking-goal-field span {
+  flex: none;
+  color: #50643e;
+  font-size: .8125rem;
+}
+
+.walking-goal-controls button {
+  min-height: 44px;
+  color: #48613b;
+  font-size: .8125rem;
+}
+
+.walking-goal .walking-goal-error {
+  color: #9a4838;
+}
+
+.walking-goal-clear {
+  display: block;
+  min-height: 44px;
+  margin-top: 2px;
+  padding: 5px 0;
+  border: 0;
+  background: transparent;
+  color: #526a42;
+  font: inherit;
+  font-size: .75rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.walking-goal-clear:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.walking-goal .walking-goal-status {
+  color: #48613b;
+}
+
+@media (max-width: 360px) {
+  .walking-goal-controls { grid-template-columns: 1fr; }
+  .walking-goal-controls button { width: 100%; }
+}
+
 .walking-picker .walking-timer {
   display: flex;
   flex-direction: column;
