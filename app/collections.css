@@ -3,7 +3,7 @@
 .collection-browser .collection-tabs { display:grid; width:100%; height:auto!important; padding:4px; gap:4px; background:#f5eee5; border-radius:17px; position:sticky; top:8px; z-index:10; margin-bottom:13px; }
 .reflection-browser .collection-tabs { grid-template-columns:repeat(5,minmax(0,1fr)); }
 .reward-browser .collection-tabs { grid-template-columns:repeat(3,minmax(0,1fr)); }
-.companion-activities .collection-tabs { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.companion-activities .collection-tabs { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .companion-activities { width:100%; min-width:0; gap:0; }
 .companion-activities .companion-tabs-heading { margin:0 0 9px; padding:0 2px; }
 .companion-tabs-heading h2 { font-size:.9375rem; color:#7e654e; }

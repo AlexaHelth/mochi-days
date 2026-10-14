@@ -143,7 +143,6 @@
 .collection-progress-count strong { color: var(--ui-ink, #44372f); font-size: 1.375rem; }
 .collection-progress-count strong small,
 .collection-progress-count > small { color: var(--ui-muted, #826b5b); font-size: .75rem; }
-.reward-browser .collection-progress .new-reward-package { min-height: 42px; padding: 8px 13px; color: #866229; background: #f8f2e4; border-color: #e9dcbf; font-size: .75rem; }
 .closet-toolbar { gap: 12px; margin-bottom: 14px; }
 .closet-toolbar select { height: 46px; padding: 0 15px; background: var(--ui-surface, #fffdf9); border-color: var(--ui-line, #eee5dc); color: var(--ui-ink, #44372f); border-radius: 12px; font-size: .875rem; }
 .closet-toolbar > button { min-height: 46px; font-size: .75rem; padding: 10px 14px; }
@@ -261,7 +260,6 @@
   .reward-browser .collection-progress { padding: 16px; margin-bottom: 18px; }
   .collection-progress-count { gap: 8px; }
   .collection-progress-count > small { font-size: .6875rem; }
-  .reward-browser .collection-progress .new-reward-package { padding: 7px 10px; font-size: .6875rem; }
   .closet-toolbar { gap: 9px; }
   .closet-toolbar select { font-size: 16px; padding: 0 11px; }
   .closet-toolbar > button { padding: 8px 11px; font-size: .6875rem; }

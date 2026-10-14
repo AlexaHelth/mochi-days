@@ -18,22 +18,18 @@ const choices={
  season:[['plain','いつも'],['spring','春'],['summer','夏'],['autumn','秋'],['winter','冬']],
 } as const;
 
-export function RoomPreview({design,species,outfit,hour,keepsake}:{design:RoomDesign;species:Species;outfit:Outfit;hour:number;keepsake?:{id:string;label:string}}){
- return <div className={'room-snapshot snapshot-'+design.palette} role="img" aria-label="選んだお部屋のプレビュー"><div className="playground-stage with-scene"><RoomScene design={design} hour={hour} plant={1} decorative keepsake={keepsake}/><Pet species={species} outfit={outfit} pose={design.furniture==='bed'?2:0}/></div></div>;
+export function RoomPreview({design,species,outfit,hour}:{design:RoomDesign;species:Species;outfit:Outfit;hour:number;keepsake?:{id:string;label:string}}){
+ return <div className={'room-snapshot snapshot-'+design.palette} role="img" aria-label="選んだお部屋のプレビュー"><div className="playground-stage with-scene"><RoomScene design={design} hour={hour} plant={1} decorative/><Pet species={species} outfit={outfit} pose={design.furniture==='bed'?2:0}/></div></div>;
 }
 export function RoomEditor({companion,species,outfit,hour,disabled,onCommand}:{companion:CompanionState;species:Species;outfit:Outfit;hour:number;disabled:boolean;onCommand:(command:CompanionAction)=>Promise<boolean>}){
  const [draft,setDraft]=useState<RoomDesign|null>(null),[category,setCategory]=useState<keyof typeof choices>('palette'),[saved,setSaved]=useState(false),[favoriteName,setFavoriteName]=useState('');
  const room=draft?{...draft,keepsakeId:companion.preferences.room.keepsakeId}:companion.preferences.room;
  const dirty=draft!==null;
- const keepsake=companion.gifts.find(item=>item.id===room.keepsakeId&&item.opened);
- const displayedGift=companion.gifts.find(item=>item.id===companion.preferences.room.keepsakeId&&item.opened);
  async function save(){if(await onCommand({action:'preference',patch:{room}})){setDraft(null);setSaved(true);return true}return false;}
- async function removeGift(){if(await onCommand({action:'preference',patch:{room:{...companion.preferences.room,keepsakeId:null}}}))setSaved(true)}
  function choose(value:string){setDraft({...room,[category]:value});setSaved(false);}
- return <><div className="hub-content room-editor-content"><RoomPreview design={room} species={species} outfit={outfit} hour={hour} keepsake={keepsake}/>
+ return <><div className="hub-content room-editor-content"><RoomPreview design={room} species={species} outfit={outfit} hour={hour}/>
   <div className="room-category-choices" aria-label="模様がえの種類">{categories.map(([id,label,Icon])=><button type="button" key={id} aria-pressed={category===id} onClick={()=>setCategory(id)}><Icon size={20}/><span>{label}</span></button>)}</div>
   <div className={'room-visual-choices choices-'+category} aria-label={categories.find(item=>item[0]===category)?.[1]+'の選択'}>{choices[category].map(([id,label])=><button type="button" disabled={disabled} key={id} aria-pressed={room[category]===id} onClick={()=>choose(id)}><span className="room-choice-art"><RoomChoiceIllustration category={category} value={id}/></span><strong>{label}</strong>{room[category]===id&&<Check size={16} className="tile-check"/>}</button>)}</div>
   <details className="hub-secondary"><summary><Star size={18}/>お気に入りのお部屋</summary><div className="choice-row"><input aria-label="お気に入りのお部屋の名前" value={favoriteName} maxLength={20} onChange={event=>setFavoriteName(event.target.value)} placeholder="お部屋の名前"/><Button type="button" disabled={disabled||!favoriteName.trim()} onClick={async()=>{if(dirty&&!await save())return;if(await onCommand({action:'roomFavorite',name:favoriteName.trim()}))setFavoriteName('')}}>お気に入りに保存</Button></div>{companion.preferences.favorites.map((item,index)=><div className="favorite-room" key={item.name}><button type="button" disabled={disabled} className="favorite-room-preview" onClick={()=>{setDraft(item.design);setSaved(false)}}><RoomPreview design={item.design} species={species} outfit={outfit} hour={hour}/><span>{item.name}</span></button><Button type="button" variant="ghost" disabled={disabled} aria-label={item.name+'をお気に入りから外す'} onClick={()=>void onCommand({action:'removeFavorite',index})}>外す</Button></div>)}</details>
-  {displayedGift&&<div className="room-keepsake-control"><p>お部屋に飾っている贈りもの：<strong>{displayedGift.label}</strong></p><button type="button" className="room-remove-keepsake" disabled={disabled} onClick={()=>void removeGift()}>お部屋から外す</button><small>外しても、贈りものは宝もの棚に残ります。</small></div>}
  </div><div className="hub-action-footer"><Button type="button" disabled={disabled||!dirty} onClick={()=>void save()}><Check size={18}/>{saved?'お部屋を保存しました':'このお部屋にする'}</Button></div></>;
 }
