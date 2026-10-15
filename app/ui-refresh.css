@@ -1,0 +1,78 @@
+/* Keep the original compact layout; refresh only the controls and warm palette. */
+:root {
+  --ui-ink: #44372f;
+  --ui-muted: #826b5b;
+  --ui-accent: #bc573b;
+  --ui-surface: #fffdf9;
+  --ui-line: #eee5dc;
+  --ui-soft: #fce8dc;
+}
+
+.skip-link { position: fixed; top: 12px; left: 12px; z-index: 100; padding: 12px 18px; border-radius: 12px; background: var(--ui-accent); color: white; transform: translateY(-150%); }
+.skip-link:focus-visible { transform: none; }
+
+/* Control dimensions and positions come from the original styles. */
+.ui-refresh .settings-button { border: 1px solid #f0ded0; border-radius: 50%; background: #fffdf9; color: #9c644d; box-shadow: 0 2px 6px #8c452f08; }
+.ui-refresh .settings-button:hover { background: #fff0e5; border-color: #dfb49c; }
+.ui-refresh.focused-layout .main-nav [data-slot=tabs-trigger] { transition: color .16s,background-color .16s,box-shadow .16s; }
+.ui-refresh.focused-layout .main-nav [data-slot=tabs-trigger][data-state=active] { color: var(--ui-accent); }
+.ui-refresh .today-goal { border-radius: 12px; background: #fff5ed; color: #9b6248; box-shadow: inset 0 0 0 1px #f2e0d2; transition: background-color .16s,box-shadow .16s; }
+.ui-refresh .today-goal:hover { background: #ffefdf; box-shadow: inset 0 0 0 1px #ddb79e; }
+.ui-refresh .today-goal:active { background: #fce8dc; }
+.ui-refresh .today-records { border-color: #eddcce; background: #fffdfa; box-shadow: 0 3px 14px #8c452f05; }
+.ui-refresh .today-record-row { background: #fffdfa; border-top-color: #f2e7df; transition: background-color .16s; }
+.ui-refresh .today-record-row:hover:not(:disabled) { background: #fff4ea; }
+.ui-refresh .today-record-row:active:not(:disabled) { background: #fce8dc; }
+.ui-refresh .today-record-icon { color: #b5714f; background: #fff0e3; box-shadow: inset 0 0 0 1px #f3e0d0; }
+.ui-refresh .today-record-row.recorded .today-record-icon { background: #fce8dc; color: #a85135; box-shadow: inset 0 0 0 1px #e8c3ac; }
+.ui-refresh .today-row-arrow { color: #a87b60; border-radius: 50%; background: #fff2e7; }
+.ui-refresh .today-record-main strong, .ui-refresh .today-record-copy small { color: var(--ui-muted); }
+.ui-refresh .today-record-row.recorded strong { color: #704f3b; }
+.ui-refresh .today-section-heading.has-record > span { color: #986346; }
+.ui-refresh .today-habit-row { border-color: #f0e5da; background: #faf5ee; box-shadow: 0 1px 3px #8c452f03; transition: background-color .16s,border-color .16s; }
+.ui-refresh .today-habit-row:has(.today-habit-detail:hover) { background: #fff0e3; border-color: #e7c9b2; }
+.ui-refresh .today-habit-row.completed { background: #fff0e2; border-color: #e9c3a7; }
+.ui-refresh .today-habit-check [data-slot=checkbox] { background: #fffdfa; border-color: #d9bda7; }
+.ui-refresh .today-habit-check [data-slot=checkbox][data-state=checked] { background: #bc573b; border-color: #bc573b; color: white; }
+.ui-refresh .today-rest button { border-radius: 12px; background: #fce8dc; color: #a65137; box-shadow: inset 0 0 0 1px #eac8b4; }
+.ui-refresh .today-rest-link { border-radius: 12px; }
+.ui-refresh .today-rest-link:hover { background: #fff0e5; color: var(--ui-accent); }
+.ui-refresh .today-home button:focus-visible { outline: 3px solid var(--ui-accent); outline-offset: 3px; }
+.ui-refresh.focused-layout .today-completion { color: #ab603d; border-color: #edc9b2; background: #fff0df; box-shadow: 0 0 0 3px #fff9f3; }
+
+/* The same controls in reflection, collections and companion activities. */
+.ui-refresh .pet-tools button { color: #956a51; border-color: #ebd9c9; background: #fffdf9; box-shadow: 0 2px 5px #8c452f04; }
+.ui-refresh .pet-tools button[aria-pressed=true] { color: #a65236; border-color: #dba98b; background: #fce8dc; }
+.ui-refresh .companion-activities .collection-tabs { border: 1px solid var(--ui-line); background: #f5eee5; }
+.ui-refresh .companion-activities .collection-tabs [data-slot=tabs-trigger] { color: var(--ui-muted); }
+.ui-refresh .companion-activities .collection-tabs [data-slot=tabs-trigger][data-state=active] { color: var(--ui-accent); background: var(--ui-surface); box-shadow: 0 2px 5px #8c452f08; }
+.ui-refresh .companion-activities button[data-slot=button] { color: #9c6246; border-color: #e8d2bf; }
+.ui-refresh .companion-activities button[data-slot=button][data-variant=default] { color: white; }
+html .app-dialog { background: #fffcf8; border-color: #eee5dc; color: var(--ui-ink); box-shadow: 0 24px 90px #8c452f18; }
+html .app-dialog [data-slot=dialog-description], html .app-dialog .support-copy, html .app-dialog .subtle { color: var(--ui-muted); }
+html .save-button.save-button { background: #bc573b; color: white; border-radius: 13px; box-shadow: 0 3px 8px #bc573b15; transition: background-color .16s,box-shadow .16s; }
+html .save-button.save-button:hover { background: #a94c32; box-shadow: 0 4px 12px #bc573b22; }
+html .mood-option { color: var(--ui-muted); background: #fffdfa; border-color: #eee2d7; }
+html .mood-picker .mood-option.selected { background: #fff0e4; color: #aa5235; border-color: #cf9676; box-shadow: 0 0 0 1px #cf9676; }
+html .mood-picker .mood-selected-check { background: #bc573b; color: white; }
+html .mood-check { color: #bc573b; }
+html .pet-choice.selected { border-color: #c98765; background: #ffefdf; }
+html .choice-check { color: #ae5a3b; }
+html .numeric-record-dialog .record-save-footer { background: #fffcf8; }
+html .walking-picker .walking-timer-button { background: #bc7350; box-shadow: 0 7px 18px #bc735023; }
+html .walking-picker .walking-timer-button:hover { background: #a35f40; }
+html .walking-timer-clock, html .walking-timer-action { color: #956142; }
+html .walking-timer-hint { color: var(--ui-muted); }
+html .walking-adjust summary, html .walking-picker .walking-timer-reset { color: #956142; }
+html .walking-picker .weight-wheel-option.selected { color: #8e5f42; }
+html .walking-picker .weight-wheel-option { color: #b08d70; }
+html .walking-picker .weight-wheel-selection { background: #f6e4cf; border-color: #e8ccb0; }
+
+@media (max-width:760px) {
+  .ui-refresh.focused-layout .main-nav { background: #fffcf8f5; border-top-color: #ead9ca; box-shadow: 0 -4px 18px #8c452f06; }
+  .ui-refresh.focused-layout .main-nav [data-slot=tabs-trigger][data-state=active] { background: #fce8dc!important; box-shadow: inset 0 0 0 1px #efcfba!important; }
+  .ui-refresh.focused-layout .main-content { padding-bottom: calc(100px + env(safe-area-inset-bottom,0px)); }
+}
+@media (prefers-reduced-motion:reduce) {
+  .ui-refresh button, html .save-button.save-button { transition: none; }
+}

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { outfits, speciesIds, outfitIds, daysAgo, type Entry, type Settings, type Species } from './mochi';
-import { memoryQuestions, journeyScene, restStories, routes, seasonStories, feelings, dayTags } from './companion-content';
+import { memoryQuestions, journeyScene, restStories, routes, feelings, dayTags } from './companion-content';
 
 export const interactionKinds=['pet','hug','brush','snack','toy','breathing','puzzle','hide','rhythm','garden','costume'] as const;
 export type Interaction=typeof interactionKinds[number];
@@ -58,13 +58,11 @@ function activeProfile(state:CompanionState,ctx:CompanionContext){
  const pet=state.pets[species]??{met:ctx.day,name:ctx.settings.name,personality:'calm',likes:{},visits:[],interactions:{},talks:{},discoveries:[],lettersRead:[]};
  pet.name=ctx.settings.name;state.pets[species]=pet;return pet;
 }
-function gift(state:CompanionState,item:z.infer<typeof giftSchema>){if(!state.gifts.some(previous=>previous.id===item.id))state.gifts.push(item);}
 export function dailyQuestion(day:string){const index=Math.abs(Math.floor(Date.parse(day)/86400000))%memoryQuestions.length;return memoryQuestions[index];}
 export function syncCompanion(previous:CompanionState,ctx:CompanionContext):CompanionState{
  const state=structuredClone(previous);if(!ctx.settings.onboardingComplete)return state;
  const pet=activeProfile(state,ctx),entry=ctx.entries.find(entry=>entry.day===ctx.day);
  if(entry&&meaningful(entry)){
-  gift(state,{id:'daily:'+ctx.day,label:'今日の小さなお花',note:'どの記録でも、自分を気にかけた日に。数字の大小は関係ないよ。',day:ctx.day,species:ctx.settings.species,available:true,opened:false});
   if(!state.journey.recordedDays.includes(ctx.day)){
    const route=state.journey.route,index=state.journey.episodes.filter(episode=>episode.route===route&&!episode.resting).length;
    const scene=journeyScene(route,index),rest=restStories[state.journey.episodes.length%restStories.length],last=state.journey.episodes.at(-1);
@@ -72,7 +70,6 @@ export function syncCompanion(previous:CompanionState,ctx:CompanionContext):Comp
    const liked=pet.likes.season?`「${pet.likes.season}」も好きだったね。` :'';
    const episode:JourneyEpisode={id:`story:${ctx.day}:${ctx.settings.species}`,day:ctx.day,species:ctx.settings.species,route,title:entry.care?.resting?rest[0]:scene.title,text:(entry.care?.resting?rest[1]:remembered+scene.text)+liked,npc:entry.care?.resting?'お部屋のもち':routes.find(item=>item[0]===route)![2],choices:entry.care?.resting?[rest[3],rest[4]]:scene.choices,answer:null,souvenir:entry.care?.resting?rest[2]:scene.souvenir,resting:!!entry.care?.resting};
    state.journey.episodes.push(episode);state.journey.recordedDays.push(ctx.day);
-   gift(state,{id:'souvenir:'+episode.id,label:episode.souvenir,note:episode.title+'で見つけた、小さなおみやげ。',day:ctx.day,species:ctx.settings.species,available:false,opened:false,episodeId:episode.id});
    pet.discoveries.push({day:ctx.day,text:episode.title+'の思い出が増えたよ。'});
   }
  }
@@ -82,16 +79,14 @@ export function syncCompanion(previous:CompanionState,ctx:CompanionContext):Comp
 }
 export function applyCompanionAction(previous:CompanionState,command:CompanionAction,ctx:CompanionContext):CompanionState{
  const parsed=companionUpdateSchema.safeParse({kind:'companion',command});if(!parsed.success)throw new Error('もちとの過ごし方を確認してください。');
- const state=syncCompanion(previous,ctx),pet=activeProfile(state,ctx),species=ctx.settings.species;
+ const state=syncCompanion(previous,ctx),pet=activeProfile(state,ctx);
  switch(command.action){
  case 'visit':
   if(!pet.visits.includes(ctx.day))pet.visits.push(ctx.day);
-  for(const item of state.gifts)item.available=true;
   break;
  case 'interact':{
   const actions=pet.interactions[ctx.day]??[];
   if(!actions.includes(command.interaction)){actions.push(command.interaction);pet.interactions[ctx.day]=actions;pet.discoveries.push({day:ctx.day,text:interactionLabel(command.interaction)+'を一緒に楽しんだ日。'});}
-  gift(state,{id:'welcome:'+species,label:'はじめましての一輪',note:'会ってくれて、ありがとう。もちから最初の小さな贈りもの。',day:ctx.day,species,available:true,opened:false});
   break;
  }
  case 'personality':pet.personality=command.value;break;
@@ -103,15 +98,12 @@ export function applyCompanionAction(previous:CompanionState,command:CompanionAc
  }
  case 'route':state.journey.route=command.route;break;
  case 'story':{const episode=state.journey.episodes.find(item=>item.id===command.id);if(!episode)throw new Error('このお話はまだありません。');episode.answer=command.choice;break;}
- case 'openGift':{const item=state.gifts.find(item=>item.id===command.id);if(!item||!item.available)throw new Error('次に会ったときに、ゆっくり受け取ろう。');item.opened=true;break;}
- case 'seasonGift':{
-  const season=seasonStories.find(item=>item[0]===command.season)!;
-  gift(state,{id:'season:'+command.season+':'+species,label:season[3],note:season[2],day:ctx.day,species,available:true,opened:true});break;
- }
+ // Retired gift commands remain accepted for older clients; saved gifts stay unchanged.
+ case 'openGift':case 'seasonGift':break;
  case 'step':state.daily[ctx.day]={...(state.daily[ctx.day]??{selfWords:'',tomorrow:'',step:''}),step:goalStep(ctx.settings.goal)};break;
  case 'bedtime':state.daily[ctx.day]={...(state.daily[ctx.day]??{selfWords:'',tomorrow:'',step:''}),selfWords:command.selfWords,tomorrow:command.tomorrow};break;
  case 'readLetter':if(!pet.lettersRead.includes(command.id))pet.lettersRead.push(command.id);break;
- case 'receipt':if(state.receipts[command.id])state.receipts[command.id].seen=true;else throw new Error('この贈りものはまだひらいていません。');break;
+ case 'receipt':if(state.receipts[command.id])state.receipts[command.id].seen=true;else throw new Error('この衣装はまだひらいていません。');break;
  case 'roomFavorite':{
   const favorite={name:command.name,design:structuredClone(state.preferences.room)},index=state.preferences.favorites.findIndex(item=>item.name===command.name);
   if(index>=0)state.preferences.favorites[index]=favorite;

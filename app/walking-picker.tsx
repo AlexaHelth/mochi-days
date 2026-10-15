@@ -1,4 +1,5 @@
 'use client';
+import { deviceStorageWritable } from '@/lib/device-storage-guard';
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 import { Pause, Play, RotateCcw } from 'lucide-react';
@@ -39,8 +40,8 @@ export const WalkingPicker = forwardRef<WalkingPickerHandle, Props>(function Wal
 
   const keep = useCallback((next: TimerData) => {
     setTimer(next);
-    try { localStorage.setItem(key, JSON.stringify(next)); } catch {}
-  }, [key]);
+    try { if(scope!=='device'||deviceStorageWritable())localStorage.setItem(key, JSON.stringify(next)); } catch {}
+  }, [key, scope]);
 
   useEffect(() => {
     if (!running) return;

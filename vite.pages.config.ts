@@ -3,22 +3,23 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 
-// GitHub Pages build (https://alexahelth.github.io/mochi-days/): static files only, without the
+// GitHub Pages / Cloudflare Pages build: static files only, without the
 // Sites server, ChatGPT sign-in or D1. Records stay in the browser (lib/device-store.ts).
 // The Sites build keeps using vite.config.ts.
 const project = resolve(fileURLToPath(new URL(".", import.meta.url)));
 const entries = resolve(project, "github-pages");
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   root: entries,
-  // The Pages workflow passes the site's path; "/" would suit a custom domain.
-  base: process.env.PAGES_BASE || "/mochi-days/",
+  // Cloudflare Direct Upload serves the app from the domain root.
+  // The GitHub Pages workflow retains its configured repository path.
+  base: mode === "cloudflare" ? "/" : process.env.PAGES_BASE || "/mochi-days/",
   publicDir: resolve(project, "public"),
   resolve: { alias: { "@": project } },
   css: { postcss: project },
   plugins: [react()],
   build: {
-    outDir: resolve(project, "dist-pages"),
+    outDir: resolve(project, mode === "cloudflare" ? "dist-cloudflare" : "dist-pages"),
     emptyOutDir: true,
     rollupOptions: {
       input: {
@@ -27,4 +28,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

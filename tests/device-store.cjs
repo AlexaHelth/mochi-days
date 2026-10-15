@@ -3,7 +3,7 @@ function load(path,mocks){const code=ts.transpileModule(fs.readFileSync(path,'ut
 const items=new Map();let full=false;
 global.localStorage={getItem:k=>items.has(k)?items.get(k):null,setItem(k,v){if(full)throw new DOMException('Quota exceeded','QuotaExceededError');items.set(k,String(v))},removeItem:k=>items.delete(k)};
 const shared=load('packages/mochi-assets/index.js',{});const helpers=load('lib/mochi.ts',{'../packages/mochi-assets/index.js':shared});
-const content=load('lib/companion-content.ts',{}),companion=load('lib/companion.ts',{'./mochi':helpers,'./companion-content':content});const habits=load('lib/habits.ts',{});const rules=load('lib/state-rules.ts',{'./mochi':helpers,'./companion':companion,'./companion-content':content}),care=load('lib/care.ts',{'./mochi':helpers});const device=load('lib/device-store.ts',{'./mochi':helpers,'./state-rules':rules,'./care':care,'./companion':companion,'./habits':habits});
+const content=load('lib/companion-content.ts',{}),companion=load('lib/companion.ts',{'./mochi':helpers,'./companion-content':content});const habits=load('lib/habits.ts',{});const rules=load('lib/state-rules.ts',{'./mochi':helpers,'./companion':companion,'./companion-content':content}),care=load('lib/care.ts',{'./mochi':helpers});const device=load('lib/device-store.ts',{'./mochi':helpers,'./state-rules':rules,'./care':care,'./companion':companion,'./habits':habits,'./device-storage-guard':load('lib/device-storage-guard.ts')});
 const request=device.requestDeviceState,today=helpers.today(),yesterday=helpers.daysAgo(today,1);
 const body={kind:'entry',day:today,weight:60,mood:0,done:['h0']};
 (async()=>{

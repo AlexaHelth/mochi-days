@@ -38,6 +38,9 @@ jobs:
           node tests/assets.cjs
           node tests/gift-art.cjs
           node tests/device-store.cjs
+          node tests/device-privacy.cjs
+          node tests/security-boundaries.cjs
+          node --test tests/security-check.test.mjs
           node tests/weight.cjs
           node tests/walking.cjs
           node tests/history.cjs
