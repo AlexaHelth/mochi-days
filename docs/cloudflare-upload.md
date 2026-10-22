@@ -1,6 +1,6 @@
 # Cloudflare Pages への手動アップロード
 
-Windows のエクスプローラーで、このリポジトリのフォルダー（`package.json` がある `mochi-days` フォルダー）を開き、アドレスバーに `powershell` と入力して Enter を押します。Node.js 22.13.0 以上と pnpm が使える状態で、次を実行してください。
+Windows のエクスプローラーで、このリポジトリのフォルダー（`package.json` がある `mochi-days` フォルダー）を開き、アドレスバーに `powershell` と入力して Enter を押します。Node.js 24.22.1（推奨。ほかの対応版は `package.json` の `engines.node` を参照）と pnpm が使える状態で、次を実行してください。
 
 ```powershell
 pnpm install --frozen-lockfile

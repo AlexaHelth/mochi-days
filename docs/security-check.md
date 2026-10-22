@@ -4,7 +4,7 @@
 
 ## 前提と実行
 
-リポジトリ直下、Node.js 22.13以降（今回24.19.0）、既存のnode_modulesが必要です。`node:sqlite`、TypeScript、ESLintに同梱されるjs-yaml、Reactを使います。**インストール・依存更新はスクリプトから行いません**。不足時はerror/unknownになります。初回依存導入が必要な環境では、別途レビューのうえ、通常の`pnpm install --frozen-lockfile`を実施してください（外部通信・ファイル書込みを伴い、今回の点検実行範囲外）。
+リポジトリ直下、Node.js 24.22.1推奨（対応範囲はpackage.jsonのengines.nodeを参照）、既存のnode_modulesが必要です。`node:sqlite`、TypeScript、ESLintに同梱されるjs-yaml、Reactを使います。**インストール・依存更新はスクリプトから行いません**。不足時はerror/unknownになります。初回依存導入が必要な環境では、別途レビューのうえ、通常の`pnpm install --frozen-lockfile`を実施してください（外部通信・ファイル書込みを伴い、今回の点検実行範囲外）。
 
 ```sh
 # 点検器自体の回帰テスト。通信なし。

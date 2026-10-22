@@ -5,6 +5,7 @@ import crypto from 'node:crypto';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { requiredNodeVersion, supportsNodeVersion } from './check-node-version.mjs';
 
 const project = fileURLToPath(new URL('../', import.meta.url));
 const statuses = new Set(['pass', 'review', 'unknown', 'error', 'not_applicable']);
@@ -111,6 +112,9 @@ export function analyzeSources(ts, files) {
 
 export function runAudit({ online = false } = {}) {
   const checks = [], timestamp = new Date().toISOString();
+  checks.push(result('node_runtime', supportsNodeVersion(process.version) ? 'pass' : 'review',
+    'Checks this process against the repository Node.js security baseline; npm audit does not audit the Node.js executable. This does not inspect GitHub Actions internal runtimes or cloud providers.',
+    { version: process.version, required: requiredNodeVersion, advisory: 'https://nodejs.org/en/blog/vulnerability/october-2026-security-releases' }));
   let scope = {}, files = new Map(), initialFingerprint;
   const rootRequire = createRequire(path.join(project, 'package.json'));
   function snapshot() {
